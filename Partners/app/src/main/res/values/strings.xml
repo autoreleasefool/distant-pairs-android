@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Partners</string>
 
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="text_username_hint">Username</string>
+    <string name="text_register">Register</string>
+
 </resources>

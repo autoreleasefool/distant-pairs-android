@@ -1,4 +1,4 @@
-package ca.josephroque.partners.util;
+package ca.josephroque.partners.util.hider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

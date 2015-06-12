@@ -1,4 +1,4 @@
-package ca.josephroque.partners.util;
+package ca.josephroque.partners.util.hider;
 
 import android.app.Activity;
 import android.os.Build;

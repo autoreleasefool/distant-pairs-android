@@ -1,14 +1,19 @@
 package ca.josephroque.partners;
 
-import ca.josephroque.partners.util.SystemUiHider;
+import ca.josephroque.partners.fragment.LoginFragment;
+import ca.josephroque.partners.util.hider.SystemUiHider;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MotionEvent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.Toast;
 
 
 /**
@@ -18,7 +23,8 @@ import android.view.View;
  * @see SystemUiHider
  */
 public class FullscreenActivity
-        extends Activity
+        extends FragmentActivity
+        implements LoginFragment.LoginCallbacks
 {
 
     /**
@@ -44,6 +50,11 @@ public class FullscreenActivity
      */
     private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
+    /** Manages fragments displayed in the activity. */
+    private ViewPager mViewPager;
+    /** Manages fragments in view pager. */
+    private FullscreenPagerAdapter mPagerAdapter;
+
     /**
      * The instance of the {@link SystemUiHider} for this activity.
      */
@@ -53,10 +64,8 @@ public class FullscreenActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_fullscreen);
 
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
         final View contentView = findViewById(R.id.fullscreen_content);
 
         // Set up an instance of SystemUiHider to control the system UI for
@@ -66,45 +75,10 @@ public class FullscreenActivity
         mSystemUiHider
                 .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener()
                 {
-                    // Cached values.
-                    int mControlsHeight;
-                    int mShortAnimTime;
-
                     @Override
                     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
                     public void onVisibilityChange(boolean visible)
                     {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
-                        {
-                            // If the ViewPropertyAnimator API is available
-                            // (Honeycomb MR2 and later), use it to animate the
-                            // in-layout UI controls at the bottom of the
-                            // screen.
-                            if (mControlsHeight == 0)
-                            {
-                                mControlsHeight = controlsView.getHeight();
-                            }
-                            if (mShortAnimTime == 0)
-                            {
-                                mShortAnimTime = getResources().getInteger(
-                                        android.R.integer.config_shortAnimTime);
-                            }
-                            controlsView.animate()
-                                    .translationY(visible
-                                            ? 0
-                                            : mControlsHeight)
-                                    .setDuration(mShortAnimTime);
-                        }
-                        else
-                        {
-                            // If the ViewPropertyAnimator APIs aren't
-                            // available, simply show or hide the in-layout UI
-                            // controls.
-                            controlsView.setVisibility(visible
-                                    ? View.VISIBLE
-                                    : View.GONE);
-                        }
-
                         if (visible && AUTO_HIDE)
                         {
                             // Schedule a hide().
@@ -120,20 +94,13 @@ public class FullscreenActivity
             public void onClick(View view)
             {
                 if (TOGGLE_ON_CLICK)
-                {
                     mSystemUiHider.toggle();
-                }
                 else
-                {
                     mSystemUiHider.show();
-                }
             }
         });
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        setupViewPager();
     }
 
     @Override
@@ -147,26 +114,16 @@ public class FullscreenActivity
         delayedHide(100);
     }
 
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the system UI. This is to
-     * prevent the jarring behavior of controls going away while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener()
+    @Override
+    public void registerAccount(String accountName)
     {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent)
-        {
-            if (AUTO_HIDE)
-            {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
+        Toast.makeText(this, "Registered!", Toast.LENGTH_SHORT).show();
+    }
 
-    Handler mHideHandler = new Handler();
-    Runnable mHideRunnable = new Runnable()
+    /** For posting tasks to hide the UI. */
+    private Handler mHideHandler = new Handler();
+    /** Hides the UI. */
+    private Runnable mHideRunnable = new Runnable()
     {
         @Override
         public void run()
@@ -178,10 +135,71 @@ public class FullscreenActivity
     /**
      * Schedules a call to hide() in [delay] milliseconds, canceling any previously scheduled
      * calls.
+     *
+     * @param delayMillis time before hiding UI
      */
     private void delayedHide(int delayMillis)
     {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    /**
+     * Sets up view pager to manage fragments in the activity.
+     */
+    private void setupViewPager()
+    {
+        mViewPager = (ViewPager) findViewById(R.id.fullscreen_content);
+        mPagerAdapter = new FullscreenPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mPagerAdapter);
+    }
+
+    /**
+     * Returns true if the user has successfully been logged in or false otherwise.
+     * @return true if user is logged in, false otherwise
+     */
+    private boolean isLoggedIn()
+    {
+        return false;
+    }
+
+    /**
+     * Manages fragments displayed in the fullscreen activity.
+     */
+    private final class FullscreenPagerAdapter
+            extends FragmentStatePagerAdapter
+    {
+
+        /**
+         * Defualt constructor, passes {@code fm} to super constructor.
+         * @param fm fragment manager
+         */
+        private FullscreenPagerAdapter(FragmentManager fm)
+        {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position)
+        {
+            if (isLoggedIn())
+            {
+                // TODO: return HeartFragment and ThoughtFragment
+                return null;
+            }
+            else
+            {
+                return LoginFragment.newInstance();
+            }
+        }
+
+        @Override
+        public int getCount()
+        {
+            if (isLoggedIn())
+                return 2;
+            else
+                return 1;
+        }
     }
 }
