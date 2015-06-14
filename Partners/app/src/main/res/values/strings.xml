@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Partners</string>
+    <string name="title_activity_login">Registration</string>
 
     <string name="text_username_hint">Username</string>
     <string name="text_register">Register</string>
