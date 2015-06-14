@@ -1,5 +1,8 @@
 package ca.josephroque.partners.util;
 
+import android.content.Context;
+import android.preference.PreferenceManager;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
@@ -38,10 +41,27 @@ public final class AccountUtil
 
     /**
      * Generates a random 130 bit password.
+     *
      * @return random password
      */
     public static String randomAlphaNumericPassword()
     {
         return new BigInteger(PASSWORD_BIT_LENGTH, sSecureRandom).toString(BASE);
+    }
+
+    /**
+     * Saves username and password to shared preferences.
+     *
+     * @param context to get shared preferences
+     * @param accUser account username
+     * @param accPass account password
+     */
+    public static void saveAccountCredentials(Context context, String accUser, String accPass)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(USERNAME, accUser)
+                .putString(PASSWORD, accPass)
+                .commit();
     }
 }

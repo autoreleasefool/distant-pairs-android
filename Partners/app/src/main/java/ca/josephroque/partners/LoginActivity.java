@@ -2,15 +2,20 @@ package ca.josephroque.partners;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
@@ -24,8 +29,10 @@ public class LoginActivity
         extends Activity
 {
 
-    /** To display login and registration progress. */
-    private ProgressBar mProgressBarLogin;
+    /** To display login and registation status. */
+    private RelativeLayout mRelativeLayoutLogin;
+    /** To display login and registration status. */
+    private TextView mTextViewLogin;
     /** For user input for username. */
     private EditText mEditTextUsername;
     /** Registers user when username is entered. */
@@ -48,7 +55,11 @@ public class LoginActivity
             finish();
         }
 
-        mProgressBarLogin = (ProgressBar) findViewById(R.id.pb_login);
+        ProgressBar progressBarLogin = (ProgressBar) findViewById(R.id.pb_login_register);
+        progressBarLogin.setIndeterminate(true);
+
+        mRelativeLayoutLogin = (RelativeLayout) findViewById(R.id.rl_login_register);
+        mTextViewLogin = (TextView) findViewById(R.id.tv_login_register);
         mEditTextUsername = (EditText) findViewById(R.id.et_username);
         mButtonRegister = (Button) findViewById(R.id.btn_register);
 
@@ -70,6 +81,13 @@ public class LoginActivity
                         AccountUtil.randomAlphaNumericPassword());
             }
         });
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        login(false);
     }
 
     @Override
@@ -100,6 +118,53 @@ public class LoginActivity
     {
         mButtonRegister.setEnabled(enabled);
         mEditTextUsername.setEnabled(enabled);
+        if (enabled)
+            mRelativeLayoutLogin.setVisibility(View.GONE);
+    }
+
+    /**
+     * Logs user into server.
+     * @param showErrorMessage if true, shows an error message if no account exists
+     */
+    private void login(boolean showErrorMessage)
+    {
+        mRelativeLayoutLogin.setVisibility(View.VISIBLE);
+        mTextViewLogin.setText(R.string.text_logging_in);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final String accountUsername = preferences.getString(AccountUtil.USERNAME, null);
+        final String accountPassword = preferences.getString(AccountUtil.PASSWORD, null);
+
+        if (accountUsername == null || accountPassword == null)
+        {
+            setLoginEnabled(true);
+            if (!showErrorMessage)
+                return;
+
+            ErrorUtil.displayErrorMessage(this, "Account unavailable",
+                    "Unable to access account credentials. You will need to create a new account.");
+            return;
+        }
+
+        ParseUser.logInInBackground(accountUsername, accountPassword, new LogInCallback()
+        {
+            @Override
+            public void done(ParseUser parseUser, ParseException e)
+            {
+                if (parseUser != null)
+                {
+                    startActivity(mFullscreenIntent);
+                    finish();
+                }
+                else
+                {
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Account unavailable",
+                            "Unable to access account credentials. You will need to create a "
+                                    + "new account.");
+                    setLoginEnabled(true);
+                }
+            }
+        });
     }
 
     /**
@@ -112,8 +177,8 @@ public class LoginActivity
         @Override
         protected void onPreExecute()
         {
-            mProgressBarLogin.setIndeterminate(true);
-            mProgressBarLogin.setVisibility(View.VISIBLE);
+            mRelativeLayoutLogin.setVisibility(View.VISIBLE);
+            mTextViewLogin.setText(R.string.text_registering);
             setLoginEnabled(false);
         }
 
@@ -132,6 +197,7 @@ public class LoginActivity
                 return ex.getCode();
             }
 
+            AccountUtil.saveAccountCredentials(LoginActivity.this, credentials[0], credentials[1]);
             return AccountUtil.ACCOUNT_SUCCESS;
         }
 
@@ -141,8 +207,7 @@ public class LoginActivity
             switch (result)
             {
                 case AccountUtil.ACCOUNT_SUCCESS:
-                    startActivity(mFullscreenIntent);
-                    finish();
+                    login(true);
                     break;
                 case ParseException.USERNAME_TAKEN:
                     ErrorUtil.displayErrorMessage(LoginActivity.this, "Username taken",
