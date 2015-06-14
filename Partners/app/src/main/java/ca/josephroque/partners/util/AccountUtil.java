@@ -124,6 +124,11 @@ public final class AccountUtil
                 new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
         // TODO: get other objects with user's name
 
+        preferences.edit()
+                .remove(USERNAME)
+                .remove(PAIR)
+                .apply();
+
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> list, ParseException e)
