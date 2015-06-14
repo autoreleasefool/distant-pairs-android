@@ -1,12 +1,15 @@
 package ca.josephroque.partners;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.text.InputFilter;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,12 +19,14 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.Iterator;
 import java.util.List;
 
 import ca.josephroque.partners.util.AccountUtil;
@@ -31,7 +36,7 @@ import ca.josephroque.partners.util.ErrorUtil;
  * Registering and logging in user.
  */
 public class LoginActivity
-        extends Activity
+        extends AppCompatActivity
         implements View.OnClickListener
 {
 
@@ -58,9 +63,13 @@ public class LoginActivity
         ProgressBar progressBarLogin = (ProgressBar) findViewById(R.id.pb_login_register);
         progressBarLogin.setIndeterminate(true);
 
+        mEditTextUsername = (EditText) findViewById(R.id.et_username);
+        mEditTextUsername.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(AccountUtil.USERNAME_MAX_LENGTH)});
+
         mRelativeLayoutLogin = (RelativeLayout) findViewById(R.id.rl_login_register);
         mTextViewLogin = (TextView) findViewById(R.id.tv_login_register);
-        mEditTextUsername = (EditText) findViewById(R.id.et_username);
+
         mButtonRegister = (Button) findViewById(R.id.btn_register);
         mButtonPairCheck = (Button) findViewById(R.id.btn_pair_check);
 
@@ -86,7 +95,8 @@ public class LoginActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
+        if (mSelectingPartner)
+            getMenuInflater().inflate(R.menu.menu_login, menu);
         return true;
     }
 
@@ -95,7 +105,10 @@ public class LoginActivity
     {
         switch (item.getItemId())
         {
-            case R.id.action_settings:
+            case R.id.action_delete_account:
+                AccountUtil.deleteAccount(this);
+                setLoginEnabled(true);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -110,11 +123,10 @@ public class LoginActivity
                 if (!mSelectingPartner)
                 {
                     String accountName = mEditTextUsername.getText().toString().trim();
-                    accountName = accountName.replaceAll("\\s+", " ");
-                    if (!accountName.matches("^[a-zA-Z0-9 ]+$"))
+                    if (!accountName.matches("^[a-zA-Z0-9]+$"))
                     {
                         ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
-                                "Your username can only contain letters, numbers, and spaces.");
+                                "Your username can only contain letters and numbers.");
                         return;
                     }
 
@@ -126,11 +138,10 @@ public class LoginActivity
                     String accountName = PreferenceManager.getDefaultSharedPreferences(
                             LoginActivity.this).getString(AccountUtil.USERNAME, null);
                     String partnerName = mEditTextUsername.getText().toString().trim();
-                    partnerName = partnerName.replaceAll("\\s+", " ");
-                    if (!partnerName.matches("^[a-zA-Z0-9 ]+$"))
+                    if (!partnerName.matches("^[a-zA-Z0-9]+$"))
                     {
                         ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
-                                "Your pair's name can only contain letters, numbers, and spaces.");
+                                "Your pair's name can only contain letters and numbers.");
                         return;
                     }
                     else if (partnerName.equalsIgnoreCase(accountName))
@@ -144,7 +155,7 @@ public class LoginActivity
                 }
                 break;
             case R.id.btn_pair_check:
-                // TODO: check for pair requests
+                new PairCheckTask().execute();
                 break;
             default:
                 // does nothing
@@ -251,6 +262,93 @@ public class LoginActivity
     }
 
     /**
+     * Displays prompt for user to accept a pair request.
+     *
+     * @param pairRequests iterator for pair requests from parse server
+     */
+    private void displayPairRequests(final Iterator<ParseObject> pairRequests)
+    {
+        if (!pairRequests.hasNext())
+        {
+            ErrorUtil.displayErrorMessage(LoginActivity.this, "No requests",
+                    "Nobody has requested to be your pair.");
+            setPartnerSelectEnabled(true);
+            return;
+        }
+
+        final ParseObject request = pairRequests.next();
+        final String pairRequestUsername = request.getString(AccountUtil.USERNAME);
+
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+
+                switch (which)
+                {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        pairRequests.remove();
+                        deletePendingPairRequests(pairRequestUsername);
+                        new RegisterPartnerTask().execute(pairRequestUsername);
+                        break;
+                    case DialogInterface.BUTTON_NEUTRAL:
+                        pairRequests.remove();
+                        request.deleteInBackground();
+                        displayPairRequests(pairRequests);
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        deletePendingPairRequests(null);
+                        break;
+                    default:
+                        // does nothing
+                }
+            }
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("Pair request")
+                .setMessage("User '" + pairRequestUsername + "' has requested to be your pair. "
+                        + "Do you accept?")
+                .setPositiveButton(R.string.dialog_okay, listener)
+                .setNeutralButton(R.string.dialog_dismiss, listener)
+                .setNegativeButton(R.string.dialog_dismiss_all, listener)
+                .create()
+                .show();
+    }
+
+    /**
+     * Deletes requests on parse server to be user's pair.
+     *
+     * @param exception do not delete requests with this username
+     */
+    private void deletePendingPairRequests(String exception)
+    {
+        String accountUsername =
+                PreferenceManager.getDefaultSharedPreferences(LoginActivity.this)
+                        .getString(AccountUtil.USERNAME, null);
+
+        if (accountUsername == null)
+            return;
+
+        ParseQuery < ParseObject > pairQuery = new ParseQuery<>("Pair");
+        pairQuery.whereEqualTo(AccountUtil.PAIR, accountUsername);
+        if (exception != null)
+            pairQuery.whereNotEqualTo(AccountUtil.USERNAME, exception);
+
+        pairQuery.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> list, ParseException e)
+            {
+                if (e == null)
+                {
+                    ParseObject.deleteAllInBackground(list);
+                }
+            }
+        });
+    }
+
+    /**
      * Registers new account in background.
      */
     private final class RegisterAccountTask
@@ -340,7 +438,7 @@ public class LoginActivity
                     return ParseException.USERNAME_MISSING;
 
                 ParseQuery<ParseObject> pairQuery = new ParseQuery<>("Pair");
-                pairQuery.whereEqualTo(AccountUtil.PAIR, partnerName[0]);
+                pairQuery.whereEqualTo(AccountUtil.USERNAME, partnerName[0]);
                 List<ParseObject> pairResult = pairQuery.find();
 
                 if (pairResult.size() > 0)
@@ -354,6 +452,8 @@ public class LoginActivity
                 parseObject.put(AccountUtil.USERNAME, accountUsername);
                 parseObject.put(AccountUtil.PAIR, partnerName[0]);
                 parseObject.save();
+
+                deletePendingPairRequests(partnerName[0]);
 
                 preferences.edit()
                         .putString(AccountUtil.PARSE_PAIR_ID, parseObject.getObjectId())
@@ -394,6 +494,77 @@ public class LoginActivity
                     break;
             }
             setPartnerSelectEnabled(true);
+        }
+    }
+
+    /**
+     * Checks Parse server for requests to be paired with this user.
+     */
+    private final class PairCheckTask
+            extends AsyncTask<Void, Void, Integer>
+    {
+
+        /** List of results from parse server. */
+        private List<ParseObject> mListPairRequests;
+
+        @Override
+        protected void onPreExecute()
+        {
+            mRelativeLayoutLogin.setVisibility(View.VISIBLE);
+            mTextViewLogin.setText(R.string.text_registering_partner);
+            setPartnerSelectEnabled(false);
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params)
+        {
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+            String accountUsername = preferences.getString(AccountUtil.USERNAME, null);
+
+            if (accountUsername == null)
+                return ParseException.USERNAME_MISSING;
+
+            ParseQuery<ParseObject> pairQuery = new ParseQuery<>("Pair");
+            pairQuery.whereEqualTo(AccountUtil.PAIR, accountUsername.toLowerCase());
+
+            try
+            {
+                mListPairRequests = pairQuery.find();
+                return AccountUtil.ACCOUNT_SUCCESS;
+            }
+            catch (ParseException ex)
+            {
+                return ex.getCode();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Integer result)
+        {
+            if (mListPairRequests == null)
+                result = ParseException.OBJECT_NOT_FOUND;
+
+            switch (result)
+            {
+                case AccountUtil.ACCOUNT_SUCCESS:
+                    displayPairRequests(mListPairRequests.iterator());
+                    break;
+                case ParseException.OBJECT_NOT_FOUND:
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "No requests",
+                            "Nobody has requested to be your pair.");
+                    setPartnerSelectEnabled(true);
+                    break;
+                case ParseException.CONNECTION_FAILED:
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Connection failed",
+                            "Unable to connect to server. Please, try again.");
+                    setPartnerSelectEnabled(true);
+                    break;
+                default:
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Unknown error",
+                            "An unknown error occurred. Please, try again.");
+                    break;
+            }
         }
     }
 }

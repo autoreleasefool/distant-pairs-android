@@ -1,10 +1,18 @@
 package ca.josephroque.partners.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Joseph Roque on 2015-06-13.
@@ -30,6 +38,8 @@ public final class AccountUtil
 
     /** Represents registration or login success. */
     public static final int ACCOUNT_SUCCESS = 0;
+    /** Maximum length for a username. */
+    public static final int USERNAME_MAX_LENGTH = 16;
 
     /** Represents password in preferences. */
     public static final String PASSWORD = "account_password";
@@ -94,5 +104,35 @@ public final class AccountUtil
         String partnerName = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(PAIR, null);
         return partnerName != null && partnerName.length() > 0;
+    }
+
+    /**
+     * Deletes the current user account.
+     *
+     * @param context to get shared preferences
+     */
+    public static void deleteAccount(Context context)
+    {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String username = preferences.getString(USERNAME, null);
+        if (username == null)
+            return;
+
+        ParseQuery<ParseObject> query = ParseQuery.or(Arrays.asList(
+                new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
+                new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
+        // TODO: get other objects with user's name
+
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> list, ParseException e)
+            {
+                if (e != null)
+                {
+                    ParseObject.deleteAllInBackground(list);
+                }
+            }
+        });
     }
 }

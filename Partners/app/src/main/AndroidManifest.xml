@@ -27,6 +27,7 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
+            android:theme="@style/ActionBarTheme"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

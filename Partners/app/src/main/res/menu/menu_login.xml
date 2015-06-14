@@ -2,8 +2,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="ca.josephroque.partners.LoginActivity">
-    <item android:id="@+id/action_settings"
-          android:title="@string/action_settings"
-          android:orderInCategory="100"
-          app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_account"
+        android:orderInCategory="50"
+        android:icon="@drawable/ic_trash"
+        android:title="@string/action_delete_account"
+        app:showAsAction="ifRoom" />
+
 </menu>
