@@ -35,6 +35,10 @@ public final class AccountUtil
     public static final String PASSWORD = "account_password";
     /** Represents account name in preferences. */
     public static final String USERNAME = "account_username";
+    /** Represents pair's name in preferences. */
+    public static final String PAIR = "account_pair";
+    /** Represents parse object id for user and pair in server. */
+    public static final String PARSE_PAIR_ID = "account_pair_id";
 
     /** Random number generator. */
     private static SecureRandom sSecureRandom = new SecureRandom();
@@ -63,5 +67,32 @@ public final class AccountUtil
                 .putString(USERNAME, accUser)
                 .putString(PASSWORD, accPass)
                 .commit();
+    }
+
+    /**
+     * Saves pair's name to shared preferences.
+     *
+     * @param context to get shared preferences
+     * @param partnerName pair's name
+     */
+    public static void savePairCredentials(Context context, String partnerName)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(PAIR, partnerName)
+                .commit();
+    }
+
+    /**
+     * Checks if a partner has been registered in the application.
+     *
+     * @param context to get shared preferences
+     * @return true if a partner exists in shared preferences
+     */
+    public static boolean doesPartnerExist(Context context)
+    {
+        String partnerName = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PAIR, null);
+        return partnerName != null && partnerName.length() > 0;
     }
 }

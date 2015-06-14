@@ -50,6 +50,13 @@
             android:layout_below="@id/et_username"
             android:text="@string/text_register" />
 
+        <Button
+            android:id="@+id/btn_pair_check"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_register"
+            android:text="@string/text_pair_check" />
+
     </RelativeLayout>
 
 </RelativeLayout>

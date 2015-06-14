@@ -1,5 +1,6 @@
 package ca.josephroque.partners;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,7 +18,11 @@ import android.widget.TextView;
 
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import java.util.List;
 
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
@@ -27,6 +32,7 @@ import ca.josephroque.partners.util.ErrorUtil;
  */
 public class LoginActivity
         extends Activity
+        implements View.OnClickListener
 {
 
     /** To display login and registation status. */
@@ -37,23 +43,17 @@ public class LoginActivity
     private EditText mEditTextUsername;
     /** Registers user when username is entered. */
     private Button mButtonRegister;
+    /** Checks server for requests to be partnered with this user. */
+    private Button mButtonPairCheck;
 
-    /** Intent to begin FullscreenActivity. */
-    private Intent mFullscreenIntent;
+    /** Indicates if user is selecting a partner. */
+    private boolean mSelectingPartner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        mFullscreenIntent = new Intent(LoginActivity.this, FullscreenActivity.class);
-
-        if (ParseUser.getCurrentUser() != null)
-        {
-            startActivity(mFullscreenIntent);
-            finish();
-        }
 
         ProgressBar progressBarLogin = (ProgressBar) findViewById(R.id.pb_login_register);
         progressBarLogin.setIndeterminate(true);
@@ -62,25 +62,17 @@ public class LoginActivity
         mTextViewLogin = (TextView) findViewById(R.id.tv_login_register);
         mEditTextUsername = (EditText) findViewById(R.id.et_username);
         mButtonRegister = (Button) findViewById(R.id.btn_register);
+        mButtonPairCheck = (Button) findViewById(R.id.btn_pair_check);
 
-        mButtonRegister.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                String accountName = mEditTextUsername.getText().toString().trim();
-                accountName = accountName.replaceAll("\\s+", " ");
-                if (!accountName.matches("^[a-zA-Z0-9 ]+$"))
-                {
-                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
-                            "Your username can only contain letters, numbers, and spaces.");
-                    return;
-                }
+        mButtonRegister.setOnClickListener(this);
+        mButtonPairCheck.setOnClickListener(this);
+    }
 
-                new RegisterAccountTask().execute(accountName,
-                        AccountUtil.randomAlphaNumericPassword());
-            }
-        });
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        ParseUser.logOutInBackground();
     }
 
     @Override
@@ -109,6 +101,56 @@ public class LoginActivity
         }
     }
 
+    @Override
+    public void onClick(View src)
+    {
+        switch (src.getId())
+        {
+            case R.id.btn_register:
+                if (!mSelectingPartner)
+                {
+                    String accountName = mEditTextUsername.getText().toString().trim();
+                    accountName = accountName.replaceAll("\\s+", " ");
+                    if (!accountName.matches("^[a-zA-Z0-9 ]+$"))
+                    {
+                        ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
+                                "Your username can only contain letters, numbers, and spaces.");
+                        return;
+                    }
+
+                    new RegisterAccountTask().execute(accountName,
+                            AccountUtil.randomAlphaNumericPassword());
+                }
+                else
+                {
+                    String accountName = PreferenceManager.getDefaultSharedPreferences(
+                            LoginActivity.this).getString(AccountUtil.USERNAME, null);
+                    String partnerName = mEditTextUsername.getText().toString().trim();
+                    partnerName = partnerName.replaceAll("\\s+", " ");
+                    if (!partnerName.matches("^[a-zA-Z0-9 ]+$"))
+                    {
+                        ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
+                                "Your pair's name can only contain letters, numbers, and spaces.");
+                        return;
+                    }
+                    else if (partnerName.equalsIgnoreCase(accountName))
+                    {
+                        ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
+                                "You cannot be your own pair.");
+                        return;
+                    }
+
+                    new RegisterPartnerTask().execute(partnerName);
+                }
+                break;
+            case R.id.btn_pair_check:
+                // TODO: check for pair requests
+                break;
+            default:
+                // does nothing
+        }
+    }
+
     /**
      * Enables or disables views for logging in.
      *
@@ -116,6 +158,12 @@ public class LoginActivity
      */
     private void setLoginEnabled(boolean enabled)
     {
+        mSelectingPartner = false;
+
+        mButtonRegister.setText(R.string.text_register);
+        mEditTextUsername.setText("");
+        mButtonPairCheck.setVisibility(View.GONE);
+
         mButtonRegister.setEnabled(enabled);
         mEditTextUsername.setEnabled(enabled);
         if (enabled)
@@ -123,7 +171,29 @@ public class LoginActivity
     }
 
     /**
+     * Changes content to let user select a partner.
+     *
+     * @param enabled if true, views are enabled
+     */
+    private void setPartnerSelectEnabled(boolean enabled)
+    {
+        mSelectingPartner = true;
+
+        mButtonRegister.setText(R.string.text_set_pair);
+        mEditTextUsername.setText("");
+        mButtonPairCheck.setVisibility(View.VISIBLE);
+
+        mEditTextUsername.setEnabled(enabled);
+        mButtonRegister.setEnabled(enabled);
+        mButtonPairCheck.setEnabled(enabled);
+
+        if (enabled)
+            mRelativeLayoutLogin.setVisibility(View.GONE);
+    }
+
+    /**
      * Logs user into server.
+     *
      * @param showErrorMessage if true, shows an error message if no account exists
      */
     private void login(boolean showErrorMessage)
@@ -146,25 +216,38 @@ public class LoginActivity
             return;
         }
 
-        ParseUser.logInInBackground(accountUsername, accountPassword, new LogInCallback()
-        {
-            @Override
-            public void done(ParseUser parseUser, ParseException e)
-            {
-                if (parseUser != null)
+        ParseUser.logInInBackground(accountUsername.toLowerCase(), accountPassword,
+                new LogInCallback()
                 {
-                    startActivity(mFullscreenIntent);
-                    finish();
-                }
-                else
-                {
-                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Account unavailable",
-                            "Unable to access account credentials. You will need to create a "
-                                    + "new account.");
-                    setLoginEnabled(true);
-                }
-            }
-        });
+                    @Override
+                    public void done(ParseUser parseUser, ParseException e)
+                    {
+                        if (parseUser != null)
+                        {
+                            if (AccountUtil.doesPartnerExist(LoginActivity.this))
+                                beginInteraction();
+                            else
+                                setPartnerSelectEnabled(true);
+                        }
+                        else
+                        {
+                            ErrorUtil.displayErrorMessage(LoginActivity.this, "Account unavailable",
+                                    "Unable to access account credentials. You will need to create"
+                                            + " a new account.");
+                            setLoginEnabled(true);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Begins user interactions with a partner.
+     */
+    private void beginInteraction()
+    {
+        Intent fullscreenIntent = new Intent(LoginActivity.this, FullscreenActivity.class);
+        startActivity(fullscreenIntent);
+        finish();
     }
 
     /**
@@ -186,7 +269,7 @@ public class LoginActivity
         protected Integer doInBackground(String... credentials)
         {
             ParseUser parseUser = new ParseUser();
-            parseUser.setUsername(credentials[0]);
+            parseUser.setUsername(credentials[0].toLowerCase());
             parseUser.setPassword(credentials[1]);
             try
             {
@@ -225,6 +308,92 @@ public class LoginActivity
                     setLoginEnabled(true);
                     break;
             }
+        }
+    }
+
+    /**
+     * Registers account with a pair in the background.
+     */
+    private final class RegisterPartnerTask
+            extends AsyncTask<String, Void, Integer>
+    {
+
+        @Override
+        protected void onPreExecute()
+        {
+            mRelativeLayoutLogin.setVisibility(View.VISIBLE);
+            mTextViewLogin.setText(R.string.text_registering_partner);
+            setPartnerSelectEnabled(false);
+        }
+
+        @SuppressLint("CommitPrefEdits")
+        @Override
+        protected Integer doInBackground(String... partnerName)
+        {
+            ParseQuery<ParseUser> parseQuery = ParseUser.getQuery();
+            parseQuery.whereEqualTo("username", partnerName[0].toLowerCase());
+
+            try
+            {
+                List<ParseUser> result = parseQuery.find();
+                if (result.size() == 0)
+                    return ParseException.USERNAME_MISSING;
+
+                ParseQuery<ParseObject> pairQuery = new ParseQuery<>("Pair");
+                pairQuery.whereEqualTo(AccountUtil.PAIR, partnerName[0]);
+                List<ParseObject> pairResult = pairQuery.find();
+
+                if (pairResult.size() > 0)
+                    return ParseException.USERNAME_TAKEN;
+
+                SharedPreferences preferences =
+                        PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+                String accountUsername = preferences.getString(AccountUtil.USERNAME, null);
+
+                ParseObject parseObject = new ParseObject("Pair");
+                parseObject.put(AccountUtil.USERNAME, accountUsername);
+                parseObject.put(AccountUtil.PAIR, partnerName[0]);
+                parseObject.save();
+
+                preferences.edit()
+                        .putString(AccountUtil.PARSE_PAIR_ID, parseObject.getObjectId())
+                        .commit();
+
+                AccountUtil.savePairCredentials(LoginActivity.this, partnerName[0]);
+                return AccountUtil.ACCOUNT_SUCCESS;
+            }
+            catch (ParseException ex)
+            {
+                return ex.getCode();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Integer result)
+        {
+            switch (result)
+            {
+                case AccountUtil.ACCOUNT_SUCCESS:
+                    beginInteraction();
+                    return;
+                case ParseException.CONNECTION_FAILED:
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Connection failed",
+                            "Unable to connect to server. Please, try again.");
+                    break;
+                case ParseException.USERNAME_MISSING:
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Error registering pair",
+                            "This user does not exist. Please, try again.");
+                    break;
+                case ParseException.USERNAME_TAKEN:
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Error registering pair",
+                            "This user already has a pair. Please, try again.");
+                    break;
+                default:
+                    ErrorUtil.displayErrorMessage(LoginActivity.this, "Error registering pair",
+                            "This user may not exist or may already be paired. Please, try again.");
+                    break;
+            }
+            setPartnerSelectEnabled(true);
         }
     }
 }

@@ -1,5 +1,6 @@
 package ca.josephroque.partners;
 
+import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.hider.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -55,10 +56,23 @@ public class FullscreenActivity
      */
     private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
+    /** For posting tasks to hide the UI. */
+    private Handler mHideHandler = new Handler();
+    /** Hides the UI. */
+    private Runnable mHideRunnable = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            mSystemUiHider.hide();
+        }
+    };
+
     /** Manages fragments displayed in the activity. */
     private ViewPager mViewPager;
     /** Manages fragments in view pager. */
     private FullscreenPagerAdapter mPagerAdapter;
+    private Intent mMessageServiceIntent;
 
     /** Current fragment  of view pager. */
     private int mCurrentFragment = 0;
@@ -73,7 +87,9 @@ public class FullscreenActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-        startService(new Intent(FullscreenActivity.this, MessageService.class));
+
+        mMessageServiceIntent = new Intent(FullscreenActivity.this, MessageService.class);
+        startService(mMessageServiceIntent);
 
         final View contentView = findViewById(R.id.fullscreen_content);
 
@@ -123,17 +139,12 @@ public class FullscreenActivity
         delayedHide(INITIAL_HIDE_DELAY);
     }
 
-    /** For posting tasks to hide the UI. */
-    private Handler mHideHandler = new Handler();
-    /** Hides the UI. */
-    private Runnable mHideRunnable = new Runnable()
+    @Override
+    protected void onDestroy()
     {
-        @Override
-        public void run()
-        {
-            mSystemUiHider.hide();
-        }
-    };
+        super.onDestroy();
+        stopService(mMessageServiceIntent);
+    }
 
     /**
      * Schedules a call to hide() in [delay] milliseconds, canceling any previously scheduled

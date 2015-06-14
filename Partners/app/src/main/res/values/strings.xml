@@ -6,5 +6,8 @@
     <string name="text_register">Register</string>
     <string name="text_registering">Registering</string>
     <string name="text_logging_in">Logging in</string>
+    <string name="text_set_pair">Set pair</string>
+    <string name="text_registering_partner">Registering pair</string>
+    <string name="text_pair_check">Check for pair request</string>
 
 </resources>
