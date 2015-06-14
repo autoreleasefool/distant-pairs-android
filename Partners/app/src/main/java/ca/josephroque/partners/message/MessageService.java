@@ -26,14 +26,22 @@ public class MessageService
         implements SinchClientListener
 {
 
+    /** Represents result of client connection for intent. */
     private static final String CLIENT_RESULT = "clientConnectionResult";
+    /** Represents client connection success. */
     private static final String CLIENT_SUCCESS = "clientConnectionSuccess";
 
+    /** Remotable messaging service. */
     private final MessageServiceInterface serviceInterface = new MessageServiceInterface();
+    /** Instance of Sinch client. */
     private SinchClient mSinchClient;
+    /** Instance of Sinch message client. */
     private MessageClient mMessageClient;
+    /** Current user id being used to send messages. */
     private String mCurrentUserId;
+    /** Instance of broadcast manager to notify application of events. */
     private LocalBroadcastManager mBroadcastManager;
+    /** Intent to broadcast client results. */
     private Intent mBroadcastIntent = new Intent(CLIENT_RESULT);
 
     @Override
@@ -51,6 +59,11 @@ public class MessageService
         return super.onStartCommand(intent, flags, startId);
     }
 
+    /**
+     * Creates new instance of {@link SinchClient} with username as userId.
+     *
+     * @param username userId
+     */
     public void startSinchClient(String username)
     {
         mSinchClient = Sinch.getSinchClientBuilder()
@@ -67,6 +80,11 @@ public class MessageService
         mSinchClient.start();
     }
 
+    /**
+     * Checks if the {@code SinchClient} has been started.
+     *
+     * @return true if {@code mSinchClient} is not null and has started
+     */
     private boolean isSinchClientStarted()
     {
         return mSinchClient != null && mSinchClient.isStarted();
@@ -114,6 +132,12 @@ public class MessageService
     {
     }
 
+    /**
+     * Sends message to a recipient.
+     *
+     * @param recipientUserId recipient of message
+     * @param textBody message
+     */
     public void sendMessage(String recipientUserId, String textBody)
     {
         if (mMessageClient != null)
@@ -123,6 +147,11 @@ public class MessageService
         }
     }
 
+    /**
+     * Adds a listener for messages to {@code mMessageClient}.
+     *
+     * @param listener message listener to add
+     */
     public void addMessageClientListener(MessageClientListener listener)
     {
         if (mMessageClient != null)
@@ -131,6 +160,11 @@ public class MessageService
         }
     }
 
+    /**
+     * Removes a message listener from {@code mMessageClient}.
+     *
+     * @param listener message listener to remove
+     */
     public void removeMessageClientListener(MessageClientListener listener)
     {
         if (mMessageClient != null)
@@ -146,25 +180,49 @@ public class MessageService
         mSinchClient.terminate();
     }
 
+    /**
+     * Remoteable object.
+     */
     public class MessageServiceInterface
             extends Binder
     {
 
+        /**
+         * Calls method to send message to a recipient.
+         *
+         * @param recipientUserId recipient id
+         * @param textBody message
+         */
         public void sendMessage(String recipientUserId, String textBody)
         {
             MessageService.this.sendMessage(recipientUserId, textBody);
         }
 
+        /**
+         * Calls method to add message listener to {@code mMessageClient}.
+         *
+         * @param listener listener to add
+         */
         public void addMessageClientListener(MessageClientListener listener)
         {
             MessageService.this.addMessageClientListener(listener);
         }
 
+        /**
+         * Calls method to remove listener from {@code mMessageClient}.
+         *
+         * @param listener listener to remove
+         */
         public void removeMessageClientListener(MessageClientListener listener)
         {
             MessageService.this.removeMessageClientListener(listener);
         }
 
+        /**
+         * Checks if the SinchClient has been started.
+         *
+         * @return true if {@code mSinchClient} is not null and has started
+         */
         public boolean isSinchClientStarted()
         {
             return MessageService.this.isSinchClientStarted();

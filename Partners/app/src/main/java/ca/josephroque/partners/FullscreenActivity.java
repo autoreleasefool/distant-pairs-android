@@ -47,6 +47,7 @@ public class FullscreenActivity
     private ViewPager mViewPager;
     /** Manages fragments in view pager. */
     private FullscreenPagerAdapter mPagerAdapter;
+    /** Begins instance of MessageService. */
     private Intent mMessageServiceIntent;
 
     /** Current fragment  of view pager. */
