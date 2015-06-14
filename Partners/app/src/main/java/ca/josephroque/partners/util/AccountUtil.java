@@ -6,15 +6,15 @@ import java.security.SecureRandom;
 /**
  * Created by Joseph Roque on 2015-06-13.
  * <p/>
- * To generate and store random passwords
+ * Classes and methods for creating and managing an account.
  */
-public final class PasswordUtil
+public final class AccountUtil
 {
 
     /**
      * Default private constructor.
      */
-    private PasswordUtil()
+    private AccountUtil()
     {
         // does nothing
     }
@@ -25,8 +25,13 @@ public final class PasswordUtil
     /** Number base. */
     private static final byte BASE = 32;
 
+    /** Represents registration or login success. */
+    public static final int ACCOUNT_SUCCESS = 0;
+
     /** Represents password in preferences. */
     public static final String PASSWORD = "account_password";
+    /** Represents account name in preferences. */
+    public static final String USERNAME = "account_username";
 
     /** Random number generator. */
     private static SecureRandom sSecureRandom = new SecureRandom();

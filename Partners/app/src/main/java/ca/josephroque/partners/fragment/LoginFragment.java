@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 
 import ca.josephroque.partners.R;
@@ -22,6 +23,8 @@ public class LoginFragment
 
     /** Username input from user. */
     private EditText mEditTextUsername;
+    /** Button to begin registration. */
+    private Button mButtonRegister;
 
     /** Instance of callback interface. */
     private LoginCallbacks mCallback;
@@ -45,7 +48,8 @@ public class LoginFragment
         View rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
         mEditTextUsername = (EditText) rootView.findViewById(R.id.et_username);
-        rootView.findViewById(R.id.btn_register).setOnClickListener(this);
+        mButtonRegister = (Button) rootView.findViewById(R.id.btn_register);
+        mButtonRegister.setOnClickListener(this);
 
         return rootView;
     }
@@ -80,10 +84,22 @@ public class LoginFragment
             case R.id.btn_register:
                 String accountName = mEditTextUsername.getText().toString();
                 mCallback.registerAccount(accountName);
+
+                setViewsEnabled(false);
                 break;
             default:
                 throw new IllegalArgumentException("not a valid view for on click");
         }
+    }
+
+    /**
+     * Sets views enabled or disable depending on {@code enabled}.
+     * @param enabled enable or disable views
+     */
+    public void setViewsEnabled(boolean enabled)
+    {
+        mEditTextUsername.setEnabled(enabled);
+        mButtonRegister.setEnabled(enabled);
     }
 
     /**
