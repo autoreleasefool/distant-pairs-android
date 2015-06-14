@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -106,8 +107,16 @@ public class LoginActivity
         switch (item.getItemId())
         {
             case R.id.action_delete_account:
-                AccountUtil.deleteAccount(this);
-                setLoginEnabled(true);
+                setPartnerSelectEnabled(false);
+                ParseUser.logOutInBackground(new LogOutCallback()
+                {
+                    @Override
+                    public void done(ParseException e)
+                    {
+                        AccountUtil.deleteAccount(LoginActivity.this);
+                        setLoginEnabled(true);
+                    }
+                });
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
