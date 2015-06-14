@@ -23,6 +23,32 @@ public abstract class SystemUiHider
 {
 
     /**
+     * Whether or not the system UI should be auto-hidden after {@link #AUTO_HIDE_DELAY_MILLIS}
+     * milliseconds.
+     */
+    public static final boolean AUTO_HIDE = true;
+
+    /**
+     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after user interaction
+     * before hiding the system UI.
+     */
+    public static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
+    /** Initial time before UI is hidden. */
+    public static final byte INITIAL_HIDE_DELAY = 100;
+
+    /**
+     * If set, will toggle the system UI visibility upon interaction. Otherwise, will show the
+     * system UI visibility upon interaction.
+     */
+    public static final boolean TOGGLE_ON_CLICK = true;
+
+    /**
+     * The flags to pass to {@link SystemUiHider#getInstance}.
+     */
+    public static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+
+    /**
      * When this flag is set, the {@link android.view.WindowManager.LayoutParams#FLAG_LAYOUT_IN_SCREEN}
      * flag will be set on older devices, making the status bar "float" on top of the activity
      * layout. This is most useful when there are no controls at the top of the activity layout.

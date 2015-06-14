@@ -30,31 +30,6 @@ public class FullscreenActivity
         extends FragmentActivity
 {
 
-    /**
-     * Whether or not the system UI should be auto-hidden after {@link #AUTO_HIDE_DELAY_MILLIS}
-     * milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after user interaction
-     * before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-    /** Initial time before UI is hidden. */
-    private static final byte INITIAL_HIDE_DELAY = 100;
-
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise, will show the
-     * system UI visibility upon interaction.
-     */
-    private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
     /** For posting tasks to hide the UI. */
     private Handler mHideHandler = new Handler();
@@ -95,7 +70,7 @@ public class FullscreenActivity
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
+        mSystemUiHider = SystemUiHider.getInstance(this, contentView, SystemUiHider.HIDER_FLAGS);
         mSystemUiHider.setup();
         mSystemUiHider
                 .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener()
@@ -104,10 +79,10 @@ public class FullscreenActivity
                     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
                     public void onVisibilityChange(boolean visible)
                     {
-                        if (visible && AUTO_HIDE)
+                        if (visible && SystemUiHider.AUTO_HIDE)
                         {
                             // Schedule a hide().
-                            delayedHide(AUTO_HIDE_DELAY_MILLIS);
+                            delayedHide(SystemUiHider.AUTO_HIDE_DELAY_MILLIS);
                         }
                     }
                 });
@@ -118,7 +93,7 @@ public class FullscreenActivity
             @Override
             public void onClick(View view)
             {
-                if (TOGGLE_ON_CLICK)
+                if (SystemUiHider.TOGGLE_ON_CLICK)
                     mSystemUiHider.toggle();
                 else
                     mSystemUiHider.show();
@@ -136,7 +111,7 @@ public class FullscreenActivity
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedHide(INITIAL_HIDE_DELAY);
+        delayedHide(SystemUiHider.INITIAL_HIDE_DELAY);
     }
 
     @Override
