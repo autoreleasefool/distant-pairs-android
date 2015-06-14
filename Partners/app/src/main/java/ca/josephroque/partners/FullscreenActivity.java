@@ -3,6 +3,7 @@ package ca.josephroque.partners;
 import ca.josephroque.partners.util.hider.SystemUiHider;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -72,6 +73,7 @@ public class FullscreenActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
+        startService(new Intent(FullscreenActivity.this, MessageService.class));
 
         final View contentView = findViewById(R.id.fullscreen_content);
 
