@@ -11,12 +11,17 @@
         android:layout_marginLeft="@dimen/activity_horizontal_padding"
         android:layout_marginRight="@dimen/activity_horizontal_padding">
 
+        <TextView
+            android:id="@+id/tv_display_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal" />
+
         <EditText
             android:id="@+id/et_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
+            android:layout_below="@id/tv_display_name"
             android:hint="@string/text_username_hint"
             android:inputType="textCapWords"
             android:maxLines="1" />
@@ -42,6 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:background="@color/progress_background"
         android:visibility="gone">
 
         <ProgressBar
@@ -55,7 +61,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/pb_login_register"
-            android:layout_centerVertical="true" />
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal"/>
 
     </RelativeLayout>
 

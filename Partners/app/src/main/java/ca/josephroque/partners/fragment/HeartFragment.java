@@ -76,6 +76,14 @@ public class HeartFragment
     }
 
     @Override
+    public void onResume()
+    {
+        super.onResume();
+        mImageViewHeart.setColorFilter(getResources().getColor(R.color.heart_inactive),
+                PorterDuff.Mode.MULTIPLY);
+    }
+
+    @Override
     public void displayMessage(final String message)
     {
         if (UserStatusUtil.LOGIN_MESSAGE.equals(message))

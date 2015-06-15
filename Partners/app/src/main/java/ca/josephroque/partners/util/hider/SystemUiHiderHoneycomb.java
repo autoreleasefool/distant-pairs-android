@@ -111,8 +111,6 @@ public class SystemUiHiderHoneycomb
                 {
                     // Pre-Jelly Bean, we must manually hide the action bar
                     // and use the old window flags API.
-                    mActivity.getActionBar()
-                            .hide();
                     mActivity.getWindow()
                             .setFlags(
                                     WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -132,8 +130,6 @@ public class SystemUiHiderHoneycomb
                 {
                     // Pre-Jelly Bean, we must manually show the action bar
                     // and use the old window flags API.
-                    mActivity.getActionBar()
-                            .show();
                     mActivity.getWindow()
                             .setFlags(
                                     0,

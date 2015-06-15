@@ -44,6 +44,8 @@ public class LoginActivity
     private RelativeLayout mRelativeLayoutLogin;
     /** To display login and registration status. */
     private TextView mTextViewLogin;
+    /** To display user's name. */
+    private TextView mTextViewDisplayName;
     /** For user input for username. */
     private EditText mEditTextUsername;
     /** Registers user when username is entered. */
@@ -69,6 +71,7 @@ public class LoginActivity
 
         mRelativeLayoutLogin = (RelativeLayout) findViewById(R.id.rl_login_register);
         mTextViewLogin = (TextView) findViewById(R.id.tv_login_register);
+        mTextViewDisplayName = (TextView) findViewById(R.id.tv_display_name);
 
         mButtonRegister = (Button) findViewById(R.id.btn_register);
         mButtonPairCheck = (Button) findViewById(R.id.btn_pair_check);
@@ -123,8 +126,9 @@ public class LoginActivity
             case R.id.btn_register:
                 if (!mSelectingPartner)
                 {
-                    String accountName = mEditTextUsername.getText().toString().trim();
-                    if (!accountName.matches("^[a-zA-Z0-9]+$"))
+                    String accountName = mEditTextUsername.getText().toString().trim()
+                            .toLowerCase();
+                    if (!accountName.matches("^[a-z0-9]+$"))
                     {
                         ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
                                 "Your username can only contain letters and numbers.");
@@ -138,8 +142,9 @@ public class LoginActivity
                 {
                     String accountName = PreferenceManager.getDefaultSharedPreferences(
                             LoginActivity.this).getString(AccountUtil.USERNAME, null);
-                    String partnerName = mEditTextUsername.getText().toString().trim();
-                    if (!partnerName.matches("^[a-zA-Z0-9]+$"))
+                    String partnerName = mEditTextUsername.getText().toString().trim()
+                            .toLowerCase();
+                    if (!partnerName.matches("^[a-z0-9]+$"))
                     {
                         ErrorUtil.displayErrorMessage(LoginActivity.this, "Invalid username!",
                                 "Your pair's name can only contain letters and numbers.");
@@ -170,11 +175,13 @@ public class LoginActivity
      */
     private void setLoginEnabled(boolean enabled)
     {
+        supportInvalidateOptionsMenu();
         mSelectingPartner = false;
 
         mButtonRegister.setText(R.string.text_register);
         mEditTextUsername.setText("");
         mButtonPairCheck.setVisibility(View.GONE);
+        mTextViewDisplayName.setVisibility(View.GONE);
 
         mButtonRegister.setEnabled(enabled);
         mEditTextUsername.setEnabled(enabled);
@@ -189,11 +196,13 @@ public class LoginActivity
      */
     private void setPartnerSelectEnabled(boolean enabled)
     {
+        supportInvalidateOptionsMenu();
         mSelectingPartner = true;
 
         mButtonRegister.setText(R.string.text_set_pair);
         mEditTextUsername.setText("");
         mButtonPairCheck.setVisibility(View.VISIBLE);
+        mTextViewDisplayName.setVisibility(View.VISIBLE);
 
         mEditTextUsername.setEnabled(enabled);
         mButtonRegister.setEnabled(enabled);
@@ -232,7 +241,10 @@ public class LoginActivity
         if (AccountUtil.doesPartnerExist(LoginActivity.this))
             beginInteraction(pairName);
         else
+        {
+            mTextViewDisplayName.setText(accountUsername);
             setPartnerSelectEnabled(true);
+        }
     }
 
     /**
@@ -380,7 +392,7 @@ public class LoginActivity
         protected Integer doInBackground(String... credentials)
         {
             ParseUser parseUser = new ParseUser();
-            parseUser.setUsername(credentials[0].toLowerCase());
+            parseUser.setUsername(credentials[0]);
             parseUser.setPassword(credentials[1]);
             try
             {
@@ -442,7 +454,7 @@ public class LoginActivity
         protected Integer doInBackground(String... partnerName)
         {
             ParseQuery<ParseUser> parseQuery = ParseUser.getQuery();
-            parseQuery.whereEqualTo("username", partnerName[0].toLowerCase());
+            parseQuery.whereEqualTo("username", partnerName[0]);
 
             try
             {
@@ -454,12 +466,15 @@ public class LoginActivity
                 pairQuery.whereEqualTo(AccountUtil.USERNAME, partnerName[0]);
                 List<ParseObject> pairResult = pairQuery.find();
 
-                if (pairResult.size() > 0)
-                    return ParseException.USERNAME_TAKEN;
-
                 SharedPreferences preferences =
                         PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
                 String accountUsername = preferences.getString(AccountUtil.USERNAME, null);
+
+                if (pairResult.size() > 1)
+                    return ParseException.USERNAME_TAKEN;
+                if (pairResult.size() == 1 && !pairResult.get(0).get(AccountUtil.PAIR).equals(
+                        accountUsername))
+                    return ParseException.USERNAME_TAKEN;
 
                 ParseObject parseObject = new ParseObject("Pair");
                 parseObject.put(AccountUtil.USERNAME, accountUsername);
@@ -525,7 +540,7 @@ public class LoginActivity
         protected void onPreExecute()
         {
             mRelativeLayoutLogin.setVisibility(View.VISIBLE);
-            mTextViewLogin.setText(R.string.text_registering_partner);
+            mTextViewLogin.setText(R.string.text_requesting_pairs);
             setPartnerSelectEnabled(false);
         }
 
@@ -540,7 +555,7 @@ public class LoginActivity
                 return ParseException.USERNAME_MISSING;
 
             ParseQuery<ParseObject> pairQuery = new ParseQuery<>("Pair");
-            pairQuery.whereEqualTo(AccountUtil.PAIR, accountUsername.toLowerCase());
+            pairQuery.whereEqualTo(AccountUtil.PAIR, accountUsername);
 
             try
             {

@@ -11,6 +11,7 @@
     <string name="text_set_pair">Set pair</string>
     <string name="text_registering_partner">Registering pair</string>
     <string name="text_pair_check">Check for pair request</string>
+    <string name="text_requesting_pairs">Checking requests</string>
 
     <string name="dialog_okay">Okay</string>
     <string name="dialog_dismiss">Dismiss</string>
