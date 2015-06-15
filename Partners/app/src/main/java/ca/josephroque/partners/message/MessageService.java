@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.parse.ParseUser;
 import com.sinch.android.rtc.ClientRegistration;
@@ -25,6 +26,8 @@ public class MessageService
         extends Service
         implements SinchClientListener
 {
+
+    private static final String TAG = "MessageService";
 
     /** Represents result of client connection for intent. */
     private static final String CLIENT_RESULT = "clientConnectionResult";
@@ -47,6 +50,8 @@ public class MessageService
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        Log.i(TAG, "User: " + ParseUser.getCurrentUser());
+        Log.i(TAG, "ObjectId: " + ParseUser.getCurrentUser().getObjectId());
         mCurrentUserId = ParseUser.getCurrentUser().getObjectId();
 
         if (mCurrentUserId != null && !isSinchClientStarted())

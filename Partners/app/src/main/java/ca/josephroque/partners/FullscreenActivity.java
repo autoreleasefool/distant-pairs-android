@@ -173,86 +173,88 @@ public class FullscreenActivity
     {
         super.onResume();
 
-        if (ParseUser.getCurrentUser() == null)
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.fullscreen_progressbar);
+        final TextView textView = (TextView) findViewById(R.id.fullscreen_progress_text);
+
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+        textView.setVisibility(View.VISIBLE);
+        mViewPager.setVisibility(View.GONE);
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final String accountName = prefs.getString(AccountUtil.USERNAME, null);
+        final String accountPassword = prefs.getString(AccountUtil.PASSWORD, null);
+
+        if (accountName == null || accountPassword == null)
         {
-            final ProgressBar progressBar = (ProgressBar) findViewById(R.id.fullscreen_progressbar);
-            final TextView textView = (TextView) findViewById(R.id.fullscreen_progress_text);
-
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.VISIBLE);
-            textView.setVisibility(View.VISIBLE);
-            mViewPager.setVisibility(View.GONE);
-
-            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            final String accountName = prefs.getString(AccountUtil.USERNAME, null);
-            final String accountPassword = prefs.getString(AccountUtil.PASSWORD, null);
-
-            if (accountName == null || accountPassword == null)
-            {
-                deleteAccount();
-                return;
-            }
-
-            ParseUser.logInInBackground(accountName, accountPassword, new LogInCallback()
-            {
-                @Override
-                public void done(ParseUser parseUser, ParseException e)
-                {
-                    final String statusId = prefs.getString(UserStatusUtil.STATUS_OBJECT_ID, null);
-
-                    if (statusId == null)
-                    {
-                        final ParseObject statusObject = new ParseObject(UserStatusUtil.STATUS);
-                        statusObject.put(UserStatusUtil.ONLINE_STATUS, true);
-                        statusObject.put(AccountUtil.USERNAME, accountName);
-                        statusObject.saveInBackground(new SaveCallback()
-                        {
-                            @Override
-                            public void done(ParseException e)
-                            {
-                                if (e == null)
-                                {
-                                    prefs.edit().putString(UserStatusUtil.STATUS_OBJECT_ID,
-                                            statusObject.getObjectId())
-                                            .apply();
-
-                                    checkIfPartnerOnline();
-
-                                    progressBar.setVisibility(View.GONE);
-                                    textView.setVisibility(View.GONE);
-                                    mViewPager.setVisibility(View.VISIBLE);
-                                }
-                                // TODO: on error
-                            }
-                        });
-                    }
-                    else
-                    {
-                        ParseObject statusObject = new ParseObject(UserStatusUtil.STATUS);
-                        statusObject.setObjectId(statusId);
-                        statusObject.fetchInBackground(new GetCallback<ParseObject>()
-                        {
-                            @Override
-                            public void done(ParseObject parseObject, ParseException e)
-                            {
-                                if (e == null)
-                                {
-                                    parseObject.put(UserStatusUtil.ONLINE_STATUS, true);
-                                    parseObject.saveInBackground();
-
-                                    checkIfPartnerOnline();
-
-                                    progressBar.setVisibility(View.GONE);
-                                    textView.setVisibility(View.GONE);
-                                    mViewPager.setVisibility(View.VISIBLE);
-                                }
-                                // TODO: on error
-                            }
-                        });
-                    }
-                }
-            });
+            deleteAccount();
+            return;
         }
+
+        ParseUser.logInInBackground(accountName, accountPassword, new LogInCallback()
+        {
+            @Override
+            public void done(ParseUser parseUser, ParseException e)
+            {
+                Log.i(TAG, "Logged in");
+                final String statusId = prefs.getString(UserStatusUtil.STATUS_OBJECT_ID, null);
+
+                if (statusId == null)
+                {
+                    Log.i(TAG, "No status id");
+                    final ParseObject statusObject = new ParseObject(UserStatusUtil.STATUS);
+                    statusObject.put(UserStatusUtil.ONLINE_STATUS, true);
+                    statusObject.put(AccountUtil.USERNAME, accountName);
+                    statusObject.saveInBackground(new SaveCallback()
+                    {
+                        @Override
+                        public void done(ParseException e)
+                        {
+                            if (e == null)
+                            {
+                                Log.i(TAG, "Status id saved");
+                                prefs.edit().putString(UserStatusUtil.STATUS_OBJECT_ID,
+                                        statusObject.getObjectId())
+                                        .apply();
+
+                                checkIfPartnerOnline();
+
+                                progressBar.setVisibility(View.GONE);
+                                textView.setVisibility(View.GONE);
+                                mViewPager.setVisibility(View.VISIBLE);
+                            }
+                            // TODO: on error
+                        }
+                    });
+                }
+                else
+                {
+                    Log.i(TAG, "Existing status id");
+                    ParseObject statusObject = new ParseObject(UserStatusUtil.STATUS);
+                    statusObject.setObjectId(statusId);
+                    statusObject.fetchInBackground(new GetCallback<ParseObject>()
+                    {
+                        @Override
+                        public void done(ParseObject parseObject, ParseException e)
+                        {
+                            if (e == null)
+                            {
+                                Log.i(TAG, "Status id saved");
+                                parseObject.put(UserStatusUtil.ONLINE_STATUS, true);
+                                parseObject.saveInBackground();
+
+                                checkIfPartnerOnline();
+
+                                progressBar.setVisibility(View.GONE);
+                                textView.setVisibility(View.GONE);
+                                mViewPager.setVisibility(View.VISIBLE);
+                            }
+                            // TODO: on error
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override
@@ -449,6 +451,7 @@ public class FullscreenActivity
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder)
         {
+            Log.i(TAG, "Service connected");
             mMessageService = (MessageService.MessageServiceInterface) iBinder;
             mMessageService.addMessageClientListener(mMessageClientListener);
         }
