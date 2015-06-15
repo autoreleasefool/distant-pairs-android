@@ -20,7 +20,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
-import com.parse.LogInCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -76,13 +75,6 @@ public class LoginActivity
 
         mButtonRegister.setOnClickListener(this);
         mButtonPairCheck.setOnClickListener(this);
-    }
-
-    @Override
-    protected void onStop()
-    {
-        super.onStop();
-        ParseUser.logOutInBackground();
     }
 
     @Override
@@ -224,6 +216,7 @@ public class LoginActivity
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         final String accountUsername = preferences.getString(AccountUtil.USERNAME, null);
         final String accountPassword = preferences.getString(AccountUtil.PASSWORD, null);
+        final String pairName = preferences.getString(AccountUtil.PAIR, null);
 
         if (accountUsername == null || accountPassword == null)
         {
@@ -236,38 +229,47 @@ public class LoginActivity
             return;
         }
 
-        ParseUser.logInInBackground(accountUsername.toLowerCase(), accountPassword,
-                new LogInCallback()
-                {
-                    @Override
-                    public void done(ParseUser parseUser, ParseException e)
-                    {
-                        if (parseUser != null)
-                        {
-                            if (AccountUtil.doesPartnerExist(LoginActivity.this))
-                                beginInteraction();
-                            else
-                                setPartnerSelectEnabled(true);
-                        }
-                        else
-                        {
-                            ErrorUtil.displayErrorMessage(LoginActivity.this, "Account unavailable",
-                                    "Unable to access account credentials. You will need to create"
-                                            + " a new account.");
-                            setLoginEnabled(true);
-                        }
-                    }
-                });
+        if (AccountUtil.doesPartnerExist(LoginActivity.this))
+            beginInteraction(pairName);
+        else
+            setPartnerSelectEnabled(true);
     }
 
     /**
      * Begins user interactions with a partner.
+     *
+     * @param partnerName name of partner
      */
-    private void beginInteraction()
+    private void beginInteraction(String partnerName)
     {
-        Intent fullscreenIntent = new Intent(LoginActivity.this, FullscreenActivity.class);
-        startActivity(fullscreenIntent);
-        finish();
+        if (partnerName == null)
+        {
+            ErrorUtil.displayErrorMessage(LoginActivity.this, "Error finding partner",
+                    "Your partner could not be found. Please, select another.");
+            setPartnerSelectEnabled(true);
+            return;
+        }
+
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereEqualTo("username", partnerName);
+        query.findInBackground(new FindCallback<ParseUser>()
+        {
+            public void done(List<ParseUser> user, com.parse.ParseException e)
+            {
+                if (e == null)
+                {
+                    Intent fullscreenIntent =
+                            new Intent(LoginActivity.this, FullscreenActivity.class);
+                    if (user != null && user.size() > 0)
+                        fullscreenIntent.putExtra(AccountUtil.PARSE_PAIR_ID,
+                                user.get(0).getObjectId());
+                    else
+                        throw new IllegalStateException("invalid partner");
+                    startActivity(fullscreenIntent);
+                    finish();
+                }
+            }
+        });
     }
 
     /**
@@ -288,7 +290,8 @@ public class LoginActivity
         final ParseObject request = pairRequests.next();
         final String pairRequestUsername = request.getString(AccountUtil.USERNAME);
 
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
@@ -340,12 +343,13 @@ public class LoginActivity
         if (accountUsername == null)
             return;
 
-        ParseQuery < ParseObject > pairQuery = new ParseQuery<>("Pair");
+        ParseQuery<ParseObject> pairQuery = new ParseQuery<>("Pair");
         pairQuery.whereEqualTo(AccountUtil.PAIR, accountUsername);
         if (exception != null)
             pairQuery.whereNotEqualTo(AccountUtil.USERNAME, exception);
 
-        pairQuery.findInBackground(new FindCallback<ParseObject>() {
+        pairQuery.findInBackground(new FindCallback<ParseObject>()
+        {
             @Override
             public void done(List<ParseObject> list, ParseException e)
             {
@@ -483,7 +487,8 @@ public class LoginActivity
             switch (result)
             {
                 case AccountUtil.ACCOUNT_SUCCESS:
-                    beginInteraction();
+                    beginInteraction(PreferenceManager.getDefaultSharedPreferences(
+                            LoginActivity.this).getString(AccountUtil.PAIR, null));
                     return;
                 case ParseException.CONNECTION_FAILED:
                     ErrorUtil.displayErrorMessage(LoginActivity.this, "Connection failed",

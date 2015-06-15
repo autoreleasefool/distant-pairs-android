@@ -121,12 +121,14 @@ public final class AccountUtil
 
         ParseQuery<ParseObject> query = ParseQuery.or(Arrays.asList(
                 new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
-                new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
+                new ParseQuery<>("Pair").whereEqualTo(PAIR, username),
+                new ParseQuery<>("Status").whereEqualTo(AccountUtil.USERNAME, username)));
         // TODO: get other objects with user's name
 
         preferences.edit()
                 .remove(USERNAME)
                 .remove(PAIR)
+                .remove(UserStatusUtil.STATUS_OBJECT_ID)
                 .apply();
 
         query.findInBackground(new FindCallback<ParseObject>() {

@@ -2,11 +2,13 @@ package ca.josephroque.partners.fragment;
 
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import ca.josephroque.partners.FullscreenActivity;
 import ca.josephroque.partners.R;
 
 /**
@@ -15,6 +17,7 @@ import ca.josephroque.partners.R;
  */
 public class ThoughtFragment
         extends Fragment
+        implements FullscreenActivity.MessageDisplay
 {
 
     /**
@@ -37,5 +40,11 @@ public class ThoughtFragment
         return rootView;
     }
 
-
+    @Override
+    public void displayMessage(String message)
+    {
+        Snackbar.make(getView(), message, Snackbar.LENGTH_LONG)
+                .show();
+        // TODO: display message
+    }
 }
