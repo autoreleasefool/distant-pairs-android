@@ -1,13 +1,17 @@
 package ca.josephroque.partners;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import ca.josephroque.partners.fragment.RegisterFragment;
 
+/**
+ * Provides interface for user registration and login.
+ */
 public class LoginActivity
-        extends ActionBarActivity
+        extends AppCompatActivity
 {
 
     @Override
@@ -15,6 +19,15 @@ public class LoginActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        if (savedInstanceState == null)
+        {
+            // Fragment has not been created yet
+            RegisterFragment fragment = RegisterFragment.newInstance();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.login_container, fragment)
+                    .commit();
+        }
     }
 
     @Override

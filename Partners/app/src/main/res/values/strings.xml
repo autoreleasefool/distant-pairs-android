@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Partners</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <string name="text_hint_username">Username</string>
+    <string name="text_register">Register</string>
+    <string name="text_set_pair">Set Pair</string>
+    <string name="text_check_pairs">Check for Pair Requests</string>
+
 </resources>
