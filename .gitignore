@@ -28,3 +28,6 @@ proguard/
 
 # Secret keys
 *Secret*
+
+# Design files
+/Design
