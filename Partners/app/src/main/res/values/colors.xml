@@ -1,9 +1,0 @@
-<resources>
-
-    <color name="black_overlay">#66000000</color>
-
-    <color name="heart_active">#FF0000</color>
-    <color name="heart_inactive">#550000</color>
-    <color name="progress_background">#44FFFFFF</color>
-
-</resources>
