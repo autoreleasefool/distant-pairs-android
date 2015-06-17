@@ -2,11 +2,15 @@ package ca.josephroque.partners.fragment;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,6 +19,7 @@ import android.widget.LinearLayout;
 
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.util.AccountUtil;
+import ca.josephroque.partners.util.ErrorUtil;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
@@ -55,6 +60,13 @@ public class RegisterFragment
     public static RegisterFragment newInstance()
     {
         return new RegisterFragment();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -107,6 +119,33 @@ public class RegisterFragment
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_register, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu)
+    {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.action_delete_account).setVisible(!mRegisterOrPair);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.action_delete_account:
+                setRegisteringUserOrPair(true);
+                AccountUtil.promptDeleteAccount(getActivity());
+                return true;
+            default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
@@ -130,13 +169,48 @@ public class RegisterFragment
 
             if (username == null)
             {
-                // invalid username
+                ErrorUtil.displayErrorMessage(getActivity(), "Invalid username",
+                        "Username must be 16 characters or less and can only contain letters or"
+                                + " numbers. Please, try again.");
+                return;
             }
             // TODO: register
         }
-        else if (src == mButtonPairCheck)
+        else if (src == mButtonPairCheck && !mRegisterOrPair)
         {
-            // TODO: register pair
+
+        }
+    }
+
+    /**
+     * Sets view layout for registering a new user or a pair.
+     * @param registering true for user registration, false for pair
+     */
+    @SuppressWarnings("deprecation") // Non-deprecated method used in valid APIs
+    private void setRegisteringUserOrPair(boolean registering)
+    {
+        mRegisterOrPair = registering;
+        if (registering)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                mEditTextUsername.setCompoundDrawables(getResources()
+                        .getDrawable(R.drawable.ic_person, null), null, null, null);
+            else
+                mEditTextUsername.setCompoundDrawables(getResources()
+                        .getDrawable(R.drawable.ic_person), null, null, null);
+            mButtonPairCheck.setVisibility(View.GONE);
+            mButtonRegister.setText(R.string.text_register);
+        }
+        else
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                mEditTextUsername.setCompoundDrawables(getResources()
+                        .getDrawable(R.drawable.ic_pair, null), null, null, null);
+            else
+                mEditTextUsername.setCompoundDrawables(getResources()
+                        .getDrawable(R.drawable.ic_pair), null, null, null);
+            mButtonPairCheck.setVisibility(View.VISIBLE);
+            mButtonRegister.setText(R.string.text_set_pair);
         }
     }
 
@@ -169,5 +243,4 @@ public class RegisterFragment
     public interface LoginCallbacks
     {
     }
-
 }
