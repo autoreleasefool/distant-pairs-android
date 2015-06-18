@@ -1,6 +1,6 @@
 package ca.josephroque.partners;
 
-import ca.josephroque.partners.util.SystemUiHider;
+import ca.josephroque.partners.util.hider.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
