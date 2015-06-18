@@ -6,6 +6,8 @@
 
     <string name="text_hint_username">Username</string>
     <string name="text_register">Register</string>
+    <string name="text_registering">Registering</string>
+    <string name="text_logging_in">Logging in</string>
     <string name="text_set_pair">Set Pair</string>
     <string name="text_check_pairs">Check for Pair Requests</string>
 

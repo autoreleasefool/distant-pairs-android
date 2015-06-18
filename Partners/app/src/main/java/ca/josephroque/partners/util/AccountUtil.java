@@ -11,6 +11,8 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,14 +26,25 @@ import ca.josephroque.partners.R;
 public final class AccountUtil
 {
 
-    /** Maximum character length for usernames. */
-    public static final int USERNAME_MAX_LENGTH = 16;
     /** Represents password in preferences. */
     public static final String PASSWORD = "account_password";
     /** Represents account name in preferences. */
     public static final String USERNAME = "account_username";
     /** Represents pair's name in preferences. */
     public static final String PAIR = "account_pair";
+
+    /** Number of random bits to generate. */
+    private static final int PASSWORD_BIT_LENGTH = 130;
+    /** Maximum character length for usernames. */
+    public static final int USERNAME_MAX_LENGTH = 16;
+    /** Represents successful account related operation. */
+    public static final int SUCCESS = 0;
+
+    /** Number base. */
+    private static final byte BASE = 32;
+
+    /** Secure random number generator. */
+    private static SecureRandom sSecureRandom = new SecureRandom();
 
     /**
      * Default private constructor.
@@ -54,6 +67,16 @@ public final class AccountUtil
             return null;
 
         return username.toLowerCase();
+    }
+
+    /**
+     * Generates a random 130 bit password.
+     *
+     * @return random password
+     */
+    public static String randomAlphaNumericPassword()
+    {
+        return new BigInteger(PASSWORD_BIT_LENGTH, sSecureRandom).toString(BASE);
     }
 
     /**
@@ -90,7 +113,7 @@ public final class AccountUtil
      *
      * @param context to get shared preferences
      */
-    private static void deleteAccount(Context context)
+    public static void deleteAccount(Context context)
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 

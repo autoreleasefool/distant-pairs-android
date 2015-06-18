@@ -2,8 +2,13 @@ package ca.josephroque.partners.fragment;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.res.Resources;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,13 +22,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.parse.ParseException;
+import com.parse.ParseUser;
+
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link RegisterFragment.LoginCallbacks} interface to handle interaction events. Use the {@link
+ * {@link RegisterFragment.RegisterCallbacks} interface to handle interaction events. Use the {@link
  * RegisterFragment#newInstance} factory method to create an instance of this fragment.
  */
 public class RegisterFragment
@@ -46,7 +54,7 @@ public class RegisterFragment
     private ProgressDialog mProgressDialogServer;
 
     /** Instance of callback interface. */
-    private LoginCallbacks mCallback;
+    private RegisterCallbacks mCallback;
 
     /** Indicates if fragment is for user or pair registration. */
     private boolean mRegisterOrPair;
@@ -69,6 +77,7 @@ public class RegisterFragment
         setHasOptionsMenu(true);
     }
 
+    @SuppressWarnings("deprecation")    // Uses updated methods in APIs where available
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
@@ -90,11 +99,35 @@ public class RegisterFragment
         {
             mButtonRegister.setText(R.string.text_register);
             mButtonPairCheck.setVisibility(View.GONE);
+
+            final Drawable editTextDrawable;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_person, null);
+            else
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_person);
+
+            if (editTextDrawable != null)
+                editTextDrawable.setColorFilter(getResources().getColor(R.color.person_filter),
+                        PorterDuff.Mode.MULTIPLY);
+
+            mEditTextUsername.setCompoundDrawables(editTextDrawable, null, null, null);
         }
         else
         {
             mButtonRegister.setText(R.string.text_set_pair);
             mButtonPairCheck.setVisibility(View.VISIBLE);
+
+            final Drawable editTextDrawable;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair, null);
+            else
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair);
+
+            if (editTextDrawable != null)
+                editTextDrawable.setColorFilter(getResources().getColor(R.color.pair_filter),
+                        PorterDuff.Mode.MULTIPLY);
+
+            mEditTextUsername.setCompoundDrawables(editTextDrawable, null, null, null);
         }
 
         mButtonRegister.setOnClickListener(this);
@@ -109,12 +142,12 @@ public class RegisterFragment
         super.onAttach(activity);
         try
         {
-            mCallback = (LoginCallbacks) activity;
+            mCallback = (RegisterCallbacks) activity;
         }
         catch (ClassCastException e)
         {
             throw new ClassCastException(activity.toString()
-                    + " must implement LoginCallbacks");
+                    + " must implement RegisterCallbacks");
         }
     }
 
@@ -138,10 +171,10 @@ public class RegisterFragment
         switch (item.getItemId())
         {
             case R.id.action_delete_account:
-                setRegisteringUserOrPair(true);
                 AccountUtil.promptDeleteAccount(getActivity());
                 return true;
-            default: return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -174,7 +207,8 @@ public class RegisterFragment
                                 + " numbers. Please, try again.");
                 return;
             }
-            // TODO: register
+
+            new RegisterAccountTask().execute(username, AccountUtil.randomAlphaNumericPassword());
         }
         else if (src == mButtonPairCheck && !mRegisterOrPair)
         {
@@ -183,56 +217,94 @@ public class RegisterFragment
     }
 
     /**
-     * Sets view layout for registering a new user or a pair.
-     * @param registering true for user registration, false for pair
-     */
-    @SuppressWarnings("deprecation") // Non-deprecated method used in valid APIs
-    private void setRegisteringUserOrPair(boolean registering)
-    {
-        mRegisterOrPair = registering;
-        if (registering)
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                mEditTextUsername.setCompoundDrawables(getResources()
-                        .getDrawable(R.drawable.ic_person, null), null, null, null);
-            else
-                mEditTextUsername.setCompoundDrawables(getResources()
-                        .getDrawable(R.drawable.ic_person), null, null, null);
-            mButtonPairCheck.setVisibility(View.GONE);
-            mButtonRegister.setText(R.string.text_register);
-        }
-        else
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                mEditTextUsername.setCompoundDrawables(getResources()
-                        .getDrawable(R.drawable.ic_pair, null), null, null, null);
-            else
-                mEditTextUsername.setCompoundDrawables(getResources()
-                        .getDrawable(R.drawable.ic_pair), null, null, null);
-            mButtonPairCheck.setVisibility(View.VISIBLE);
-            mButtonRegister.setText(R.string.text_set_pair);
-        }
-    }
-
-    /**
-     * Hides views and shows the progress bar.
+     * Creates and shows a progress bar.
      *
      * @param title title of progress bar
      * @param message message for progress bar
      */
     private void showProgressBar(@NonNull String title, @Nullable String message)
     {
-        mLinearLayoutRoot.setVisibility(View.GONE);
         mProgressDialogServer = ProgressDialog.show(getActivity(), title, message, true, false);
     }
 
     /**
-     * Hides progress bar and shows views.
+     * Hides progress bar.
      */
     private void hideProgressBar()
     {
-        mLinearLayoutRoot.setVisibility(View.VISIBLE);
         mProgressDialogServer.dismiss();
+        mProgressDialogServer = null;
+    }
+
+    /**
+     * Registers a new Parse account in a background thread.
+     */
+    private final class RegisterAccountTask
+            extends AsyncTask<String, Void, Integer>
+    {
+
+        @Override
+        protected void onPreExecute()
+        {
+            mLinearLayoutRoot.setVisibility(View.GONE);
+            showProgressBar(getResources().getString(R.string.text_registering), null);
+        }
+
+        @Override
+        protected Integer doInBackground(String... credentials)
+        {
+            ParseUser parseUser = new ParseUser();
+            parseUser.setUsername(credentials[0]);
+            parseUser.setPassword(credentials[1]);
+
+            try
+            {
+                parseUser.signUp();
+            }
+            catch (ParseException ex)
+            {
+                return ex.getCode();
+            }
+
+            PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .edit()
+                    .putString(AccountUtil.USERNAME, credentials[0])
+                    .putString(AccountUtil.PASSWORD, credentials[1])
+                    .commit();
+
+            return AccountUtil.SUCCESS;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result)
+        {
+            hideProgressBar();
+
+            switch (result)
+            {
+                case AccountUtil.SUCCESS:
+                    mCallback.login(new LoginCallback() {
+                        @Override
+                        public void onLoginFailed(int errorCode)
+                        {
+                            mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    break;
+                case ParseException.CONNECTION_FAILED:
+                    ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
+                            "Failed to connect to the server. Please, try again. If this error"
+                                    + "persists, your connection may not be sufficient.");
+                    break;
+                case ParseException.USERNAME_TAKEN:
+                    ErrorUtil.displayErrorMessage(getActivity(), "Username taken",
+                            "That username is already in use. Please, try another.");
+                    break;
+                default:
+                    ErrorUtil.displayErrorMessage(getActivity(), "Error",
+                            "An error has occurred. Please, try again.");
+            }
+        }
     }
 
     /**
@@ -240,7 +312,26 @@ public class RegisterFragment
      * interaction in this fragment to be communicated to the activity and potentially other
      * fragments contained in that activity.
      */
-    public interface LoginCallbacks
+    public interface RegisterCallbacks
     {
+
+        /**
+         * Logs into Parse user account.
+         *
+         * @param callback callback for login results
+         */
+        void login(LoginCallback callback);
+    }
+
+    /**
+     * Methods which can be overridden to provide a result upon completion or failure of a login.
+     */
+    public interface LoginCallback
+    {
+
+        /**
+         * Invoked when the login fails.
+         */
+        void onLoginFailed(int errorCode);
     }
 }

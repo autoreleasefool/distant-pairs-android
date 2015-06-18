@@ -3,4 +3,9 @@
 
     <color name="primary_background">#2b2b2b</color>
     <color name="secondary_background">#3c3c3c</color>
+
+    <color name="pair_filter">#ffffff</color>
+    <color name="person_filter">#ffffff</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>
