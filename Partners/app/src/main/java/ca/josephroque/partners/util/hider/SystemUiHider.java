@@ -20,6 +20,21 @@ import android.view.View;
  */
 public abstract class SystemUiHider
 {
+    /**
+     * The number of milliseconds to wait after user interaction before hiding the system UI.
+     */
+    public static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
+    /**
+     * If set, will toggle the system UI visibility upon interaction. Otherwise, will show the
+     * system UI visibility upon interaction.
+     */
+    public static final boolean TOGGLE_ON_CLICK = true;
+
+    /**
+     * The flags to pass to {@link SystemUiHider#getInstance}.
+     */
+    public static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
     /**
      * When this flag is set, the {@link android.view.WindowManager.LayoutParams#FLAG_LAYOUT_IN_SCREEN}
