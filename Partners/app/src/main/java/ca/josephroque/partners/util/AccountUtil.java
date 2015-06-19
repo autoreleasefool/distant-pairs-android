@@ -135,10 +135,11 @@ public final class AccountUtil
         if (username == null)
             return;
 
-        ParseQuery<ParseObject> query = ParseQuery.or(Arrays.asList(
+        ParseQuery<ParseObject> pairQuery = ParseQuery.or(Arrays.asList(
                 new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
-                new ParseQuery<>("Pair").whereEqualTo(PAIR, username),
-                new ParseQuery<>("Status").whereEqualTo(AccountUtil.USERNAME, username)));
+                new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
+        ParseQuery<ParseObject> statusQuery = ParseQuery.getQuery("Status");
+        statusQuery.whereEqualTo(AccountUtil.USERNAME, username);
         // TODO: get other objects with user's name
 
         preferences.edit()
@@ -147,15 +148,21 @@ public final class AccountUtil
                 .remove(PAIR)
                 .apply();
 
-        query.findInBackground(new FindCallback<ParseObject>()
+        pairQuery.findInBackground(new FindCallback<ParseObject>()
         {
             @Override
             public void done(List<ParseObject> list, ParseException e)
             {
                 if (e != null)
-                {
                     ParseObject.deleteAllInBackground(list);
-                }
+            }
+        });
+        statusQuery.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> list, ParseException e)
+            {
+                if (e != null)
+                    ParseObject.deleteAllInBackground(list);
                 // TODO: error handling
             }
         });

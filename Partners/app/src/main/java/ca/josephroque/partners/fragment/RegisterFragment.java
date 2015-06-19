@@ -97,7 +97,11 @@ public class RegisterFragment
 
         if (savedInstanceState != null)
         {
-            mRegisterOrPair = savedInstanceState.getBoolean(REGISTER_OR_PAIR);
+            mRegisterOrPair = savedInstanceState.getBoolean(REGISTER_OR_PAIR, true);
+        }
+        else
+        {
+            mRegisterOrPair = getArguments().getBoolean(REGISTER_OR_PAIR, true);
         }
 
         mButtonRegister = (Button) rootView.findViewById(R.id.btn_login_register);

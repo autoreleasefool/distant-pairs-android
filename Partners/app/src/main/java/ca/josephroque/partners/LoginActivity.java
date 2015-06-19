@@ -9,6 +9,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -47,6 +49,7 @@ public class LoginActivity
             startService(mIntentMessageService);
             startActivity(mIntentPartnerActivity);
             finish();
+            return;
         }
 
         if (savedInstanceState == null)
@@ -63,6 +66,12 @@ public class LoginActivity
     public void login(final RegisterFragment.LoginCallback callback)
     {
         new LoginTask().execute(callback);
+    }
+
+    @Override
+    public void pairRegistered()
+    {
+        throw new UnsupportedOperationException("cannot register pair - not logged in");
     }
 
     /**

@@ -7,17 +7,13 @@ import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 import ca.josephroque.partners.util.MessageUtil;
-import ca.josephroque.partners.util.hider.SystemUiHider;
 
-import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +23,8 @@ import android.support.v4.view.ViewPager;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
@@ -37,10 +35,7 @@ import java.lang.ref.WeakReference;
 
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e. status bar and
- * navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
+ * Main activity for user interaction.
  */
 public class PartnerActivity
         extends FragmentActivity
@@ -51,21 +46,6 @@ public class PartnerActivity
     private static final String ARG_CURRENT_FRAGMENT = "arg_cur_frag";
     /** Represents boolean indicating if the user has a pair registered. */
     private static final String ARG_PAIR_REGISTERED = "arg_pair_reg";
-
-    /** The instance of the {@link SystemUiHider} for this activity. */
-    private SystemUiHider mSystemUiHider;
-
-    /** To post event to hide the UI. */
-    private final Handler mHideHandler = new Handler();
-    /** Hides the UI in a handler. */
-    private final Runnable mHideRunnable = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            mSystemUiHider.hide();
-        }
-    };
 
     /** Displays a spinning progress dialog. */
     private ProgressDialog mProgressDialogMessageService;
@@ -87,43 +67,12 @@ public class PartnerActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_partner);
-
-        final View contentView = findViewById(R.id.fullscreen_content);
-
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, SystemUiHider.HIDER_FLAGS);
-        mSystemUiHider.setup();
-        mSystemUiHider
-                .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener()
-                {
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-                    public void onVisibilityChange(boolean visible)
-                    {
-                        if (visible)
-                        {
-                            // Schedule a hide().
-                            delayedHide(SystemUiHider.AUTO_HIDE_DELAY_MILLIS);
-                        }
-                    }
-                });
-
-        // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if (SystemUiHider.TOGGLE_ON_CLICK)
-                    mSystemUiHider.toggle();
-                else
-                    mSystemUiHider.show();
-            }
-        });
 
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
         mFabPrimary.setOnClickListener(this);
@@ -159,17 +108,6 @@ public class PartnerActivity
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState)
-    {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(SystemUiHider.INITIAL_DELAY);
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
@@ -180,6 +118,7 @@ public class PartnerActivity
     @Override
     protected void onDestroy()
     {
+        super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiverMessageService);
     }
 
@@ -228,18 +167,6 @@ public class PartnerActivity
         mIsPairRegistered = true;
         mPagerAdapter.notifyDataSetChanged();
         updateFloatingActionButton();
-    }
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any previously scheduled
-     * calls.
-     *
-     * @param delayMillis milliseconds to delay
-     */
-    private void delayedHide(int delayMillis)
-    {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
     /**
@@ -326,7 +253,7 @@ public class PartnerActivity
      */
     private boolean checkIfPairIsRegistered()
     {
-
+        return false;
     }
 
     /**
