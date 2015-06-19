@@ -20,6 +20,12 @@ import android.view.View;
  */
 public abstract class SystemUiHider
 {
+
+    /**
+     * Milliseconds to wait before hiding UI on startup.
+     */
+    public static final int INITIAL_DELAY = 100;
+
     /**
      * The number of milliseconds to wait after user interaction before hiding the system UI.
      */

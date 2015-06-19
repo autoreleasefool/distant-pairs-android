@@ -10,6 +10,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -32,6 +33,8 @@ public final class AccountUtil
     public static final String USERNAME = "account_username";
     /** Represents pair's name in preferences. */
     public static final String PAIR = "account_pair";
+    /** Represents parse object containing the user's registered pair. */
+    public static final String PARSE_PAIR_ID = "account_pair_objid";
 
     /** Number of random bits to generate. */
     private static final int PASSWORD_BIT_LENGTH = 130;
@@ -83,8 +86,10 @@ public final class AccountUtil
      * Prompt user to delete their account.
      *
      * @param context to create dialog
+     * @param callback to inform calling method if account is deleted
      */
-    public static void promptDeleteAccount(final Context context)
+    public static void promptDeleteAccount(final Context context,
+                                           final DeleteAccountCallback callback)
     {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
@@ -95,6 +100,8 @@ public final class AccountUtil
                 if (which == DialogInterface.BUTTON_POSITIVE)
                 {
                     deleteAccount(context);
+                    if (callback != null)
+                        callback.onDeleteAccount();
                 }
             }
         };
@@ -116,6 +123,13 @@ public final class AccountUtil
     public static void deleteAccount(Context context)
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null)
+        {
+            currentUser.deleteInBackground();
+            ParseUser.logOutInBackground();
+        }
 
         String username = preferences.getString(USERNAME, null);
         if (username == null)
@@ -145,5 +159,17 @@ public final class AccountUtil
                 // TODO: error handling
             }
         });
+    }
+
+    /**
+     * Event callback for account deletion.
+     */
+    public interface DeleteAccountCallback
+    {
+
+        /**
+         * Invoked if user opts to delete their account.
+         */
+        void onDeleteAccount();
     }
 }
