@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -127,8 +128,16 @@ public final class AccountUtil
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null)
         {
-            currentUser.deleteInBackground();
-            ParseUser.logOutInBackground();
+            currentUser.deleteInBackground(new DeleteCallback()
+            {
+                @Override
+                public void done(ParseException e)
+                {
+                    if (e != null)
+                        ParseUser.logOutInBackground();
+                    // TOOD: error handling
+                }
+            });
         }
 
         String username = preferences.getString(USERNAME, null);
