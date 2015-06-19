@@ -1,16 +1,14 @@
 package ca.josephroque.partners;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -28,8 +26,11 @@ public class LoginActivity
         implements RegisterFragment.RegisterCallbacks
 {
 
-    /** To display progress when contacting server. */
-    private ProgressDialog mProgressDialogServer;
+    /** Displays progress when connecting to server. */
+    private ProgressBar mProgressBarServer;
+    /** Displays action when connecting to server. */
+    private TextView mTextViewServer;
+
     /** Intent to initiate instance of {@link MessageService}. */
     private Intent mIntentMessageService;
     /** Intent to initiate instance of {@link PartnerActivity}. */
@@ -77,12 +78,19 @@ public class LoginActivity
     /**
      * Creates and shows a progress bar.
      *
-     * @param title title of progress bar
-     * @param message message for progress bar
+     * @param message id of string for progress bar
      */
-    private void showProgressBar(@NonNull String title, @Nullable String message)
+    private void showProgressBar(int message)
     {
-        mProgressDialogServer = ProgressDialog.show(this, title, message, true, false);
+        if (mProgressBarServer == null)
+            mProgressBarServer = (ProgressBar) findViewById(R.id.pb_login);
+        if (mTextViewServer == null)
+            mTextViewServer = (TextView) findViewById(R.id.tv_login);
+
+        mProgressBarServer.setVisibility(View.VISIBLE);
+        mTextViewServer.setVisibility(View.VISIBLE);
+        mTextViewServer.setText(message);
+
     }
 
     /**
@@ -90,8 +98,8 @@ public class LoginActivity
      */
     private void hideProgressBar()
     {
-        mProgressDialogServer.dismiss();
-        mProgressDialogServer = null;
+        mProgressBarServer.setVisibility(View.GONE);
+        mTextViewServer.setVisibility(View.GONE);
     }
 
     /**
@@ -107,7 +115,7 @@ public class LoginActivity
         @Override
         protected void onPreExecute()
         {
-            showProgressBar(getResources().getString(R.string.text_logging_in), null);
+            showProgressBar(R.string.text_logging_in);
         }
 
         @Override

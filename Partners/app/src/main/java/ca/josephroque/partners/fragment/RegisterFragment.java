@@ -2,7 +2,6 @@ package ca.josephroque.partners.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -11,8 +10,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -21,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -31,7 +30,9 @@ import com.parse.ParseUser;
 import java.util.Iterator;
 import java.util.List;
 
+import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
+import ca.josephroque.partners.interfaces.ActionButtonHandler;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 
@@ -42,7 +43,7 @@ import ca.josephroque.partners.util.ErrorUtil;
  */
 public class RegisterFragment
         extends Fragment
-        implements View.OnClickListener
+        implements View.OnClickListener, ActionButtonHandler
 {
 
     /** Represents boolean indicating if fragment is for user or pair registration. */
@@ -56,8 +57,10 @@ public class RegisterFragment
     private EditText mEditTextUsername;
     /** Container for user input views. */
     private LinearLayout mLinearLayoutRoot;
-    /** To display progress when contacting server. */
-    private ProgressDialog mProgressDialogServer;
+    /** Displays progress when connecting to server. */
+    private ProgressBar mProgressBarServer;
+    /** Displays action when connecting to server. */
+    private TextView mTextViewServer;
 
     /** Instance of callback interface. */
     private RegisterCallbacks mCallback;
@@ -207,15 +210,35 @@ public class RegisterFragment
         }
     }
 
+    @Override
+    public void handleActionClick()
+    {
+        Activity activity = getActivity();
+        if (activity instanceof PartnerActivity)
+        {
+            ((PartnerActivity) activity).deleteAccount();
+        }
+    }
+
     /**
      * Creates and shows a progress bar.
      *
-     * @param title title of progress bar
-     * @param message message for progress bar
+     * @param message id of string for progress bar
      */
-    private void showProgressBar(@NonNull String title, @Nullable String message)
+    private void showProgressBar(int message)
     {
-        mProgressDialogServer = ProgressDialog.show(getActivity(), title, message, true, false);
+        View rootView = getView();
+        if (rootView == null)
+            return;
+
+        if (mProgressBarServer == null)
+            mProgressBarServer = (ProgressBar) rootView.findViewById(R.id.pb_register);
+        if (mTextViewServer == null)
+            mTextViewServer = (TextView) rootView.findViewById(R.id.tv_register);
+
+        mProgressBarServer.setVisibility(View.VISIBLE);
+        mTextViewServer.setVisibility(View.VISIBLE);
+        mTextViewServer.setText(message);
     }
 
     /**
@@ -223,8 +246,8 @@ public class RegisterFragment
      */
     private void hideProgressBar()
     {
-        mProgressDialogServer.dismiss();
-        mProgressDialogServer = null;
+        mProgressBarServer.setVisibility(View.GONE);
+        mTextViewServer.setVisibility(View.GONE);
     }
 
     /**
@@ -331,7 +354,7 @@ public class RegisterFragment
         protected void onPreExecute()
         {
             mLinearLayoutRoot.setVisibility(View.GONE);
-            showProgressBar(getResources().getString(R.string.text_registering), null);
+            showProgressBar(R.string.text_registering);
         }
 
         @Override
@@ -409,8 +432,8 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
-            mLinearLayoutRoot.setVisibility(View.VISIBLE);
-            showProgressBar(getResources().getString(R.string.text_checking), null);
+            mLinearLayoutRoot.setVisibility(View.GONE);
+            showProgressBar(R.string.text_checking);
         }
 
         @Override
@@ -440,6 +463,7 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
+            hideProgressBar();
             if (mListPairRequests == null)
                 result = ParseException.OBJECT_NOT_FOUND;
 
@@ -478,8 +502,8 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
-            mLinearLayoutRoot.setVisibility(View.VISIBLE);
-            showProgressBar(getResources().getString(R.string.text_registering), null);
+            mLinearLayoutRoot.setVisibility(View.GONE);
+            showProgressBar(R.string.text_registering);
         }
 
         @SuppressLint("CommitPrefEdits")
@@ -531,6 +555,8 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
+            hideProgressBar();
+
             switch (result)
             {
                 case AccountUtil.SUCCESS:

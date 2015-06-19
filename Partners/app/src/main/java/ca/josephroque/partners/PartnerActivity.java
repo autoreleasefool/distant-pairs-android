@@ -3,6 +3,7 @@ package ca.josephroque.partners;
 import ca.josephroque.partners.fragment.HeartFragment;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.ThoughtFragment;
+import ca.josephroque.partners.interfaces.ActionButtonHandler;
 import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
@@ -128,27 +129,8 @@ public class PartnerActivity
         switch (src.getId())
         {
             case R.id.fab_partner:
-                if (mIsPairRegistered)
-                {
-                    // TODO: send thought
-                }
-                else
-                {
-                    AccountUtil.promptDeleteAccount(this,
-                            new AccountUtil.DeleteAccountCallback()
-                            {
-                                @Override
-                                public void onDeleteAccount()
-                                {
-                                    stopService(new Intent(PartnerActivity.this,
-                                            MessageService.class));
-                                    Intent loginIntent = new Intent(PartnerActivity.this,
-                                            LoginActivity.class);
-                                    startActivity(loginIntent);
-                                    finish();
-                                }
-                            });
-                }
+                ((ActionButtonHandler) mPagerAdapter.getCurrentFragment())
+                        .handleActionClick();
                 break;
             default:
                 //does nothing
@@ -167,6 +149,29 @@ public class PartnerActivity
         mIsPairRegistered = true;
         mPagerAdapter.notifyDataSetChanged();
         updateFloatingActionButton();
+    }
+
+    /**
+     * Prompts user to delete their account.
+     *
+     * @see AccountUtil#promptDeleteAccount(Context, AccountUtil.DeleteAccountCallback)
+     */
+    public void deleteAccount()
+    {
+        AccountUtil.promptDeleteAccount(this,
+                new AccountUtil.DeleteAccountCallback()
+                {
+                    @Override
+                    public void onDeleteAccount()
+                    {
+                        stopService(new Intent(PartnerActivity.this,
+                                MessageService.class));
+                        Intent loginIntent = new Intent(PartnerActivity.this,
+                                LoginActivity.class);
+                        startActivity(loginIntent);
+                        finish();
+                    }
+                });
     }
 
     /**

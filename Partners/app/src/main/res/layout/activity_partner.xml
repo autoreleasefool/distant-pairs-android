@@ -25,4 +25,20 @@
         fab:fab_colorPressed="@color/primary_theme_light"
         fab:fab_colorRipple="@color/primary_theme_dark" />
 
+    <ProgressBar
+        android:id="@+id/pb_partner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminateOnly="true"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_partner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pb_login"
+        android:gravity="center_horizontal"
+        android:visibility="gone" />
+
 </RelativeLayout>

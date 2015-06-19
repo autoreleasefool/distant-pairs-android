@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ca.josephroque.partners.R;
+import ca.josephroque.partners.interfaces.ActionButtonHandler;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -15,6 +16,7 @@ import ca.josephroque.partners.R;
  */
 public class HeartFragment
         extends Fragment
+        implements ActionButtonHandler
 {
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -35,5 +37,9 @@ public class HeartFragment
         return inflater.inflate(R.layout.fragment_heart, container, false);
     }
 
-
+    @Override
+    public void handleActionClick()
+    {
+        // TODO: send thought
+    }
 }
