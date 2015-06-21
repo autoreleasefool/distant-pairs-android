@@ -6,8 +6,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
-import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ca.josephroque.partners.R;
 
@@ -27,6 +28,9 @@ import ca.josephroque.partners.R;
  */
 public final class AccountUtil
 {
+
+    /** Indicates if the user's account is being deleted in the background. */
+    private static AtomicBoolean sAccountBeingDeleted = new AtomicBoolean(false);
 
     /** Represents password in preferences. */
     public static final String PASSWORD = "account_password";
@@ -123,19 +127,20 @@ public final class AccountUtil
      */
     public static void deleteAccount(Context context)
     {
+        sAccountBeingDeleted.set(true);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null)
         {
-            currentUser.deleteInBackground(new DeleteCallback()
+            ParseUser.logOutInBackground(new LogOutCallback()
             {
                 @Override
                 public void done(ParseException e)
                 {
                     if (e != null)
-                        ParseUser.logOutInBackground();
-                    // TOOD: error handling
+                        sAccountBeingDeleted.set(false);
+                    // TODO: error handling
                 }
             });
         }
@@ -166,7 +171,8 @@ public final class AccountUtil
                     ParseObject.deleteAllInBackground(list);
             }
         });
-        statusQuery.findInBackground(new FindCallback<ParseObject>() {
+        statusQuery.findInBackground(new FindCallback<ParseObject>()
+        {
             @Override
             public void done(List<ParseObject> list, ParseException e)
             {
@@ -175,6 +181,16 @@ public final class AccountUtil
                 // TODO: error handling
             }
         });
+    }
+
+    /**
+     * Returns true if an account is currently being deleted in the background.
+     *
+     * @return {@code sAccountBeingDeleted}
+     */
+    public static boolean isAccountBeingDeleted()
+    {
+        return sAccountBeingDeleted.get();
     }
 
     /**

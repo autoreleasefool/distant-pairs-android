@@ -6,7 +6,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -14,7 +16,6 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 
 import ca.josephroque.partners.fragment.RegisterFragment;
-import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 
@@ -26,13 +27,14 @@ public class LoginActivity
         implements RegisterFragment.RegisterCallbacks
 {
 
+    /** To identify output from this class in the Logcat. */
+    private static final String TAG = "LoginActivity";
+
     /** Displays progress when connecting to server. */
     private ProgressBar mProgressBarServer;
     /** Displays action when connecting to server. */
     private TextView mTextViewServer;
 
-    /** Intent to initiate instance of {@link MessageService}. */
-    private Intent mIntentMessageService;
     /** Intent to initiate instance of {@link PartnerActivity}. */
     private Intent mIntentPartnerActivity;
 
@@ -42,12 +44,15 @@ public class LoginActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mIntentMessageService = new Intent(LoginActivity.this, MessageService.class);
         mIntentPartnerActivity = new Intent(LoginActivity.this, PartnerActivity.class);
 
-        if (ParseUser.getCurrentUser() != null)
+        boolean attemptLogin = true;
+        Intent intent = getIntent();
+        if (intent != null)
+            attemptLogin = intent.getBooleanExtra(PartnerActivity.ARG_ATTEMPT_LOGIN, true);
+
+        if (attemptLogin && ParseUser.getCurrentUser() != null)
         {
-            startService(mIntentMessageService);
             startActivity(mIntentPartnerActivity);
             finish();
             return;
@@ -60,6 +65,45 @@ public class LoginActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.login_container, fragment)
                     .commit();
+        }
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        if (AccountUtil.isAccountBeingDeleted())
+        {
+            showProgressBar(R.string.text_deleting_account);
+            new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    while (AccountUtil.isAccountBeingDeleted())
+                    {
+                        try
+                        {
+                            Thread.sleep(100);
+                        }
+                        catch (InterruptedException ex)
+                        {
+                            Log.e(TAG, "Delete account thread interrupted", ex);
+                        }
+                    }
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            hideProgressBar();
+                        }
+                    });
+                }
+            }).start();
         }
     }
 
@@ -150,6 +194,7 @@ public class LoginActivity
         @Override
         protected void onPostExecute(Integer result)
         {
+            Log.i(TAG, "Result: " + result);
             hideProgressBar();
 
             if (mCallback != null && result != AccountUtil.SUCCESS)
@@ -158,7 +203,6 @@ public class LoginActivity
             switch (result)
             {
                 case AccountUtil.SUCCESS:
-                    startService(mIntentMessageService);
                     startActivity(mIntentPartnerActivity);
                     finish();
                     break;

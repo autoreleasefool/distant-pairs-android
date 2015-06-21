@@ -13,6 +13,7 @@
     <string name="text_set_pair">Set Pair</string>
     <string name="text_check_pairs">Check for Pair Requests</string>
     <string name="text_checking">Checking</string>
+    <string name="text_deleting_account">Deleting account</string>
 
     <string name="text_dialog_okay">Okay</string>
     <string name="text_dialog_cancel">Cancel</string>

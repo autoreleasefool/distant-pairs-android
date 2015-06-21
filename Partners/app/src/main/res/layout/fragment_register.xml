@@ -1,22 +1,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/primary_background"
-                tools:context=".LoginActivity">
+                android:background="@color/primary_background">
 
-    <LinearLayout
-        android:id="@+id/ll_login"
+    <RelativeLayout
+        android:id="@+id/rl_login"
         android:layout_width="@dimen/login_width"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="@color/secondary_background"
-        android:orientation="vertical">
+        android:background="@color/secondary_background">
 
         <EditText
             android:id="@+id/et_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:drawableLeft="@drawable/ic_person"
             android:drawableStart="@drawable/ic_person"
             android:hint="@string/text_hint_username"
@@ -26,16 +24,18 @@
             android:id="@+id/btn_login_register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/et_username"
             android:text="@string/text_register" />
 
         <Button
             android:id="@+id/btn_check_pairs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/btn_login_register"
             android:text="@string/text_check_pairs"
             android:visibility="gone" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/pb_register"

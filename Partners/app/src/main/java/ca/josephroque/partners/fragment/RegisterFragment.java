@@ -12,13 +12,14 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
@@ -45,6 +46,8 @@ public class RegisterFragment
         extends Fragment
         implements View.OnClickListener, ActionButtonHandler
 {
+    /** To identify output from this class in the Logcat. */
+    private static final String TAG = "RegisterFragment";
 
     /** Represents boolean indicating if fragment is for user or pair registration. */
     private static final String REGISTER_OR_PAIR = "reg_or_pair";
@@ -56,7 +59,7 @@ public class RegisterFragment
     /** User input for username. */
     private EditText mEditTextUsername;
     /** Container for user input views. */
-    private LinearLayout mLinearLayoutRoot;
+    private RelativeLayout mRelativeLayoutRegister;
     /** Displays progress when connecting to server. */
     private ProgressBar mProgressBarServer;
     /** Displays action when connecting to server. */
@@ -110,7 +113,7 @@ public class RegisterFragment
         mButtonRegister = (Button) rootView.findViewById(R.id.btn_login_register);
         mButtonPairCheck = (Button) rootView.findViewById(R.id.btn_check_pairs);
         mEditTextUsername = (EditText) rootView.findViewById(R.id.et_username);
-        mLinearLayoutRoot = (LinearLayout) rootView.findViewById(R.id.ll_login);
+        mRelativeLayoutRegister = (RelativeLayout) rootView.findViewById(R.id.rl_login);
 
         if (mRegisterOrPair)
         {
@@ -261,7 +264,7 @@ public class RegisterFragment
         {
             ErrorUtil.displayErrorMessage(getActivity(), "No requests",
                     "Nobody has requested to be your pair.");
-            mLinearLayoutRoot.setVisibility(View.VISIBLE);
+            mRelativeLayoutRegister.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -353,7 +356,7 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
-            mLinearLayoutRoot.setVisibility(View.GONE);
+            mRelativeLayoutRegister.setVisibility(View.GONE);
             showProgressBar(R.string.text_registering);
         }
 
@@ -385,6 +388,7 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
+            Log.i(TAG, "Result: " + result);
             hideProgressBar();
 
             switch (result)
@@ -395,7 +399,7 @@ public class RegisterFragment
                         @Override
                         public void onLoginFailed(int errorCode)
                         {
-                            mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                            mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                         }
                     });
                     break;
@@ -403,17 +407,17 @@ public class RegisterFragment
                     ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
                             "Failed to connect to the server. Please, try again. If this error"
                                     + "persists, your connection may not be sufficient.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.USERNAME_TAKEN:
                     ErrorUtil.displayErrorMessage(getActivity(), "Username taken",
                             "That username is already in use. Please, try another.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 default:
                     ErrorUtil.displayErrorMessage(getActivity(), "Error",
                             "An error has occurred. Please, try again.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -432,7 +436,7 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
-            mLinearLayoutRoot.setVisibility(View.GONE);
+            mRelativeLayoutRegister.setVisibility(View.GONE);
             showProgressBar(R.string.text_checking);
         }
 
@@ -476,17 +480,17 @@ public class RegisterFragment
                 case ParseException.OBJECT_NOT_FOUND:
                     ErrorUtil.displayErrorMessage(getActivity(), "No requests",
                             "Nobody has requested to be your pair.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.CONNECTION_FAILED:
                     ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
                             "Unable to connect to server. Please, try again.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 default:
                     ErrorUtil.displayErrorMessage(getActivity(), "Unknown error",
                             "An unknown error occurred. Please, try again.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -502,7 +506,7 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
-            mLinearLayoutRoot.setVisibility(View.GONE);
+            mRelativeLayoutRegister.setVisibility(View.GONE);
             showProgressBar(R.string.text_registering);
         }
 
@@ -565,22 +569,22 @@ public class RegisterFragment
                 case ParseException.CONNECTION_FAILED:
                     ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
                             "Unable to connect to server. Please, try again.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.USERNAME_MISSING:
                     ErrorUtil.displayErrorMessage(getActivity(), "Error registering pair",
                             "This user does not exist. Please, try again.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.USERNAME_TAKEN:
                     ErrorUtil.displayErrorMessage(getActivity(), "Error registering pair",
                             "This user already has a pair. Please, try again.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 default:
                     ErrorUtil.displayErrorMessage(getActivity(), "Error registering pair",
                             "This user may not exist or may already be paired. Please, try again.");
-                    mLinearLayoutRoot.setVisibility(View.VISIBLE);
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
             }
         }

@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,15 +44,22 @@ public class PartnerActivity
         implements View.OnClickListener, RegisterFragment.RegisterCallbacks
 {
 
+    /** To identify output from this class in the Logcat. */
+    private static final String TAG = "PartnerActivity";
+
     /** Represents current fragment in the view pager. */
     private static final String ARG_CURRENT_FRAGMENT = "arg_cur_frag";
     /** Represents boolean indicating if the user has a pair registered. */
     private static final String ARG_PAIR_REGISTERED = "arg_pair_reg";
+    /** Represents boolean indicating if the app should attempt to log the user in. */
+    public static final String ARG_ATTEMPT_LOGIN = "arg_attempt_login";
 
     /** Displays a spinning progress dialog. */
     private ProgressDialog mProgressDialogMessageService;
     /** Receives intent to hide spinning progress dialog. */
     private BroadcastReceiver mReceiverMessageService = null;
+    /** Intent to initiate instance of {@link MessageService}. */
+    private Intent mIntentMessageService;
 
     /** Floating Action Button for primary action in the current fragment. */
     private FloatingActionButton mFabPrimary;
@@ -74,6 +82,9 @@ public class PartnerActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_partner);
+
+        mIntentMessageService = new Intent(PartnerActivity.this, MessageService.class);
+        startService(mIntentMessageService);
 
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
         mFabPrimary.setOnClickListener(this);
@@ -106,6 +117,7 @@ public class PartnerActivity
 
         updateFloatingActionButton();
         showServiceSpinner();
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
     @Override
@@ -121,6 +133,7 @@ public class PartnerActivity
     {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiverMessageService);
+        stopService(mIntentMessageService);
     }
 
     @Override
@@ -164,10 +177,10 @@ public class PartnerActivity
                     @Override
                     public void onDeleteAccount()
                     {
-                        stopService(new Intent(PartnerActivity.this,
-                                MessageService.class));
+                        stopService(mIntentMessageService);
                         Intent loginIntent = new Intent(PartnerActivity.this,
                                 LoginActivity.class);
+                        loginIntent.putExtra(ARG_ATTEMPT_LOGIN, false);
                         startActivity(loginIntent);
                         finish();
                     }
