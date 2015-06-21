@@ -1,10 +1,13 @@
-<RelativeLayout
-    android:id="@+id/fullscreen_content"
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".PartnerActivity">
 
     <android.support.v4.view.ViewPager
@@ -12,33 +15,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.melnykov.fab.FloatingActionButton
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_partner"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_height="Wrap_content"
+        android:layout_gravity="bottom|right"
         android:src="@drawable/ic_cloud"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        fab:fab_colorNormal="@color/primary_theme_light"
-        fab:fab_colorPressed="@color/primary_theme_light"
-        fab:fab_colorRipple="@color/primary_theme_dark" />
+        app:borderWidth="0dp"
+        app:elevation="4dp"
+        app:fabSize="normal"
+        tools:ignore="RtlHardcoded" />
 
-    <ProgressBar
-        android:id="@+id/pb_partner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminateOnly="true"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tv_partner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/pb_login"
-        android:gravity="center_horizontal"
-        android:visibility="gone" />
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
