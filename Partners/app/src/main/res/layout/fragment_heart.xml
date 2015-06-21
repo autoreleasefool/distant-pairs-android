@@ -1,13 +1,69 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="ca.josephroque.partners.fragment.HeartFragment">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="ca.josephroque.partners.fragment.HeartFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ViewSwitcher
+        android:id="@+id/switcher_heart"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:inAnimation="@anim/heart_fadein"
+        android:outAnimation="@anim/heart_fadeout">
 
-</FrameLayout>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/text_content_description_heart_inactive"
+            android:src="@drawable/heart_inactive" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/text_content_description_heart_active"
+            android:src="@drawable/heart_active" />
+
+    </ViewSwitcher>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_thought"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/switcher_heart"
+        card_view:cardCornerRadius="4dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_thought_most_recent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:text="@string/text_most_recent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:gravity="left"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:id="@+id/tv_thought_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_thought_most_recent"
+                android:gravity="left"
+                tools:ignore="RtlHardcoded" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

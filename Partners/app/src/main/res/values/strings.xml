@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">Partners</string>
-    <string name="title_activity_partner">Paired</string>
+    <string name="title_activity_partner">Connect</string>
 
+    <!-- Actions -->
     <string name="action_settings">Settings</string>
     <string name="action_delete_account">Delete account</string>
 
+    <!-- Events -->
     <string name="text_hint_username">Username</string>
     <string name="text_register">Register</string>
     <string name="text_registering">Registering</string>
@@ -15,12 +17,17 @@
     <string name="text_checking">Checking</string>
     <string name="text_deleting_account">Deleting account</string>
 
+    <!-- Text -->
+    <string name="text_most_recent">Most recent thought</string>
+
+    <!-- Dialog text -->
     <string name="text_dialog_okay">Okay</string>
     <string name="text_dialog_cancel">Cancel</string>
     <string name="text_dialog_no">No</string>
     <string name="text_dialog_no_to_all">No to all</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Content descriptions -->
+    <string name="text_content_description_heart_active">Your pair is online</string>
+    <string name="text_content_description_heart_inactive">Your pair is offline</string>
 
 </resources>
