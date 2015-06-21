@@ -21,7 +21,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +44,7 @@ public class PartnerActivity
 {
 
     /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
     private static final String TAG = "PartnerActivity";
 
     /** Represents current fragment in the view pager. */
@@ -53,6 +53,9 @@ public class PartnerActivity
     private static final String ARG_PAIR_REGISTERED = "arg_pair_reg";
     /** Represents boolean indicating if the app should attempt to log the user in. */
     public static final String ARG_ATTEMPT_LOGIN = "arg_attempt_login";
+
+    /** Center pivot for scale animation. */
+    private static final float CENTER_PIVOT = 0.5f;
 
     /** Displays a spinning progress dialog. */
     private ProgressDialog mProgressDialogMessageService;
@@ -111,7 +114,7 @@ public class PartnerActivity
         }
         else
         {
-            mIsPairRegistered = checkIfPairIsRegistered();
+            mIsPairRegistered = AccountUtil.doesPartnerExist(this);
         }
         mPagerAdapter.notifyDataSetChanged();
 
@@ -228,10 +231,12 @@ public class PartnerActivity
 
         if (newDrawableId != mCurrentFabIcon)
         {
-            final int shortAnimTime =
-                    getResources().getInteger(android.R.integer.config_shortAnimTime);
-            ScaleAnimation shrink = new ScaleAnimation(1.0f, 0f, 1.0f, 0f);
-            shrink.setDuration(shortAnimTime);
+            final int animTime =
+                    getResources().getInteger(android.R.integer.config_mediumAnimTime);
+            ScaleAnimation shrink = new ScaleAnimation(1.0f, 0f, 1.0f, 0f,
+                    Animation.RELATIVE_TO_SELF, CENTER_PIVOT, Animation.RELATIVE_TO_SELF,
+                    CENTER_PIVOT);
+            shrink.setDuration(animTime);
             shrink.setAnimationListener(new Animation.AnimationListener()
             {
                 @Override
@@ -245,8 +250,10 @@ public class PartnerActivity
                 {
                     mFabPrimary.setImageResource(newDrawableId);
                     mCurrentFabIcon = newDrawableId;
-                    ScaleAnimation grow = new ScaleAnimation(0f, 1.0f, 0f, 1.0f);
-                    grow.setDuration(shortAnimTime);
+                    ScaleAnimation grow = new ScaleAnimation(0f, 1.0f, 0f, 1.0f,
+                            Animation.RELATIVE_TO_SELF, CENTER_PIVOT, Animation.RELATIVE_TO_SELF,
+                            CENTER_PIVOT);
+                    grow.setDuration(animTime);
                     grow.setInterpolator(new OvershootInterpolator());
                     mFabPrimary.setAnimation(grow);
                     grow.start();
@@ -262,16 +269,6 @@ public class PartnerActivity
             mFabPrimary.setAnimation(shrink);
             shrink.start();
         }
-    }
-
-    /**
-     * Checks if the user has a pair registered or not.
-     *
-     * @return true, if the user has previously registered a pair.
-     */
-    private boolean checkIfPairIsRegistered()
-    {
-        return false;
     }
 
     /**

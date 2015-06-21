@@ -194,6 +194,19 @@ public final class AccountUtil
     }
 
     /**
+     * Checks if a partner has been registered in the application.
+     *
+     * @param context to get shared preferences
+     * @return true if a partner exists in shared preferences
+     */
+    public static boolean doesPartnerExist(Context context)
+    {
+        String partnerName = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PAIR, null);
+        return partnerName != null && partnerName.length() > 0;
+    }
+
+    /**
      * Event callback for account deletion.
      */
     public interface DeleteAccountCallback
