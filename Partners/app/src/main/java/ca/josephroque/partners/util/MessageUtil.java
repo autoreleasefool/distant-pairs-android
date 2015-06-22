@@ -29,6 +29,9 @@ public final class MessageUtil
     /** A logout message. */
     public static final String LOGOUT_MESSAGE = "~LOGOUT";
 
+    /** Maximum length of messages. */
+    public static final int MAX_MESSAGE_LENGTH = 140;
+
     /** To format a {@link Date} object to string. */
     private static SimpleDateFormat sDateFormat =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);

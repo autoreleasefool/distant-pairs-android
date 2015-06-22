@@ -19,12 +19,14 @@
 
     <!-- Text -->
     <string name="text_most_recent">Most recent thought</string>
+    <string name="text_send_message">Send your thoughts</string>
 
     <!-- Dialog text -->
     <string name="text_dialog_okay">Okay</string>
     <string name="text_dialog_cancel">Cancel</string>
     <string name="text_dialog_no">No</string>
     <string name="text_dialog_no_to_all">No to all</string>
+    <string name="text_dialog_send">Send</string>
 
     <!-- Content descriptions -->
     <string name="text_content_description_heart_active">Your pair is online</string>

@@ -13,6 +13,7 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -28,6 +29,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -37,6 +40,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.widget.EditText;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -204,7 +208,29 @@ public class PartnerActivity
             case R.id.fab_partner:
                 if (mIsPairRegistered)
                 {
-                    // TODO: send thought
+                    // TODO: add view to display remaining characters
+                    View view = getLayoutInflater().inflate(R.layout.dialog_message, null);
+                    final EditText editTextMessage = (EditText) view.findViewById(R.id.et_message);
+                    editTextMessage.setFilters(new InputFilter[]{
+                            new InputFilter.LengthFilter(MessageUtil.MAX_MESSAGE_LENGTH)});
+                    DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            if (which == DialogInterface.BUTTON_POSITIVE)
+                                sendMessage(editTextMessage.getText().toString());
+                            dialog.dismiss();
+                        }
+                    };
+
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.text_send_message)
+                            .setView(view)
+                            .setPositiveButton(R.string.text_dialog_send, listener)
+                            .setNegativeButton(R.string.text_dialog_cancel, listener)
+                            .create()
+                            .show();
                 }
                 else
                 {
@@ -432,7 +458,8 @@ public class PartnerActivity
 
         ParseQuery<ParseObject> pairStatus = new ParseQuery<>(MessageUtil.STATUS);
         pairStatus.whereEqualTo(AccountUtil.USERNAME, partnerName);
-        pairStatus.findInBackground(new FindCallback<ParseObject>() {
+        pairStatus.findInBackground(new FindCallback<ParseObject>()
+        {
             @Override
             public void done(List<ParseObject> list, ParseException e)
             {
