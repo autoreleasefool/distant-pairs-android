@@ -38,7 +38,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/switcher_heart"
-        card_view:cardCornerRadius="4dp">
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="4dp"
+        card_view:cardUseCompatPadding="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -49,9 +51,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
+                android:gravity="left"
                 android:text="@string/text_most_recent"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:gravity="left"
                 tools:ignore="RtlHardcoded" />
 
             <TextView
