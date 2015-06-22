@@ -57,6 +57,10 @@ public class LoginActivity
             finish();
             return;
         }
+        else if (attemptLogin)
+        {
+            login(null);
+        }
 
         if (savedInstanceState == null)
         {

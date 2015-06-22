@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -39,8 +40,11 @@ import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
 
 import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 import com.sinch.android.rtc.PushPair;
 import com.sinch.android.rtc.messaging.Message;
 import com.sinch.android.rtc.messaging.MessageClient;
@@ -162,6 +166,21 @@ public class PartnerActivity
     }
 
     @Override
+    protected void onResume()
+    {
+        super.onResume();
+        setOnlineStatus(true);
+        checkIfPartnerOnline();
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        setOnlineStatus(false);
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
@@ -174,6 +193,7 @@ public class PartnerActivity
     {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiverMessageService);
+        unbindService(mServiceConnection);
         stopService(mIntentMessageService);
     }
 
@@ -330,6 +350,115 @@ public class PartnerActivity
     {
         // TODO: check for valid message
         mMessageService.sendMessage(mPairId, message);
+    }
+
+    /**
+     * Sets whether the user is currently online or not in Parse database.
+     *
+     * @param online user status
+     */
+    private void setOnlineStatus(boolean online)
+    {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final String statusId = preferences.getString(MessageUtil.STATUS_OBJECT_ID, null);
+        final String accountName = preferences.getString(AccountUtil.USERNAME, null);
+
+        if (statusId == null)
+        {
+            Log.i(TAG, "No status object, requesting new");
+            final ParseObject status = new ParseObject(MessageUtil.STATUS);
+            status.put(AccountUtil.USERNAME, accountName);
+            status.put(MessageUtil.ONLINE_STATUS, online);
+            status.saveInBackground(new SaveCallback()
+            {
+                @Override
+                public void done(ParseException e)
+                {
+                    if (e == null)
+                    {
+                        Log.i(TAG, "Status saved");
+                        preferences.edit()
+                                .putString(MessageUtil.STATUS_OBJECT_ID, status.getObjectId())
+                                .apply();
+                    }
+                    else
+                    {
+                        Log.e(TAG, "Status save failed", e);
+                        // TODO: error handling - could not appear online / notify pair
+                    }
+                }
+            });
+        }
+        else
+        {
+            Log.i(TAG, "Existing status object");
+            final ParseObject status = new ParseObject(MessageUtil.STATUS);
+            status.setObjectId(statusId);
+            status.fetchInBackground(new GetCallback<ParseObject>()
+            {
+                @Override
+                public void done(ParseObject parseObject, ParseException e)
+                {
+                    if (e == null)
+                    {
+                        Log.i(TAG, "Status fetch success");
+                        parseObject.put(MessageUtil.STATUS_OBJECT_ID, parseObject.getObjectId());
+                        parseObject.saveInBackground();
+                    }
+                    else
+                    {
+                        Log.e(TAG, "Status fetch failed", e);
+                        // TODO: error handling - could not appear online / notify pair
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Checks if the user's pair is online.
+     */
+    private void checkIfPartnerOnline()
+    {
+        String partnerName = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(AccountUtil.PAIR, null);
+        if (partnerName == null)
+            throw new IllegalArgumentException("invalid partner");
+
+        ParseQuery<ParseObject> pairStatus = new ParseQuery<>(MessageUtil.STATUS);
+        pairStatus.whereEqualTo(AccountUtil.USERNAME, partnerName);
+        pairStatus.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> list, ParseException e)
+            {
+                if (e == null)
+                {
+                    boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtil.ONLINE_STATUS);
+                    if (partnerLoggedIn)
+                    {
+                        mMessageService.sendMessage(mPairId, MessageUtil.LOGIN_MESSAGE);
+                        Fragment currentFragment = mPagerAdapter.getCurrentFragment();
+                        if (currentFragment instanceof MessageHandler)
+                            ((MessageHandler) currentFragment).onNewMessage(
+                                    MessageUtil.getCurrentDateAndTime(), MessageUtil.LOGIN_MESSAGE);
+                    }
+                    else
+                    {
+                        Fragment currentFragment = mPagerAdapter.getCurrentFragment();
+                        if (currentFragment instanceof MessageHandler)
+                            ((MessageHandler) currentFragment).onNewMessage(
+                                    MessageUtil.getCurrentDateAndTime(),
+                                    MessageUtil.LOGOUT_MESSAGE);
+                    }
+                }
+                else
+                {
+                    Snackbar.make(findViewById(R.id.cl_partner), "Unable to find your pair",
+                            Snackbar.LENGTH_SHORT)
+                            .show();
+                }
+            }
+        });
     }
 
     /**
