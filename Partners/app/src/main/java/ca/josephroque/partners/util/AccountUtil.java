@@ -160,6 +160,7 @@ public final class AccountUtil
                 .remove(USERNAME)
                 .remove(PASSWORD)
                 .remove(PAIR)
+                .remove(PARSE_PAIR_ID)
                 .apply();
 
         pairQuery.findInBackground(new FindCallback<ParseObject>()
@@ -216,5 +217,19 @@ public final class AccountUtil
          * Invoked if user opts to delete their account.
          */
         void onDeleteAccount();
+    }
+
+    /**
+     * Event callback for pair retrieval.
+     */
+    public interface PairCallback
+    {
+
+        /**
+         * Invoked when the user's pair object id is available.
+         *
+         * @param pairId Parse object id of pair
+         */
+        void onPairIdAvailable(String pairId, int errorCode);
     }
 }

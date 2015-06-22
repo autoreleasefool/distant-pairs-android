@@ -4,6 +4,7 @@ import ca.josephroque.partners.fragment.HeartFragment;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.ThoughtFragment;
 import ca.josephroque.partners.interfaces.ActionButtonHandler;
+import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
@@ -11,10 +12,14 @@ import ca.josephroque.partners.util.MessageUtil;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +37,18 @@ import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
 
+import com.parse.FindCallback;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.sinch.android.rtc.PushPair;
+import com.sinch.android.rtc.messaging.Message;
+import com.sinch.android.rtc.messaging.MessageClient;
+import com.sinch.android.rtc.messaging.MessageClientListener;
+import com.sinch.android.rtc.messaging.MessageDeliveryInfo;
+import com.sinch.android.rtc.messaging.MessageFailureInfo;
+
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 
 /**
@@ -62,12 +79,20 @@ public class PartnerActivity
     private BroadcastReceiver mReceiverMessageService = null;
     /** Intent to initiate instance of {@link MessageService}. */
     private Intent mIntentMessageService;
+    /** Instanace of service connection. */
+    private ServiceConnection mServiceConnection = new MessageServiceConnection();
+    /** Instance of service interface. */
+    private MessageService.MessageServiceInterface mMessageService;
+    /** Instance of message listener. */
+    private MessageClientListener mMessageClientListener = new PartnerMessageClientListener();
 
     /** Floating Action Button for primary action in the current fragment. */
     private FloatingActionButton mFabPrimary;
     /** Adapter to manage fragments displayed by this activity. */
     private PartnerPagerAdapter mPagerAdapter;
 
+    /** Parse object id of partner. */
+    private String mPairId;
     /** Indicates if the user has registered a pair. */
     private boolean mIsPairRegistered = false;
     /** The current position of the view pager. */
@@ -87,6 +112,7 @@ public class PartnerActivity
 
         mIntentMessageService = new Intent(PartnerActivity.this, MessageService.class);
         startService(mIntentMessageService);
+        bindService(mIntentMessageService, mServiceConnection, BIND_AUTO_CREATE);
 
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
         mFabPrimary.setOnClickListener(this);
@@ -161,6 +187,8 @@ public class PartnerActivity
     @Override
     public void pairRegistered()
     {
+        mPairId = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(AccountUtil.PARSE_PAIR_ID, null);
         mIsPairRegistered = true;
         mPagerAdapter.notifyDataSetChanged();
         updateFloatingActionButton();
@@ -297,7 +325,7 @@ public class PartnerActivity
             {
                 case 0:
                     if (mIsPairRegistered)
-                        return HeartFragment.newInstance();
+                        return HeartFragment.newInstance(mPairId);
                     else
                         return RegisterFragment.newInstance(false);
                 case 1:
@@ -355,6 +383,105 @@ public class PartnerActivity
         private Fragment getCurrentFragment()
         {
             return getFragment(mCurrentViewPagerPosition);
+        }
+    }
+
+    /**
+     * Handles a messaging service connection.
+     */
+    private class MessageServiceConnection
+            implements ServiceConnection
+    {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder)
+        {
+            Log.i(TAG, "Service connected");
+            mMessageService = (MessageService.MessageServiceInterface) iBinder;
+            mMessageService.addMessageClientListener(mMessageClientListener);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName)
+        {
+            mMessageService = null;
+        }
+    }
+
+    /**
+     * Listens for message events.
+     */
+    private class PartnerMessageClientListener
+            implements MessageClientListener
+    {
+
+        @Override
+        public void onMessageFailed(MessageClient client, Message message,
+                                    MessageFailureInfo failureInfo)
+        {
+            Fragment currentFragment = mPagerAdapter.getCurrentFragment();
+            if (currentFragment instanceof MessageHandler)
+                ((MessageHandler) mPagerAdapter.getCurrentFragment())
+                        .onMessageFailed(message.getTextBody());
+        }
+
+        @Override
+        public void onIncomingMessage(MessageClient client, Message message)
+        {
+            Fragment currentFragment = mPagerAdapter.getCurrentFragment();
+            if (currentFragment instanceof MessageHandler)
+                ((MessageHandler) mPagerAdapter.getCurrentFragment()).onNewMessage(
+                        MessageUtil.formatDate(message.getTimestamp()), message.getTextBody());
+        }
+
+        @Override
+        public void onMessageSent(MessageClient client, final Message message, String recipientId)
+        {
+            final String messageText = message.getTextBody();
+            final String messageTime = MessageUtil.formatDate(message.getTimestamp());
+
+            if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
+                    || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
+                return;
+
+            Log.i(TAG, "Saving message to parse: " + message.getTextBody());
+
+            //only add message to parse database if it doesn't already exist there
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("ParseMessage");
+            query.whereEqualTo("sinchId", message.getMessageId());
+            query.findInBackground(new FindCallback<ParseObject>()
+            {
+                @Override
+                public void done(List<ParseObject> messageList, com.parse.ParseException e)
+                {
+                    if (e == null)
+                    {
+                        if (messageList.size() == 0)
+                        {
+                            ParseObject parseMessage = new ParseObject("ParseMessage");
+                            parseMessage.put("senderId", mPairId);
+                            parseMessage.put("recipientId", message.getRecipientIds().get(0));
+                            parseMessage.put("messageText", messageText);
+                            parseMessage.put("sinchId", message.getMessageId());
+                            parseMessage.put("sentTime", messageTime);
+                            parseMessage.saveInBackground();
+                        }
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onMessageDelivered(MessageClient client, MessageDeliveryInfo deliveryInfo)
+        {
+            // does nothing
+        }
+
+        @Override
+        public void onShouldSendPushData(MessageClient client, Message message,
+                                         List<PushPair> pushPairs)
+        {
+            // does nothing
         }
     }
 }

@@ -544,8 +544,8 @@ public class RegisterFragment
                 deletePendingPairRequests(partnerName[0]);
 
                 preferences.edit()
-                        .putString(AccountUtil.PARSE_PAIR_ID, parseObject.getObjectId())
                         .putString(AccountUtil.PAIR, partnerName[0])
+                        .putString(AccountUtil.PARSE_PAIR_ID, result.get(0).getObjectId())
                         .commit();
 
                 return AccountUtil.SUCCESS;

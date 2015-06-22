@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.interfaces.ActionButtonHandler;
+import ca.josephroque.partners.interfaces.MessageHandler;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -15,7 +16,7 @@ import ca.josephroque.partners.interfaces.ActionButtonHandler;
  */
 public class ThoughtFragment
         extends Fragment
-        implements ActionButtonHandler
+        implements ActionButtonHandler, MessageHandler
 {
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -40,5 +41,17 @@ public class ThoughtFragment
     public void handleActionClick()
     {
         // TODO: send thought
+    }
+
+    @Override
+    public void onNewMessage(String dateAndTime, String message)
+    {
+        // TODO: display new thought
+    }
+
+    @Override
+    public void onMessageFailed(String message)
+    {
+        // TODO: message failed
     }
 }
