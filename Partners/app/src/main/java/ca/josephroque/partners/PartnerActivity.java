@@ -3,7 +3,6 @@ package ca.josephroque.partners;
 import ca.josephroque.partners.fragment.HeartFragment;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.ThoughtFragment;
-import ca.josephroque.partners.interfaces.ActionButtonHandler;
 import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
@@ -203,8 +202,14 @@ public class PartnerActivity
         switch (src.getId())
         {
             case R.id.fab_partner:
-                ((ActionButtonHandler) mPagerAdapter.getCurrentFragment())
-                        .handleActionClick();
+                if (mIsPairRegistered)
+                {
+                    // TODO: send thought
+                }
+                else
+                {
+                    deleteAccount();
+                }
                 break;
             default:
                 //does nothing

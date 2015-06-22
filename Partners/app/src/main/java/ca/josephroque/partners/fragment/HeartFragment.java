@@ -12,7 +12,6 @@ import android.widget.ViewSwitcher;
 
 import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
-import ca.josephroque.partners.interfaces.ActionButtonHandler;
 import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.util.MessageUtil;
 
@@ -22,7 +21,7 @@ import ca.josephroque.partners.util.MessageUtil;
  */
 public class HeartFragment
         extends Fragment
-        implements ActionButtonHandler, MessageHandler
+        implements MessageHandler
 {
 
     /** Container for progress bar. */
@@ -70,20 +69,6 @@ public class HeartFragment
         });
 
         return rootView;
-    }
-
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-    }
-
-    @Override
-    public void handleActionClick()
-    {
-        if (mProgressBarActive)
-            return;
-        // TODO: send thought
     }
 
     @Override

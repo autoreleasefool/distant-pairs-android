@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ca.josephroque.partners.R;
-import ca.josephroque.partners.interfaces.ActionButtonHandler;
 import ca.josephroque.partners.interfaces.MessageHandler;
 
 /**
@@ -16,7 +15,7 @@ import ca.josephroque.partners.interfaces.MessageHandler;
  */
 public class ThoughtFragment
         extends Fragment
-        implements ActionButtonHandler, MessageHandler
+        implements MessageHandler
 {
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -35,12 +34,6 @@ public class ThoughtFragment
     {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_thought, container, false);
-    }
-
-    @Override
-    public void handleActionClick()
-    {
-        // TODO: send thought
     }
 
     @Override

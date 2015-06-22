@@ -33,7 +33,6 @@ import java.util.List;
 
 import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
-import ca.josephroque.partners.interfaces.ActionButtonHandler;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 
@@ -44,7 +43,7 @@ import ca.josephroque.partners.util.ErrorUtil;
  */
 public class RegisterFragment
         extends Fragment
-        implements View.OnClickListener, ActionButtonHandler
+        implements View.OnClickListener
 {
     /** To identify output from this class in the Logcat. */
     private static final String TAG = "RegisterFragment";
@@ -210,16 +209,6 @@ public class RegisterFragment
         else if (src == mButtonPairCheck && !mRegisterOrPair)
         {
             new PairCheckTask().execute();
-        }
-    }
-
-    @Override
-    public void handleActionClick()
-    {
-        Activity activity = getActivity();
-        if (activity instanceof PartnerActivity)
-        {
-            ((PartnerActivity) activity).deleteAccount();
         }
     }
 
