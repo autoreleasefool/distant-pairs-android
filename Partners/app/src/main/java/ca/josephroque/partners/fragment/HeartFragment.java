@@ -8,11 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
+import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.interfaces.ActionButtonHandler;
 import ca.josephroque.partners.interfaces.MessageHandler;
-import ca.josephroque.partners.util.AccountUtil;
+import ca.josephroque.partners.util.MessageUtil;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -27,9 +29,10 @@ public class HeartFragment
     private LinearLayout mLinearLayoutConnection;
     /** Displays a message with the progress bar. */
     private TextView mTextViewConnection;
-
-    /** Parse object id of pair. */
-    private String mPairId;
+    /** Displays alternating colors of a heart. */
+    private ViewSwitcher mViewSwitcherHeart;
+    /** Displays most recent thought received. */
+    private TextView mTextViewRecentThought;
 
     /** Indicates if the progress bar is visible. */
     private boolean mProgressBarActive = false;
@@ -38,16 +41,11 @@ public class HeartFragment
      * Use this factory method to create a new instance of this fragment using the provided
      * parameters.
      *
-     * @param pairId Parse object id of user's pair
      * @return A new instance of fragment HeartFragment
      */
-    public static HeartFragment newInstance(String pairId)
+    public static HeartFragment newInstance()
     {
-        HeartFragment heartFragment = new HeartFragment();
-        Bundle args = new Bundle();
-        args.putString(AccountUtil.PARSE_PAIR_ID, pairId);
-        heartFragment.setArguments(args);
-        return heartFragment;
+        return new HeartFragment();
     }
 
     @Override
@@ -59,6 +57,17 @@ public class HeartFragment
 
         mLinearLayoutConnection = (LinearLayout) rootView.findViewById(R.id.ll_progress);
         mTextViewConnection = (TextView) rootView.findViewById(R.id.tv_connection);
+        mTextViewRecentThought = (TextView) rootView.findViewById(R.id.tv_thought_most_recent);
+        mViewSwitcherHeart = (ViewSwitcher) rootView.findViewById(R.id.switcher_heart);
+
+        rootView.findViewById(R.id.cv_thought).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                ((PartnerActivity) getActivity()).showFragment(PartnerActivity.THOUGHT_FRAGMENT);
+            }
+        });
 
         return rootView;
     }
@@ -78,15 +87,29 @@ public class HeartFragment
     }
 
     @Override
-    public void onNewMessage(String dateAndTime, String message)
+    public void onNewMessage(final String dateAndTime, final String message)
     {
-        // TODO: display new thought
-    }
-
-    @Override
-    public void onMessageFailed(String message)
-    {
-        // TODO: message failed
+        if (MessageUtil.LOGIN_MESSAGE.equals(message))
+        {
+            if (mViewSwitcherHeart.getDisplayedChild() == 0)
+                mViewSwitcherHeart.showNext();
+        }
+        else if (MessageUtil.LOGOUT_MESSAGE.equals(message))
+        {
+            if (mViewSwitcherHeart.getDisplayedChild() == 1)
+                mViewSwitcherHeart.showPrevious();
+        }
+        else
+        {
+            mTextViewRecentThought.post(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    mTextViewRecentThought.setText(message);
+                }
+            });
+        }
     }
 
     /**

@@ -15,11 +15,4 @@ public interface MessageHandler
      * @param message new message
      */
     void onNewMessage(String dateAndTime, String message);
-
-    /**
-     * Called when a message fails to send.
-     *
-     * @param message message that failed
-     */
-    void onMessageFailed(String message);
 }

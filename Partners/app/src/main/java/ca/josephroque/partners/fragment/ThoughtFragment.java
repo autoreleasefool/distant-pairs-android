@@ -48,10 +48,4 @@ public class ThoughtFragment
     {
         // TODO: display new thought
     }
-
-    @Override
-    public void onMessageFailed(String message)
-    {
-        // TODO: message failed
-    }
 }

@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -48,6 +49,7 @@ import com.sinch.android.rtc.messaging.MessageDeliveryInfo;
 import com.sinch.android.rtc.messaging.MessageFailureInfo;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -69,6 +71,10 @@ public class PartnerActivity
     private static final String ARG_PAIR_REGISTERED = "arg_pair_reg";
     /** Represents boolean indicating if the app should attempt to log the user in. */
     public static final String ARG_ATTEMPT_LOGIN = "arg_attempt_login";
+    /** Position of HeartFragment instance in ViewPager. */
+    public static final byte HEART_FRAGMENT = 0;
+    /** Position of ThoughtFragment instance in ViewPager. */
+    public static final byte THOUGHT_FRAGMENT = 1;
 
     /** Center pivot for scale animation. */
     private static final float CENTER_PIVOT = 0.5f;
@@ -88,8 +94,13 @@ public class PartnerActivity
 
     /** Floating Action Button for primary action in the current fragment. */
     private FloatingActionButton mFabPrimary;
+    /** View pager for fragments. */
+    private ViewPager mViewPager;
     /** Adapter to manage fragments displayed by this activity. */
     private PartnerPagerAdapter mPagerAdapter;
+
+    /** Counts the number of times a message has failed to send. */
+    private HashMap<String, Integer> mFailedMessageCount;
 
     /** Parse object id of partner. */
     private String mPairId;
@@ -110,6 +121,8 @@ public class PartnerActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_partner);
 
+        mFailedMessageCount = new HashMap<>();
+
         mIntentMessageService = new Intent(PartnerActivity.this, MessageService.class);
         startService(mIntentMessageService);
         bindService(mIntentMessageService, mServiceConnection, BIND_AUTO_CREATE);
@@ -117,11 +130,11 @@ public class PartnerActivity
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
         mFabPrimary.setOnClickListener(this);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.vp_partner);
+        mViewPager = (ViewPager) findViewById(R.id.vp_partner);
         mPagerAdapter = new PartnerPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(mPagerAdapter);
+        mViewPager.setAdapter(mPagerAdapter);
 
-        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
+        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
         {
             @Override
             public void onPageSelected(int position)
@@ -135,7 +148,7 @@ public class PartnerActivity
         {
             mIsPairRegistered = savedInstanceState.getBoolean(ARG_PAIR_REGISTERED, false);
             mCurrentViewPagerPosition = savedInstanceState.getInt(ARG_CURRENT_FRAGMENT);
-            viewPager.setCurrentItem(mCurrentViewPagerPosition);
+            mViewPager.setCurrentItem(mCurrentViewPagerPosition);
         }
         else
         {
@@ -299,6 +312,27 @@ public class PartnerActivity
     }
 
     /**
+     * Switches to a certain fragment in the view pager.
+     *
+     * @param fragment position to switch to
+     */
+    public void showFragment(byte fragment)
+    {
+        mViewPager.setCurrentItem(fragment);
+    }
+
+    /**
+     * Sends a message to the user's pair.
+     *
+     * @param message message for pair
+     */
+    public void sendMessage(String message)
+    {
+        // TODO: check for valid message
+        mMessageService.sendMessage(mPairId, message);
+    }
+
+    /**
      * Adapter for managing views in view pager.
      */
     private final class PartnerPagerAdapter
@@ -323,12 +357,12 @@ public class PartnerActivity
         {
             switch (position)
             {
-                case 0:
+                case HEART_FRAGMENT:
                     if (mIsPairRegistered)
-                        return HeartFragment.newInstance(mPairId);
+                        return HeartFragment.newInstance();
                     else
                         return RegisterFragment.newInstance(false);
-                case 1:
+                case THOUGHT_FRAGMENT:
                     return ThoughtFragment.newInstance();
                 default:
                     throw new IllegalStateException("invalid view pager position: " + position);
@@ -419,10 +453,36 @@ public class PartnerActivity
         public void onMessageFailed(MessageClient client, Message message,
                                     MessageFailureInfo failureInfo)
         {
-            Fragment currentFragment = mPagerAdapter.getCurrentFragment();
-            if (currentFragment instanceof MessageHandler)
-                ((MessageHandler) mPagerAdapter.getCurrentFragment())
-                        .onMessageFailed(message.getTextBody());
+            final String messageText = message.getTextBody();
+            if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
+                    || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
+                return;
+
+            Integer failureCount = mFailedMessageCount.get(messageText);
+            mFailedMessageCount.put(messageText, ((failureCount != null)
+                    ? failureCount
+                    : 0) + 1);
+
+            if (failureCount != null && failureCount > 1)
+            {
+                Snackbar.make(findViewById(R.id.cl_partner), "Failed to send message.",
+                        Snackbar.LENGTH_SHORT)
+                        .setAction("Resend", new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                sendMessage(messageText);
+                            }
+                        })
+                        .show();
+            }
+            else
+            {
+                Snackbar.make(findViewById(R.id.cl_partner), "Message failed too many times.",
+                        Snackbar.LENGTH_SHORT)
+                        .show();
+            }
         }
 
         @Override
@@ -443,6 +503,8 @@ public class PartnerActivity
             if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
                     || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
                 return;
+
+            mFailedMessageCount.remove(messageText);
 
             Log.i(TAG, "Saving message to parse: " + message.getTextBody());
 
