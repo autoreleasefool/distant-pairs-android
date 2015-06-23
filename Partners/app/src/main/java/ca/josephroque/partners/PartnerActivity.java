@@ -208,7 +208,7 @@ public class PartnerActivity
             case R.id.fab_partner:
                 if (mIsPairRegistered)
                 {
-                    // TODO: add view to display remaining characters
+                    // TODO: add view to display number of remaining characters before limit met
                     View view = getLayoutInflater().inflate(R.layout.dialog_message, null);
                     final EditText editTextMessage = (EditText) view.findViewById(R.id.et_message);
                     editTextMessage.setFilters(new InputFilter[]{
@@ -471,14 +471,14 @@ public class PartnerActivity
                         mMessageService.sendMessage(mPairId, MessageUtil.LOGIN_MESSAGE);
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
-                            ((MessageHandler) currentFragment).onNewMessage(
+                            ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtil.getCurrentDateAndTime(), MessageUtil.LOGIN_MESSAGE);
                     }
                     else
                     {
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
-                            ((MessageHandler) currentFragment).onNewMessage(
+                            ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtil.getCurrentDateAndTime(),
                                     MessageUtil.LOGOUT_MESSAGE);
                     }
@@ -649,10 +649,23 @@ public class PartnerActivity
         @Override
         public void onIncomingMessage(MessageClient client, Message message)
         {
-            Fragment currentFragment = mPagerAdapter.getCurrentFragment();
-            if (currentFragment instanceof MessageHandler)
-                ((MessageHandler) mPagerAdapter.getCurrentFragment()).onNewMessage(
-                        MessageUtil.formatDate(message.getTimestamp()), message.getTextBody());
+            Fragment fragment = mPagerAdapter.getFragment(0);
+            if (fragment instanceof MessageHandler)
+                ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
+                        MessageUtil.formatDate(message.getTimestamp()),
+                        message.getTextBody());
+            try
+            {
+                fragment = mPagerAdapter.getFragment(1);
+                if (fragment instanceof  MessageHandler)
+                    ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
+                            MessageUtil.formatDate(message.getTimestamp()),
+                            message.getTextBody());
+            }
+            catch (NullPointerException ex)
+            {
+                // does nothing
+            }
         }
 
         @Override

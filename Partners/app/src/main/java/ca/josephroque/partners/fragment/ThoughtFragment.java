@@ -33,6 +33,7 @@ import ca.josephroque.partners.database.ThoughtContract;
 import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
+import ca.josephroque.partners.util.MessageUtil;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -85,7 +86,10 @@ public class ThoughtFragment
         mRecyclerViewThoughtsAdapter = new ThoughtAdapter(this, mListThoughtIds, mListThoughts,
                 mListDateAndTime, mListThoughtSaved);
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        // TODO: check if below works
+        // if not, try: layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
 
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
         recyclerView.setAdapter(mRecyclerViewThoughtsAdapter);
@@ -102,9 +106,20 @@ public class ThoughtFragment
     }
 
     @Override
-    public void onNewMessage(String dateAndTime, String message)
+    public void onNewMessage(final String messageId, final String dateAndTime, final String message)
     {
-        // TODO: display new thought
+        // Does not need to bother with login/out messages
+        if (MessageUtil.LOGIN_MESSAGE.equals(message)
+                || MessageUtil.LOGOUT_MESSAGE.equals(message))
+            // TODO: possibly display animation on login/logout
+            return;
+
+        mListThoughtIds.add(0, messageId);
+        mListDateAndTime.add(0, dateAndTime);
+        mListThoughts.add(0, message);
+        mListThoughtSaved.add(0, false);
+        mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
+        // TODO: show heart animation
     }
 
     @Override
@@ -112,6 +127,7 @@ public class ThoughtFragment
                                           boolean save)
     {
         mRecyclerViewThoughtsAdapter.notifyItemChanged(position);
+        // TODO: save thought to database, remove from parse
     }
 
     /**
@@ -162,7 +178,7 @@ public class ThoughtFragment
          * @param thoughtMap thought contents
          * @param savedMap values will be true for any messages loaded
          */
-        private int getDatabaseThoughts(TreeMap<String, Pair<String, String>> thoughtMap,
+        private void getDatabaseThoughts(TreeMap<String, Pair<String, String>> thoughtMap,
                                          HashMap<String, Boolean> savedMap)
         {
             String rawThoughtQuery = "SELECT "
@@ -218,7 +234,7 @@ public class ThoughtFragment
             final String userParseId = preferences.getString(AccountUtil.PARSE_USER_ID, null);
             if (userParseId != null)
             {
-                ParseQuery<ParseObject> thoughtQuery = new ParseQuery<ParseObject>("Thought");
+                ParseQuery<ParseObject> thoughtQuery = new ParseQuery<>("Thought");
                 thoughtQuery.whereEqualTo("recipientId", userParseId);
                 List<ParseObject> thoughtResults = Collections.emptyList();
 

@@ -11,8 +11,9 @@ public interface MessageHandler
     /**
      * Called when a new message has been received.
      *
-     * @param dateAndTime time the message was received - yyyy-MM-dd HH:mm:ss
+     * @param messageId unique identifier for message
+     * @param dateAndTime time the message was sent - yyyy-MM-dd HH:mm:ss
      * @param message new message
      */
-    void onNewMessage(String dateAndTime, String message);
+    void onNewMessage(String messageId, String dateAndTime, String message);
 }

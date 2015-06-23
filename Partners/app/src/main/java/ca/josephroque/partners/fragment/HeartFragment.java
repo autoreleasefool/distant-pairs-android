@@ -72,7 +72,7 @@ public class HeartFragment
     }
 
     @Override
-    public void onNewMessage(final String dateAndTime, final String message)
+    public void onNewMessage(final String messageId, final String dateAndTime, final String message)
     {
         if (MessageUtil.LOGIN_MESSAGE.equals(message))
         {
