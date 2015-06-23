@@ -670,7 +670,7 @@ public class PartnerActivity
             Log.i(TAG, "Saving message to parse: " + message.getTextBody());
 
             //only add message to parse database if it doesn't already exist there
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("ParseMessage");
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Thought");
             query.whereEqualTo("sinchId", message.getMessageId());
             query.findInBackground(new FindCallback<ParseObject>()
             {

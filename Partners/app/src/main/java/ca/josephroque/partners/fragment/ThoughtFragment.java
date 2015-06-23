@@ -16,8 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,7 @@ import ca.josephroque.partners.database.DBHelper;
 import ca.josephroque.partners.database.ThoughtContract;
 import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.util.AccountUtil;
+import ca.josephroque.partners.util.ErrorUtil;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -115,14 +119,14 @@ public class ThoughtFragment
      * view.
      */
     private final class PopulateMessagesTask
-            extends AsyncTask<Void, Void, Integer>
+            extends AsyncTask<Void, Void, Void>
     {
 
         @Override
-        protected Integer doInBackground(Void... params)
+        protected Void doInBackground(Void... params)
         {
             if (getActivity() == null)
-                return ParseException.USERNAME_MISSING;
+                return null;
 
             final SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -139,6 +143,28 @@ public class ThoughtFragment
             // To indicate if a thought was retrieved from the database or not
             HashMap<String, Boolean> savedMap = new HashMap<>();
 
+            getDatabaseThoughts(thoughtMap, savedMap);
+            getParseThoughts(preferences, thoughtMap, savedMap);
+
+            for (Map.Entry<String, Pair<String, String>> entry : thoughtMap.entrySet())
+            {
+                mListDateAndTime.add(entry.getKey());
+                mListThoughtIds.add(entry.getValue().first);
+                mListThoughts.add(entry.getValue().second);
+                mListThoughtSaved.add(savedMap.get(entry.getKey()));
+            }
+            return null;
+        }
+
+        /**
+         * Gets thoughts stored in internal database and populates maps.
+         *
+         * @param thoughtMap thought contents
+         * @param savedMap values will be true for any messages loaded
+         */
+        private int getDatabaseThoughts(TreeMap<String, Pair<String, String>> thoughtMap,
+                                         HashMap<String, Boolean> savedMap)
+        {
             String rawThoughtQuery = "SELECT "
                     + ThoughtContract.ThoughtEntry.COLUMN_ID + ", "
                     + ThoughtContract.ThoughtEntry.COLUMN_MESSAGE + ", "
@@ -176,28 +202,58 @@ public class ThoughtFragment
                 if (cursor != null && !cursor.isClosed())
                     cursor.close();
             }
+        }
 
-            // TODO: check server for messages
-
-            for (Map.Entry<String, Pair<String, String>> entry : thoughtMap.entrySet())
+        /**
+         * Gets thoughts stored in pARSE database and populates maps.
+         *
+         * @param preferences to get user object id
+         * @param thoughtMap thought contents
+         * @param savedMap values will be false for any messages loaded
+         */
+        private void getParseThoughts(SharedPreferences preferences,
+                                      TreeMap<String, Pair<String, String>> thoughtMap,
+                                      HashMap<String, Boolean> savedMap)
+        {
+            final String userParseId = preferences.getString(AccountUtil.PARSE_USER_ID, null);
+            if (userParseId != null)
             {
-                mListDateAndTime.add(entry.getKey());
-                mListThoughtIds.add(entry.getValue().first);
-                mListThoughts.add(entry.getValue().second);
-                mListThoughtSaved.add(savedMap.get(entry.getKey()));
+                ParseQuery<ParseObject> thoughtQuery = new ParseQuery<ParseObject>("Thought");
+                thoughtQuery.whereEqualTo("recipientId", userParseId);
+                List<ParseObject> thoughtResults = Collections.emptyList();
+
+                try
+                {
+                    thoughtResults = thoughtQuery.find();
+                }
+                catch (ParseException ex)
+                {
+                    // does nothing - no thoughts found, or no connection
+                }
+
+                for (ParseObject thought : thoughtResults)
+                {
+                    String date = thought.getString("sentTime");
+                    String id = thought.getString("sinchId");
+                    String message = thought.getString("messageText");
+
+                    thoughtMap.put(date, Pair.create(id, message));
+                    savedMap.put(date, false);
+                }
             }
-            return AccountUtil.SUCCESS;
         }
 
         @Override
-        protected void onPostExecute(Integer result)
+        protected void onPostExecute(Void result)
         {
-            switch (result)
+            if (mListThoughtIds.size() == 0)
             {
-                case AccountUtil.SUCCESS:
-                    mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
-                default:
-                    // does nothing
+                ErrorUtil.displayErrorMessage(getActivity(), "No thoughts loaded",
+                        "Could not find any thoughts from your pair to display.");
+            }
+            else
+            {
+                mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
             }
         }
     }

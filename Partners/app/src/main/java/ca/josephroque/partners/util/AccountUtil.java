@@ -40,6 +40,8 @@ public final class AccountUtil
     public static final String PAIR = "account_pair";
     /** Represents parse object containing the user's registered pair. */
     public static final String PARSE_PAIR_ID = "account_pair_objid";
+    /** Represents parse object container the user's account. */
+    public static final String PARSE_USER_ID = "account_user_objid";
 
     /** Number of random bits to generate. */
     private static final int PASSWORD_BIT_LENGTH = 130;

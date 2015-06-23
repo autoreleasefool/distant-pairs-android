@@ -82,7 +82,7 @@ public class ThoughtAdapter
     @Override
     public int getItemCount()
     {
-        return mListThoughts.size();
+        return mListThoughtIds.size();
     }
 
     @Override
