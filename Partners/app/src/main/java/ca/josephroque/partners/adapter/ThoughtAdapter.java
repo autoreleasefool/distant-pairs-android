@@ -98,10 +98,10 @@ public class ThoughtAdapter
             throw new IllegalStateException("thought view tag must be position");
         }
 
-        mCallback.setThoughtSavedToDatabase(mListThoughtIds.get(position),
-                mListThoughts.get(position), mListDateAndTime.get(position),
-                !mListThoughtSaved.get(position));
         mListThoughtSaved.set(position, !mListThoughtSaved.get(position));
+        mCallback.setThoughtSavedToDatabase(position, mListThoughtIds.get(position),
+                mListThoughts.get(position), mListDateAndTime.get(position),
+                mListThoughtSaved.get(position));
     }
 
     @Override
@@ -148,11 +148,13 @@ public class ThoughtAdapter
         /**
          * Saves or removes a thought from the database.
          *
+         * @param position position of item in adapter
          * @param id unique id of thought
          * @param message thought to save or remove
          * @param time time thought was received
          * @param save if true, thought should be saved. Otherwise, it should be removed.
          */
-        void setThoughtSavedToDatabase(String id, String message, String time, boolean save);
+        void setThoughtSavedToDatabase(int position, String id, String message, String time,
+                                       boolean save);
     }
 }
