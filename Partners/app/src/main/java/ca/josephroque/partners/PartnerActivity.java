@@ -6,6 +6,7 @@ import ca.josephroque.partners.fragment.ThoughtFragment;
 import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
+import ca.josephroque.partners.util.AnimationUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 import ca.josephroque.partners.util.MessageUtil;
 
@@ -18,9 +19,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -41,6 +44,7 @@ import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -106,6 +110,9 @@ public class PartnerActivity
     /** Adapter to manage fragments displayed by this activity. */
     private PartnerPagerAdapter mPagerAdapter;
 
+    /** Images of hearts to animate. */
+    private ImageView[] mImageViewHearts;
+
     /** Counts the number of times a message has failed to send. */
     private HashMap<String, Integer> mFailedMessageCount;
 
@@ -166,6 +173,7 @@ public class PartnerActivity
         updateFloatingActionButton();
         showServiceSpinner();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        populateHeartImageViews();
     }
 
     @Override
@@ -259,6 +267,28 @@ public class PartnerActivity
     }
 
     /**
+     * Creates an array of ImageView objects for {@code mImageViewHearts}.
+     */
+    private void populateHeartImageViews()
+    {
+        CoordinatorLayout rootLayout = (CoordinatorLayout) findViewById(R.id.cl_partner);
+        // TODO: set number of hearts based on size of screen
+        final int numberOfHearts = (int) (Math.random() * 12);
+        mImageViewHearts = new ImageView[numberOfHearts];
+
+        for (int i = 0; i < mImageViewHearts.length; i++)
+        {
+            mImageViewHearts[i] = new ImageView(this);
+            mImageViewHearts[i].setVisibility(View.GONE);
+            mImageViewHearts[i].setAdjustViewBounds(true);
+            mImageViewHearts[i].setImageResource(R.drawable.ic_heart);
+            // TODO: randomize color
+            mImageViewHearts[i].setColorFilter(0xffff0000, PorterDuff.Mode.MULTIPLY);
+            rootLayout.addView(mImageViewHearts[i]);
+        }
+    }
+
+    /**
      * Prompts user to delete their account.
      *
      * @see AccountUtil#promptDeleteAccount(Context, AccountUtil.DeleteAccountCallback)
@@ -266,8 +296,7 @@ public class PartnerActivity
     public void deleteAccount()
     {
         AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback()
-                {
+                new AccountUtil.DeleteAccountCallback() {
                     @Override
                     public void onDeleteAccount()
                     {
@@ -494,6 +523,21 @@ public class PartnerActivity
     }
 
     /**
+     * Plays a super cute heart animation for the user.
+     */
+    private void superCuteHeartAnimation()
+    {
+        int deviceWidth = getResources().getDisplayMetrics().widthPixels;
+        for (ImageView heart : mImageViewHearts)
+        {
+            // TODO: randomize heart size
+            // heart.getLayoutParams.width = ???
+            heart.startAnimation(AnimationUtil.getRandomHeartAnimation(
+                    (int) (Math.random() * (deviceWidth - heart.getWidth()))));
+        }
+    }
+
+    /**
      * Adapter for managing views in view pager.
      */
     private final class PartnerPagerAdapter
@@ -649,23 +693,30 @@ public class PartnerActivity
         @Override
         public void onIncomingMessage(MessageClient client, Message message)
         {
+            final String messageText = message.getTextBody();
             Fragment fragment = mPagerAdapter.getFragment(0);
             if (fragment instanceof MessageHandler)
                 ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
                         MessageUtil.formatDate(message.getTimestamp()),
-                        message.getTextBody());
+                        messageText);
             try
             {
                 fragment = mPagerAdapter.getFragment(1);
                 if (fragment instanceof  MessageHandler)
                     ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
                             MessageUtil.formatDate(message.getTimestamp()),
-                            message.getTextBody());
+                            messageText);
             }
             catch (NullPointerException ex)
             {
                 // does nothing
             }
+
+            if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
+                    || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
+                // TODO: possibly display animation on login/logout
+                return;
+            superCuteHeartAnimation();
         }
 
         @Override

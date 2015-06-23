@@ -111,7 +111,6 @@ public class ThoughtFragment
         // Does not need to bother with login/out messages
         if (MessageUtil.LOGIN_MESSAGE.equals(message)
                 || MessageUtil.LOGOUT_MESSAGE.equals(message))
-            // TODO: possibly display animation on login/logout
             return;
 
         mListThoughtIds.add(0, messageId);
@@ -119,7 +118,6 @@ public class ThoughtFragment
         mListThoughts.add(0, message);
         mListThoughtSaved.add(0, false);
         mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
-        // TODO: show heart animation
     }
 
     @Override
