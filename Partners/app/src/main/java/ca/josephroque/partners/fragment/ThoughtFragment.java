@@ -1,12 +1,16 @@
 package ca.josephroque.partners.fragment;
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +18,15 @@ import android.view.ViewGroup;
 import com.parse.ParseException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.adapter.ThoughtAdapter;
+import ca.josephroque.partners.database.DBHelper;
+import ca.josephroque.partners.database.ThoughtContract;
 import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.util.AccountUtil;
 
@@ -29,6 +38,9 @@ public class ThoughtFragment
         extends Fragment
         implements MessageHandler, ThoughtAdapter.ThoughtAdapterCallback
 {
+
+    /** To identify output from this class in Logcat. */
+    private static final String TAG = "ThoughtFrag";
 
     /** Manages data in a {@link RecyclerView}. */
     private ThoughtAdapter mRecyclerViewThoughtsAdapter;
@@ -120,9 +132,60 @@ public class ThoughtFragment
             if (username == null || partnerName == null)
                 throw new IllegalStateException("name or partner cannot be null");
 
-            // TODO: check database for messages
+            // To order thoughts by time.
+            // Key is date/time, value is pair containing id and message
+            TreeMap<String, Pair<String, String>> thoughtMap = new TreeMap<>();
+
+            // To indicate if a thought was retrieved from the database or not
+            HashMap<String, Boolean> savedMap = new HashMap<>();
+
+            String rawThoughtQuery = "SELECT "
+                    + ThoughtContract.ThoughtEntry.COLUMN_ID + ", "
+                    + ThoughtContract.ThoughtEntry.COLUMN_MESSAGE + ", "
+                    + ThoughtContract.ThoughtEntry.COLUMN_TIME
+                    + " FROM " + ThoughtContract.ThoughtEntry.TABLE_NAME
+                    + " ORDER BY " + ThoughtContract.ThoughtEntry.COLUMN_TIME + " DESC";
+            SQLiteDatabase database = DBHelper.getInstance(getActivity()).getReadableDatabase();
+            Cursor cursor = database.rawQuery(rawThoughtQuery, null);
+
+            try
+            {
+                if (cursor.moveToFirst())
+                {
+                    while (!cursor.isAfterLast())
+                    {
+                        String date = cursor.getString(cursor.getColumnIndex(
+                                ThoughtContract.ThoughtEntry.COLUMN_TIME));
+                        String id = cursor.getString(cursor.getColumnIndex(
+                                ThoughtContract.ThoughtEntry.COLUMN_ID));
+                        String message = cursor.getString(cursor.getColumnIndex(
+                                ThoughtContract.ThoughtEntry.COLUMN_MESSAGE));
+
+                        thoughtMap.put(date, Pair.create(id, message));
+                        savedMap.put(date, true);
+                        cursor.moveToNext();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.e(TAG, "Error reading thoughts", ex);
+            }
+            finally
+            {
+                if (cursor != null && !cursor.isClosed())
+                    cursor.close();
+            }
+
             // TODO: check server for messages
-            // TODO: add messages to array lists
+
+            for (Map.Entry<String, Pair<String, String>> entry : thoughtMap.entrySet())
+            {
+                mListDateAndTime.add(entry.getKey());
+                mListThoughtIds.add(entry.getValue().first);
+                mListThoughts.add(entry.getValue().second);
+                mListThoughtSaved.add(savedMap.get(entry.getKey()));
+            }
             return AccountUtil.SUCCESS;
         }
 
