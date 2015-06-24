@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
-import com.parse.FindCallback;
-import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -17,7 +15,6 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import ca.josephroque.partners.R;
 
@@ -32,9 +29,6 @@ public final class AccountUtil
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
     private static final String TAG = "AccountUtil";
-
-    /** Indicates if the user's account is being deleted in the background. */
-    private static AtomicBoolean sAccountBeingDeleted = new AtomicBoolean(false);
 
     /** Represents password in preferences. */
     public static final String PASSWORD = "account_password";
@@ -110,9 +104,9 @@ public final class AccountUtil
                 dialog.dismiss();
                 if (which == DialogInterface.BUTTON_POSITIVE)
                 {
-                    deleteAccount(context);
-                    if (callback != null)
-                        callback.onDeleteAccount();
+                    callback.onDeleteAccountStarted();
+                    deleteAccount(context, callback);
+
                 }
             }
         };
@@ -130,74 +124,68 @@ public final class AccountUtil
      * Deletes the current user account.
      *
      * @param context to get shared preferences
+     * @param callback to inform calling method if account is deleted
      */
-    public static void deleteAccount(Context context)
+    public static void deleteAccount(final Context context, final DeleteAccountCallback callback)
     {
-        sAccountBeingDeleted.set(true);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser != null)
-        {
-            ParseUser.logOutInBackground(new LogOutCallback()
-            {
-                @Override
-                public void done(ParseException e)
-                {
-                    if (e != null)
-                        sAccountBeingDeleted.set(false);
-                    // TODO: error handling
-                }
-            });
-        }
-
-        String username = preferences.getString(USERNAME, null);
-        if (username == null)
-            return;
-
-        ParseQuery<ParseObject> pairQuery = ParseQuery.or(Arrays.asList(
-                new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
-                new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
-        ParseQuery<ParseObject> statusQuery = ParseQuery.getQuery("Status");
-        statusQuery.whereEqualTo(AccountUtil.USERNAME, username);
-        // TODO: get other objects with user's name
-
-        preferences.edit()
-                .remove(USERNAME)
-                .remove(PASSWORD)
-                .remove(PAIR)
-                .remove(PARSE_PAIR_ID)
-                .apply();
-
-        pairQuery.findInBackground(new FindCallback<ParseObject>()
+        new Thread(new Runnable()
         {
             @Override
-            public void done(List<ParseObject> list, ParseException e)
+            public void run()
             {
-                if (e != null)
-                    ParseObject.deleteAllInBackground(list);
+                ParseUser currentUser = ParseUser.getCurrentUser();
+                if (currentUser != null)
+                    ParseUser.logOut();
+
+                SharedPreferences preferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+
+                String username = preferences.getString(USERNAME, null);
+                if (username == null)
+                    return;
+
+                preferences.edit()
+                        .remove(USERNAME)
+                        .remove(PASSWORD)
+                        .remove(PAIR)
+                        .remove(PARSE_PAIR_ID)
+                        .remove(MessageUtil.STATUS_OBJECT_ID)
+                        .apply();
+
+                ParseQuery<ParseObject> pairQuery = ParseQuery.or(Arrays.asList(
+                        new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
+                        new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
+
+                ParseQuery<ParseObject> statusQuery = ParseQuery.getQuery("Status")
+                        .whereEqualTo(AccountUtil.USERNAME, username);
+                // TODO: get other objects with user's name
+
+                deleteObjectsFromQuery(pairQuery);
+                deleteObjectsFromQuery(statusQuery);
+
+                if (callback != null)
+                    callback.onDeleteAccountEnded();
             }
-        });
-        statusQuery.findInBackground(new FindCallback<ParseObject>()
-        {
-            @Override
-            public void done(List<ParseObject> list, ParseException e)
-            {
-                if (e != null)
-                    ParseObject.deleteAllInBackground(list);
-                // TODO: error handling
-            }
-        });
+        }).start();
     }
 
     /**
-     * Returns true if an account is currently being deleted in the background.
+     * Deletes objects from Parse database which are returned by the query.
      *
-     * @return {@code sAccountBeingDeleted}
+     * @param query parse database query
      */
-    public static boolean isAccountBeingDeleted()
+    private static void deleteObjectsFromQuery(ParseQuery<ParseObject> query)
     {
-        return sAccountBeingDeleted.get();
+        try
+        {
+            List<ParseObject> results = query.find();
+            for (ParseObject res : results)
+                res.deleteEventually();
+        }
+        catch (ParseException ex)
+        {
+            // TODO: error handling
+        }
     }
 
     /**
@@ -214,6 +202,22 @@ public final class AccountUtil
     }
 
     /**
+     * Checks if a user has been registered in the application.
+     *
+     * @param context to get shared preferences
+     * @return true if a username and password exists in shared preferences
+     */
+    public static boolean doesAccountExist(Context context)
+    {
+        String username = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(USERNAME, null);
+        String password = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PASSWORD, null);
+        return username != null && password != null
+                && username.length() > 0 && password.length() > 0;
+    }
+
+    /**
      * Event callback for account deletion.
      */
     public interface DeleteAccountCallback
@@ -222,20 +226,11 @@ public final class AccountUtil
         /**
          * Invoked if user opts to delete their account.
          */
-        void onDeleteAccount();
-    }
-
-    /**
-     * Event callback for pair retrieval.
-     */
-    public interface PairCallback
-    {
+        void onDeleteAccountStarted();
 
         /**
-         * Invoked when the user's pair object id is available.
-         *
-         * @param pairId Parse object id of pair
+         * Invoked when the account has been deleted.
          */
-        void onPairIdAvailable(String pairId, int errorCode);
+        void onDeleteAccountEnded();
     }
 }

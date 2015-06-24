@@ -55,6 +55,7 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.sinch.android.rtc.PushPair;
 import com.sinch.android.rtc.messaging.Message;
@@ -316,14 +317,31 @@ public class PartnerActivity
                 new AccountUtil.DeleteAccountCallback()
                 {
                     @Override
-                    public void onDeleteAccount()
+                    public void onDeleteAccountStarted()
                     {
-                        stopService(mIntentMessageService);
-                        Intent loginIntent = new Intent(PartnerActivity.this,
-                                LoginActivity.class);
-                        loginIntent.putExtra(ARG_ATTEMPT_LOGIN, false);
-                        startActivity(loginIntent);
-                        finish();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showProgressBar(R.string.text_deleting_account);
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onDeleteAccountEnded()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                Intent loginIntent = new Intent(PartnerActivity.this, LoginActivity.class);
+                                startActivity(loginIntent);
+                                finish();
+                            }
+                        });
+
                     }
                 });
     }
@@ -463,6 +481,9 @@ public class PartnerActivity
      */
     private void setOnlineStatus(final boolean online)
     {
+        if (ParseUser.getCurrentUser() == null || !AccountUtil.doesAccountExist(this))
+            return;
+
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         final String statusId = preferences.getString(MessageUtil.STATUS_OBJECT_ID, null);
         final String accountName = preferences.getString(AccountUtil.USERNAME, null);
@@ -480,6 +501,7 @@ public class PartnerActivity
                 {
                     if (e == null)
                     {
+                        // TODO: send message to pair of new status
                         Log.i(TAG, "Status saved");
                         preferences.edit()
                                 .putString(MessageUtil.STATUS_OBJECT_ID, status.getObjectId())
@@ -504,6 +526,7 @@ public class PartnerActivity
                 {
                     if (e == null)
                     {
+                        // TODO: send message to pair of new status
                         Log.i(TAG, "Status fetch success");
                         parseObject.put(MessageUtil.ONLINE_STATUS, online);
                         parseObject.saveInBackground();

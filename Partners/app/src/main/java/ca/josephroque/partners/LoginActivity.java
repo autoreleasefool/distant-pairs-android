@@ -49,19 +49,16 @@ public class LoginActivity
 
         mIntentPartnerActivity = new Intent(LoginActivity.this, PartnerActivity.class);
 
-        boolean attemptLogin = true;
-        Intent intent = getIntent();
-        if (intent != null)
-            attemptLogin = intent.getBooleanExtra(PartnerActivity.ARG_ATTEMPT_LOGIN, true);
-
-        if (attemptLogin && ParseUser.getCurrentUser() != null)
+        if (ParseUser.getCurrentUser() != null)
         {
+            Log.i(TAG, "Starting partner activity");
             startActivity(mIntentPartnerActivity);
             finish();
             return;
         }
-        else if (attemptLogin)
+        else if (AccountUtil.doesAccountExist(this))
         {
+            Log.i(TAG, "Attempting login");
             login(null);
         }
 
@@ -76,45 +73,6 @@ public class LoginActivity
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         Log.i(TAG, "Login Activity created");
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-        if (AccountUtil.isAccountBeingDeleted())
-        {
-            Log.i(TAG, "Showing progress bar to delete account");
-            showProgressBar(R.string.text_deleting_account);
-            new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    while (AccountUtil.isAccountBeingDeleted())
-                    {
-                        Log.i(TAG, "Waiting for account deletion to complete");
-                        try
-                        {
-                            Thread.sleep(100);
-                        }
-                        catch (InterruptedException ex)
-                        {
-                            Log.e(TAG, "Delete account thread interrupted", ex);
-                        }
-                    }
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            hideProgressBar();
-                        }
-                    });
-                }
-            }).start();
-        }
     }
 
     @Override
@@ -227,7 +185,7 @@ public class LoginActivity
                 case ParseException.OBJECT_NOT_FOUND:
                     ErrorUtil.displayErrorMessage(LoginActivity.this, "Incorrect credentials",
                             "Your account is no longer valid. Please, create another.");
-                    AccountUtil.deleteAccount(LoginActivity.this);
+                    AccountUtil.deleteAccount(LoginActivity.this, null);
                     break;
                 case ParseException.USERNAME_MISSING:
                     // does nothing
