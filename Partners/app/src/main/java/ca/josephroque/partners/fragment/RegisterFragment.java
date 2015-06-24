@@ -29,7 +29,7 @@ import com.parse.ParseUser;
 import java.util.Iterator;
 import java.util.List;
 
-import ca.josephroque.partners.PartnerActivity;
+import ca.josephroque.partners.ProgressActivity;
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
@@ -312,7 +312,7 @@ public class RegisterFragment
         protected void onPreExecute()
         {
             mRelativeLayoutRegister.setVisibility(View.GONE);
-            ((PartnerActivity) getActivity()).showProgressBar(R.string.text_registering);
+            ((ProgressActivity) getActivity()).showProgressBar(R.string.text_registering);
         }
 
         @Override
@@ -345,7 +345,7 @@ public class RegisterFragment
         protected void onPostExecute(Integer result)
         {
             Log.i(TAG, "Result: " + result);
-            ((PartnerActivity) getActivity()).hideProgressBar();
+            ((ProgressActivity) getActivity()).hideProgressBar();
 
             switch (result)
             {
@@ -393,7 +393,7 @@ public class RegisterFragment
         protected void onPreExecute()
         {
             mRelativeLayoutRegister.setVisibility(View.GONE);
-            ((PartnerActivity) getActivity()).showProgressBar(R.string.text_checking);
+            ((ProgressActivity) getActivity()).showProgressBar(R.string.text_checking);
         }
 
         @Override
@@ -423,7 +423,7 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
-            ((PartnerActivity) getActivity()).hideProgressBar();
+            ((ProgressActivity) getActivity()).hideProgressBar();
             if (mListPairRequests == null)
                 result = ParseException.OBJECT_NOT_FOUND;
 
@@ -462,7 +462,7 @@ public class RegisterFragment
         protected void onPreExecute()
         {
             mRelativeLayoutRegister.setVisibility(View.GONE);
-            ((PartnerActivity) getActivity()).showProgressBar(R.string.text_registering);
+            ((ProgressActivity) getActivity()).showProgressBar(R.string.text_registering);
         }
 
         @SuppressLint("CommitPrefEdits")
@@ -518,7 +518,7 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
-            ((PartnerActivity) getActivity()).hideProgressBar();
+            ((ProgressActivity) getActivity()).hideProgressBar();
             Log.i(TAG, "Register partner result: " + result);
 
             switch (result)

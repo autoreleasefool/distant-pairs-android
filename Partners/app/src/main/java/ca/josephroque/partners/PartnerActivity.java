@@ -29,7 +29,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
@@ -73,7 +72,7 @@ import java.util.List;
  * Main activity for user interaction.
  */
 public class PartnerActivity
-        extends FragmentActivity
+        extends ProgressActivity
         implements View.OnClickListener, RegisterFragment.RegisterCallbacks
 {
 
@@ -358,11 +357,7 @@ public class PartnerActivity
                 new IntentFilter(MessageUtil.CLIENT_STATUS));
     }
 
-    /**
-     * Creates and shows a progress bar.
-     *
-     * @param message id of string for progress bar
-     */
+    @Override
     public void showProgressBar(int message)
     {
         if (mLinearLayoutProgress == null)
@@ -376,9 +371,7 @@ public class PartnerActivity
         mFabPrimary.setVisibility(View.INVISIBLE);
     }
 
-    /**
-     * Hides progress bar.
-     */
+    @Override
     public void hideProgressBar()
     {
         mLinearLayoutProgress.setVisibility(View.GONE);

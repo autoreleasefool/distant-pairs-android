@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -24,7 +23,7 @@ import ca.josephroque.partners.util.ErrorUtil;
  * Provides interface for user registration and login.
  */
 public class LoginActivity
-        extends FragmentActivity
+        extends ProgressActivity
         implements RegisterFragment.RegisterCallbacks
 {
 
@@ -131,11 +130,7 @@ public class LoginActivity
         throw new UnsupportedOperationException("cannot register pair - not logged in");
     }
 
-    /**
-     * Creates and shows a progress bar.
-     *
-     * @param message id of string for progress bar
-     */
+    @Override
     public void showProgressBar(int message)
     {
         if (mLinearLayoutProgress == null)
@@ -150,9 +145,7 @@ public class LoginActivity
         mFrameLayoutContainer.setVisibility(View.INVISIBLE);
     }
 
-    /**
-     * Hides progress bar.
-     */
+    @Override
     public void hideProgressBar()
     {
         mLinearLayoutProgress.setVisibility(View.GONE);
