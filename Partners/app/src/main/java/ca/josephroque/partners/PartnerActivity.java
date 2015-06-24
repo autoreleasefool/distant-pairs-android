@@ -7,6 +7,7 @@ import ca.josephroque.partners.interfaces.MessageHandler;
 import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.AnimationUtil;
+import ca.josephroque.partners.util.DisplayUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 import ca.josephroque.partners.util.MessageUtil;
 
@@ -20,6 +21,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -143,6 +145,13 @@ public class PartnerActivity
         bindService(mIntentMessageService, mServiceConnection, BIND_AUTO_CREATE);
 
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+        {
+            ViewGroup.MarginLayoutParams p =
+                    (ViewGroup.MarginLayoutParams) mFabPrimary.getLayoutParams();
+            p.setMargins(0, 0, DisplayUtil.convertDpToPx(this, 8), 0);
+            mFabPrimary.setLayoutParams(p);
+        }
         mFabPrimary.setOnClickListener(this);
 
         mViewPager = (ViewPager) findViewById(R.id.vp_partner);
