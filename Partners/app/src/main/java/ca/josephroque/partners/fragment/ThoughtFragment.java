@@ -44,8 +44,9 @@ public class ThoughtFragment
         implements MessageHandler, ThoughtAdapter.ThoughtAdapterCallback
 {
 
-    /** To identify output from this class in Logcat. */
-    private static final String TAG = "ThoughtFrag";
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "ThoughtFragment";
 
     /** Manages data in a {@link RecyclerView}. */
     private ThoughtAdapter mRecyclerViewThoughtsAdapter;

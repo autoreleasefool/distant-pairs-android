@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.parse.ParseUser;
 import com.sinch.android.rtc.ClientRegistration;
@@ -28,6 +29,10 @@ public class MessageService
         implements SinchClientListener
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "MessageService";
+
     /** Key for connecting to Sinch API. */
     private static final String APP_KEY = "697a44cb-b77d-4255-a73b-236ec95214dc";
     /** Secret key for accessing Sinch API. */
@@ -40,7 +45,7 @@ public class MessageService
     /** Instance of {@code SinchClient} for sending messages. */
     private SinchClient mSinchClient;
     /** Sinch {@code MessageClient} for sending messages. */
-    private MessageClient messageClient;
+    private MessageClient mMessageClient;
     /** Parse user id. */
     private String mCurrentUserId;
     /** Instance of {@code LocalBroadcastManager}. */
@@ -58,6 +63,7 @@ public class MessageService
             startSinchClient(mCurrentUserId);
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+        Log.i(TAG, "onStartCommand completed");
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -80,6 +86,7 @@ public class MessageService
         mSinchClient.setSupportMessaging(true);
         mSinchClient.setSupportActiveConnectionInBackground(true);
         mSinchClient.start();
+        Log.i(TAG, "SinchClient started");
     }
 
     /**
@@ -99,6 +106,7 @@ public class MessageService
         mLocalBroadcastManager.sendBroadcast(mMessageBroadcastIntent);
 
         mSinchClient = null;
+        Log.i(TAG, "SinchClient failed to start");
     }
 
     @Override
@@ -108,7 +116,8 @@ public class MessageService
         mLocalBroadcastManager.sendBroadcast(mMessageBroadcastIntent);
 
         client.startListeningOnActiveConnection();
-        messageClient = client.getMessageClient();
+        mMessageClient = client.getMessageClient();
+        Log.i(TAG, "SinchClient success broadcasted, messageclient started");
     }
 
     @Override
@@ -120,6 +129,7 @@ public class MessageService
     @Override
     public IBinder onBind(Intent intent)
     {
+        Log.i(TAG, "MessageService bound");
         return mServiceInterface;
     }
 
@@ -137,6 +147,7 @@ public class MessageService
     @Override
     public void onDestroy()
     {
+        Log.i(TAG, "SinchClient destroyed");
         mSinchClient.stopListeningOnActiveConnection();
         mSinchClient.terminate();
     }
@@ -149,10 +160,11 @@ public class MessageService
      */
     public void sendMessage(String recipientUserId, String textBody)
     {
-        if (messageClient != null)
+        if (mMessageClient != null)
         {
             WritableMessage message = new WritableMessage(recipientUserId, textBody);
-            messageClient.send(message);
+            mMessageClient.send(message);
+            Log.i(TAG, "Message sent");
         }
     }
 
@@ -163,9 +175,10 @@ public class MessageService
      */
     public void addMessageClientListener(MessageClientListener listener)
     {
-        if (messageClient != null)
+        if (mMessageClient != null)
         {
-            messageClient.addMessageClientListener(listener);
+            mMessageClient.addMessageClientListener(listener);
+            Log.i(TAG, "MessageClientListener added");
         }
     }
 
@@ -176,10 +189,8 @@ public class MessageService
      */
     public void removeMessageClientListener(MessageClientListener listener)
     {
-        if (messageClient != null)
-        {
-            messageClient.removeMessageClientListener(listener);
-        }
+        if (mMessageClient != null)
+            mMessageClient.removeMessageClientListener(listener);
     }
 
     /**

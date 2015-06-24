@@ -14,6 +14,10 @@ import ca.josephroque.partners.database.DBHelper;
 public class PartnersApplication extends Application
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "PartnerApp";
+
     @Override
     public void onCreate()
     {

@@ -45,7 +45,9 @@ public class RegisterFragment
         extends Fragment
         implements View.OnClickListener
 {
+
     /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
     private static final String TAG = "RegisterFragment";
 
     /** Represents boolean indicating if fragment is for user or pair registration. */

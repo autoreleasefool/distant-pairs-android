@@ -12,6 +12,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 public final class DBHelper extends SQLiteOpenHelper
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "DBHelper";
+
     /** Name of database. */
     private static final String DATABASE_NAME = "thought_db";
     /** Version of database. */

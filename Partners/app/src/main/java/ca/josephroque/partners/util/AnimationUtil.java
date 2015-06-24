@@ -15,6 +15,10 @@ import android.view.animation.TranslateAnimation;
 public final class AnimationUtil
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "AnimationUtil";
+
     /**
      * Default private constructor.
      */

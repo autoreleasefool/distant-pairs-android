@@ -14,6 +14,10 @@ import ca.josephroque.partners.R;
 public final class ErrorUtil
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "ErrorUtil";
+
     /**
      * Default private constructor.
      */

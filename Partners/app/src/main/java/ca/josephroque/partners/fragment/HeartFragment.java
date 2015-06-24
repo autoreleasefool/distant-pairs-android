@@ -24,6 +24,10 @@ public class HeartFragment
         implements MessageHandler
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "HeartFragment";
+
     /** Container for progress bar. */
     private LinearLayout mLinearLayoutConnection;
     /** Displays a message with the progress bar. */

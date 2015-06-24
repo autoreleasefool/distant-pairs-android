@@ -28,6 +28,7 @@ public class LoginActivity
 {
 
     /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
     private static final String TAG = "LoginActivity";
 
     /** Displays progress when connecting to server. */
@@ -72,6 +73,7 @@ public class LoginActivity
         }
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        Log.i(TAG, "Login Activity created");
     }
 
     @Override
@@ -81,6 +83,7 @@ public class LoginActivity
 
         if (AccountUtil.isAccountBeingDeleted())
         {
+            Log.i(TAG, "Showing progress bar to delete account");
             showProgressBar(R.string.text_deleting_account);
             new Thread(new Runnable()
             {
@@ -89,6 +92,7 @@ public class LoginActivity
                 {
                     while (AccountUtil.isAccountBeingDeleted())
                     {
+                        Log.i(TAG, "Waiting for account deletion to complete");
                         try
                         {
                             Thread.sleep(100);
@@ -114,6 +118,7 @@ public class LoginActivity
     @Override
     public void login(final RegisterFragment.LoginCallback callback)
     {
+        Log.i(TAG, "Starting login task");
         new LoginTask().execute(callback);
     }
 
@@ -170,6 +175,7 @@ public class LoginActivity
         protected Integer doInBackground(
                 RegisterFragment.LoginCallback... callback)
         {
+            Log.i(TAG, "Login task started");
             if (callback != null)
                 mCallback = callback[0];
 
@@ -192,6 +198,7 @@ public class LoginActivity
                 return ex.getCode();
             }
 
+            Log.i(TAG, "Login task completed");
             return AccountUtil.SUCCESS;
         }
 
@@ -204,9 +211,14 @@ public class LoginActivity
             if (mCallback != null && result != AccountUtil.SUCCESS)
                 mCallback.onLoginFailed(result);
 
+            // TODO: debug
+            if (result != AccountUtil.SUCCESS)
+                Log.i(TAG, "Login error: " + result);
+
             switch (result)
             {
                 case AccountUtil.SUCCESS:
+                    Log.i(TAG, "Starting PartnerActivity, finishing LoginActivity");
                     startActivity(mIntentPartnerActivity);
                     finish();
                     break;

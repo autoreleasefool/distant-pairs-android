@@ -29,6 +29,10 @@ import ca.josephroque.partners.R;
 public final class AccountUtil
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "AccountUtil";
+
     /** Indicates if the user's account is being deleted in the background. */
     private static AtomicBoolean sAccountBeingDeleted = new AtomicBoolean(false);
 

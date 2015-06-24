@@ -22,6 +22,10 @@ public class ThoughtAdapter
         implements View.OnClickListener
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "ThoughtAdapter";
+
     /** Color of floating action button for saved thoughts. */
     private static final int COLOR_THOUGHT_SAVED = 0xffff0000;
     /** Color of floating action button for thoughts which have not been saved. */

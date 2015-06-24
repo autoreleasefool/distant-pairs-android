@@ -207,6 +207,7 @@ public class PartnerActivity
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiverMessageService);
         unbindService(mServiceConnection);
         stopService(mIntentMessageService);
+        Log.i(TAG, "Service stopped & unbound");
     }
 
     @Override
@@ -326,6 +327,7 @@ public class PartnerActivity
             @Override
             public void onReceive(Context context, Intent intent)
             {
+                Log.i(TAG, "Service spinner dismissed");
                 boolean success = intent.getBooleanExtra(MessageUtil.CLIENT_SUCCESS, false);
                 mProgressDialogMessageService.dismiss();
                 if (!success)
@@ -422,7 +424,7 @@ public class PartnerActivity
      *
      * @param online user status
      */
-    private void setOnlineStatus(boolean online)
+    private void setOnlineStatus(final boolean online)
     {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         final String statusId = preferences.getString(MessageUtil.STATUS_OBJECT_ID, null);
@@ -457,8 +459,7 @@ public class PartnerActivity
         else
         {
             Log.i(TAG, "Existing status object");
-            final ParseObject status = new ParseObject(MessageUtil.STATUS);
-            status.setObjectId(statusId);
+            final ParseObject status = ParseObject.createWithoutData(MessageUtil.STATUS, statusId);
             status.fetchInBackground(new GetCallback<ParseObject>()
             {
                 @Override
@@ -467,7 +468,7 @@ public class PartnerActivity
                     if (e == null)
                     {
                         Log.i(TAG, "Status fetch success");
-                        parseObject.put(MessageUtil.STATUS_OBJECT_ID, parseObject.getObjectId());
+                        parseObject.put(MessageUtil.ONLINE_STATUS, online);
                         parseObject.saveInBackground();
                     }
                     else
@@ -502,7 +503,7 @@ public class PartnerActivity
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtil.ONLINE_STATUS);
                     if (partnerLoggedIn)
                     {
-                        mMessageService.sendMessage(mPairId, MessageUtil.LOGIN_MESSAGE);
+                        Log.i(TAG, "Partner is online");
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
@@ -510,6 +511,7 @@ public class PartnerActivity
                     }
                     else
                     {
+                        Log.i(TAG, "Partner is offline");
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
@@ -532,6 +534,7 @@ public class PartnerActivity
      */
     private void superCuteHeartAnimation()
     {
+        Log.i(TAG, "Super cute heart animation");
         DisplayMetrics display = getResources().getDisplayMetrics();
         int deviceWidth = display.widthPixels;
         int deviceHeight = display.heightPixels;
@@ -666,6 +669,7 @@ public class PartnerActivity
         public void onMessageFailed(MessageClient client, Message message,
                                     MessageFailureInfo failureInfo)
         {
+            Log.i(TAG, "Message failed to send");
             final String messageText = message.getTextBody();
             if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
                     || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
@@ -702,6 +706,8 @@ public class PartnerActivity
         public void onIncomingMessage(MessageClient client, Message message)
         {
             final String messageText = message.getTextBody();
+            Log.i(TAG, "Message received:" + messageText);
+
             Fragment fragment = mPagerAdapter.getFragment(0);
             if (fragment instanceof MessageHandler)
                 ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
@@ -732,6 +738,7 @@ public class PartnerActivity
         {
             final String messageText = message.getTextBody();
             final String messageTime = MessageUtil.formatDate(message.getTimestamp());
+            Log.i(TAG, "Message sent:" + messageText);
 
             if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
                     || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
