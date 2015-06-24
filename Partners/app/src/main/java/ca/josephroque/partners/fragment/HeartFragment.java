@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -28,17 +27,10 @@ public class HeartFragment
     @SuppressWarnings("unused")
     private static final String TAG = "HeartFragment";
 
-    /** Container for progress bar. */
-    private LinearLayout mLinearLayoutConnection;
-    /** Displays a message with the progress bar. */
-    private TextView mTextViewConnection;
     /** Displays alternating colors of a heart. */
     private ViewSwitcher mViewSwitcherHeart;
     /** Displays most recent thought received. */
     private TextView mTextViewRecentThought;
-
-    /** Indicates if the progress bar is visible. */
-    private boolean mProgressBarActive = false;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -58,8 +50,6 @@ public class HeartFragment
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_heart, container, false);
 
-        mLinearLayoutConnection = (LinearLayout) rootView.findViewById(R.id.ll_progress);
-        mTextViewConnection = (TextView) rootView.findViewById(R.id.tv_connection);
         mTextViewRecentThought = (TextView) rootView.findViewById(R.id.tv_thought_most_recent);
         mViewSwitcherHeart = (ViewSwitcher) rootView.findViewById(R.id.switcher_heart);
 
@@ -99,26 +89,5 @@ public class HeartFragment
                 }
             });
         }
-    }
-
-    /**
-     * Displays the progress bar with a message.
-     *
-     * @param message id of string for message
-     */
-    private void showProgressBar(int message)
-    {
-        mProgressBarActive = true;
-        mLinearLayoutConnection.setVisibility(View.VISIBLE);
-        mTextViewConnection.setText(message);
-    }
-
-    /**
-     * Hides the progress bar.
-     */
-    private void hideProgressBar()
-    {
-        mProgressBarActive = false;
-        mLinearLayoutConnection.setVisibility(View.GONE);
     }
 }

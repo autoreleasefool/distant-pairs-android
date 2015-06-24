@@ -37,20 +37,4 @@
 
     </RelativeLayout>
 
-    <ProgressBar
-        android:id="@+id/pb_register"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminateOnly="true"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tv_register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/pb_register"
-        android:gravity="center_horizontal"
-        android:visibility="gone" />
-
 </RelativeLayout>

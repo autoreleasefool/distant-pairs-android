@@ -5,11 +5,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.parse.ParseException;
@@ -23,7 +24,7 @@ import ca.josephroque.partners.util.ErrorUtil;
  * Provides interface for user registration and login.
  */
 public class LoginActivity
-        extends AppCompatActivity
+        extends FragmentActivity
         implements RegisterFragment.RegisterCallbacks
 {
 
@@ -32,9 +33,11 @@ public class LoginActivity
     private static final String TAG = "LoginActivity";
 
     /** Displays progress when connecting to server. */
-    private ProgressBar mProgressBarServer;
+    private LinearLayout mLinearLayoutProgress;
     /** Displays action when connecting to server. */
-    private TextView mTextViewServer;
+    private TextView mTextViewProgress;
+    /** Fragment container. */
+    private FrameLayout mFrameLayoutContainer;
 
     /** Intent to initiate instance of {@link PartnerActivity}. */
     private Intent mIntentPartnerActivity;
@@ -133,26 +136,27 @@ public class LoginActivity
      *
      * @param message id of string for progress bar
      */
-    private void showProgressBar(int message)
+    public void showProgressBar(int message)
     {
-        if (mProgressBarServer == null)
-            mProgressBarServer = (ProgressBar) findViewById(R.id.pb_login);
-        if (mTextViewServer == null)
-            mTextViewServer = (TextView) findViewById(R.id.tv_login);
+        if (mLinearLayoutProgress == null)
+            mLinearLayoutProgress = (LinearLayout) findViewById(R.id.ll_progress);
+        if (mTextViewProgress == null)
+            mTextViewProgress = (TextView) findViewById(R.id.tv_progress);
+        if (mFrameLayoutContainer == null)
+            mFrameLayoutContainer = (FrameLayout) findViewById(R.id.login_container);
 
-        mProgressBarServer.setVisibility(View.VISIBLE);
-        mTextViewServer.setVisibility(View.VISIBLE);
-        mTextViewServer.setText(message);
-
+        mTextViewProgress.setText(message);
+        mLinearLayoutProgress.setVisibility(View.VISIBLE);
+        mFrameLayoutContainer.setVisibility(View.INVISIBLE);
     }
 
     /**
      * Hides progress bar.
      */
-    private void hideProgressBar()
+    public void hideProgressBar()
     {
-        mProgressBarServer.setVisibility(View.GONE);
-        mTextViewServer.setVisibility(View.GONE);
+        mLinearLayoutProgress.setVisibility(View.GONE);
+        mFrameLayoutContainer.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -205,7 +209,7 @@ public class LoginActivity
         @Override
         protected void onPostExecute(Integer result)
         {
-            Log.i(TAG, "Result: " + result);
+            Log.i(TAG, "Login result: " + result);
             hideProgressBar();
 
             if (mCallback != null && result != AccountUtil.SUCCESS)

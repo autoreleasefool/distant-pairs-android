@@ -48,6 +48,8 @@ import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -112,6 +114,11 @@ public class PartnerActivity
     private ViewPager mViewPager;
     /** Adapter to manage fragments displayed by this activity. */
     private PartnerPagerAdapter mPagerAdapter;
+
+    /** Displays progress when connecting to server. */
+    private LinearLayout mLinearLayoutProgress;
+    /** Displays action when connecting to server. */
+    private TextView mTextViewProgress;
 
     /** Images of hearts to animate. */
     private ImageView[] mImageViewHearts;
@@ -349,6 +356,34 @@ public class PartnerActivity
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiverMessageService,
                 new IntentFilter(MessageUtil.CLIENT_STATUS));
+    }
+
+    /**
+     * Creates and shows a progress bar.
+     *
+     * @param message id of string for progress bar
+     */
+    public void showProgressBar(int message)
+    {
+        if (mLinearLayoutProgress == null)
+            mLinearLayoutProgress = (LinearLayout) findViewById(R.id.ll_progress);
+        if (mTextViewProgress == null)
+            mTextViewProgress = (TextView) findViewById(R.id.tv_progress);
+
+        mTextViewProgress.setText(message);
+        mLinearLayoutProgress.setVisibility(View.VISIBLE);
+        mViewPager.setVisibility(View.INVISIBLE);
+        mFabPrimary.setVisibility(View.INVISIBLE);
+    }
+
+    /**
+     * Hides progress bar.
+     */
+    public void hideProgressBar()
+    {
+        mLinearLayoutProgress.setVisibility(View.GONE);
+        mViewPager.setVisibility(View.VISIBLE);
+        mFabPrimary.setVisibility(View.VISIBLE);
     }
 
     /**

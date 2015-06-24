@@ -18,9 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -61,10 +59,6 @@ public class RegisterFragment
     private EditText mEditTextUsername;
     /** Container for user input views. */
     private RelativeLayout mRelativeLayoutRegister;
-    /** Displays progress when connecting to server. */
-    private ProgressBar mProgressBarServer;
-    /** Displays action when connecting to server. */
-    private TextView mTextViewServer;
 
     /** Instance of callback interface. */
     private RegisterCallbacks mCallback;
@@ -215,36 +209,6 @@ public class RegisterFragment
     }
 
     /**
-     * Creates and shows a progress bar.
-     *
-     * @param message id of string for progress bar
-     */
-    private void showProgressBar(int message)
-    {
-        View rootView = getView();
-        if (rootView == null)
-            return;
-
-        if (mProgressBarServer == null)
-            mProgressBarServer = (ProgressBar) rootView.findViewById(R.id.pb_register);
-        if (mTextViewServer == null)
-            mTextViewServer = (TextView) rootView.findViewById(R.id.tv_register);
-
-        mProgressBarServer.setVisibility(View.VISIBLE);
-        mTextViewServer.setVisibility(View.VISIBLE);
-        mTextViewServer.setText(message);
-    }
-
-    /**
-     * Hides progress bar.
-     */
-    private void hideProgressBar()
-    {
-        mProgressBarServer.setVisibility(View.GONE);
-        mTextViewServer.setVisibility(View.GONE);
-    }
-
-    /**
      * Displays prompt for user to accept a pair request.
      *
      * @param requests iterator for pair requests from parse server
@@ -348,7 +312,7 @@ public class RegisterFragment
         protected void onPreExecute()
         {
             mRelativeLayoutRegister.setVisibility(View.GONE);
-            showProgressBar(R.string.text_registering);
+            ((PartnerActivity) getActivity()).showProgressBar(R.string.text_registering);
         }
 
         @Override
@@ -381,7 +345,7 @@ public class RegisterFragment
         protected void onPostExecute(Integer result)
         {
             Log.i(TAG, "Result: " + result);
-            hideProgressBar();
+            ((PartnerActivity) getActivity()).hideProgressBar();
 
             switch (result)
             {
@@ -429,7 +393,7 @@ public class RegisterFragment
         protected void onPreExecute()
         {
             mRelativeLayoutRegister.setVisibility(View.GONE);
-            showProgressBar(R.string.text_checking);
+            ((PartnerActivity) getActivity()).showProgressBar(R.string.text_checking);
         }
 
         @Override
@@ -459,7 +423,7 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
-            hideProgressBar();
+            ((PartnerActivity) getActivity()).hideProgressBar();
             if (mListPairRequests == null)
                 result = ParseException.OBJECT_NOT_FOUND;
 
@@ -467,7 +431,6 @@ public class RegisterFragment
             {
                 case AccountUtil.SUCCESS:
                     displayPairRequests(mListPairRequests.iterator());
-
                     break;
                 case ParseException.OBJECT_NOT_FOUND:
                     ErrorUtil.displayErrorMessage(getActivity(), "No requests",
@@ -499,7 +462,7 @@ public class RegisterFragment
         protected void onPreExecute()
         {
             mRelativeLayoutRegister.setVisibility(View.GONE);
-            showProgressBar(R.string.text_registering);
+            ((PartnerActivity) getActivity()).showProgressBar(R.string.text_registering);
         }
 
         @SuppressLint("CommitPrefEdits")
@@ -555,7 +518,8 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
-            hideProgressBar();
+            ((PartnerActivity) getActivity()).hideProgressBar();
+            Log.i(TAG, "Register partner result: " + result);
 
             switch (result)
             {

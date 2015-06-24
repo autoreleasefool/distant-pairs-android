@@ -10,20 +10,24 @@
         android:layout_height="match_parent"
         tools:context=".LoginActivity" />
 
-    <ProgressBar
-        android:id="@+id/pb_login"
+    <LinearLayout
+        android:id="@+id/ll_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminateOnly="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_centerInParent="true" >
 
-    <TextView
-        android:id="@+id/tv_login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/pb_login"
-        android:gravity="center_horizontal"
-        android:visibility="gone" />
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateOnly="true" />
+
+        <TextView
+            android:id="@+id/tv_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal" />
+
+    </LinearLayout>
 
 </RelativeLayout>
