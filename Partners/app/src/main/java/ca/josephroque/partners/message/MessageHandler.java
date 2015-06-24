@@ -1,4 +1,4 @@
-package ca.josephroque.partners.interfaces;
+package ca.josephroque.partners.message;
 
 /**
  * Created by Joseph Roque on 2015-06-21.

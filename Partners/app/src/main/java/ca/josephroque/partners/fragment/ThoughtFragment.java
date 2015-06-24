@@ -30,7 +30,7 @@ import ca.josephroque.partners.R;
 import ca.josephroque.partners.adapter.ThoughtAdapter;
 import ca.josephroque.partners.database.DBHelper;
 import ca.josephroque.partners.database.ThoughtContract;
-import ca.josephroque.partners.interfaces.MessageHandler;
+import ca.josephroque.partners.message.MessageHandler;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 import ca.josephroque.partners.util.MessageUtil;

@@ -3,7 +3,7 @@ package ca.josephroque.partners;
 import ca.josephroque.partners.fragment.HeartFragment;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.ThoughtFragment;
-import ca.josephroque.partners.interfaces.MessageHandler;
+import ca.josephroque.partners.message.MessageHandler;
 import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.AnimationUtil;

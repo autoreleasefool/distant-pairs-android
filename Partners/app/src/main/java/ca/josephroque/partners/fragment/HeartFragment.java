@@ -12,7 +12,7 @@ import android.widget.ViewSwitcher;
 
 import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
-import ca.josephroque.partners.interfaces.MessageHandler;
+import ca.josephroque.partners.message.MessageHandler;
 import ca.josephroque.partners.util.MessageUtil;
 
 /**
