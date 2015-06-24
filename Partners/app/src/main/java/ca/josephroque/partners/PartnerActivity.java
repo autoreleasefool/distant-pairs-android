@@ -34,6 +34,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -296,7 +297,8 @@ public class PartnerActivity
     public void deleteAccount()
     {
         AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback() {
+                new AccountUtil.DeleteAccountCallback()
+                {
                     @Override
                     public void onDeleteAccount()
                     {
@@ -409,6 +411,9 @@ public class PartnerActivity
     public void sendMessage(String message)
     {
         // TODO: check for valid message
+        if (mPairId == null)
+            //TODO: invalid pair
+            return;
         mMessageService.sendMessage(mPairId, message);
     }
 
@@ -483,7 +488,7 @@ public class PartnerActivity
         String partnerName = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(AccountUtil.PAIR, null);
         if (partnerName == null)
-            throw new IllegalArgumentException("invalid partner");
+            return;
 
         ParseQuery<ParseObject> pairStatus = new ParseQuery<>(MessageUtil.STATUS);
         pairStatus.whereEqualTo(AccountUtil.USERNAME, partnerName);
@@ -527,13 +532,16 @@ public class PartnerActivity
      */
     private void superCuteHeartAnimation()
     {
-        int deviceWidth = getResources().getDisplayMetrics().widthPixels;
+        DisplayMetrics display = getResources().getDisplayMetrics();
+        int deviceWidth = display.widthPixels;
+        int deviceHeight = display.heightPixels;
+
         for (ImageView heart : mImageViewHearts)
         {
             // TODO: randomize heart size
             // heart.getLayoutParams.width = ???
-            heart.startAnimation(AnimationUtil.getRandomHeartAnimation(
-                    (int) (Math.random() * (deviceWidth - heart.getWidth()))));
+            heart.startAnimation(AnimationUtil.getRandomHeartAnimation(heart,
+                    (int) (Math.random() * (deviceWidth - heart.getWidth())), deviceHeight));
         }
     }
 
@@ -702,7 +710,7 @@ public class PartnerActivity
             try
             {
                 fragment = mPagerAdapter.getFragment(1);
-                if (fragment instanceof  MessageHandler)
+                if (fragment instanceof MessageHandler)
                     ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
                             MessageUtil.formatDate(message.getTimestamp()),
                             messageText);

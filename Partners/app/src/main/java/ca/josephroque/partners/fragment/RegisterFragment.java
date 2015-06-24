@@ -504,6 +504,12 @@ public class RegisterFragment
         @Override
         protected Integer doInBackground(String... partnerName)
         {
+            final SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String username = preferences.getString(AccountUtil.USERNAME, null);
+            if (partnerName[0].equals(username))
+                return ParseException.UNSUPPORTED_SERVICE;
+
             ParseQuery<ParseUser> parseQuery = ParseUser.getQuery();
             parseQuery.whereEqualTo("username", partnerName[0]);
 
@@ -517,8 +523,6 @@ public class RegisterFragment
                 pairQuery.whereEqualTo(AccountUtil.USERNAME, partnerName[0]);
                 List<ParseObject> pairResult = pairQuery.find();
 
-                SharedPreferences preferences =
-                        PreferenceManager.getDefaultSharedPreferences(getActivity());
                 String accountUsername = preferences.getString(AccountUtil.USERNAME, null);
 
                 // Pair is invalid or already registered to someone else
@@ -556,6 +560,11 @@ public class RegisterFragment
                 case AccountUtil.SUCCESS:
                     mCallback.pairRegistered();
                     return;
+                case ParseException.UNSUPPORTED_SERVICE:
+                    ErrorUtil.displayErrorMessage(getActivity(), "Invalid name",
+                            "You cannot add yourself as your pair.");
+                    mRelativeLayoutRegister.setVisibility(View.VISIBLE);
+                    break;
                 case ParseException.CONNECTION_FAILED:
                     ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
                             "Unable to connect to server. Please, try again.");
