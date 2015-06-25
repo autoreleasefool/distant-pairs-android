@@ -29,3 +29,6 @@ Partners/.idea/
 
 # Log Files
 *.log
+
+# Secret files
+ParseCloud/config/global.json
