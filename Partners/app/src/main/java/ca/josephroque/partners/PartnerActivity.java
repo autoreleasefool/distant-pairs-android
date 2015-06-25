@@ -85,8 +85,6 @@ public class PartnerActivity
     private static final String ARG_CURRENT_FRAGMENT = "arg_cur_frag";
     /** Represents boolean indicating if the user has a pair registered. */
     private static final String ARG_PAIR_REGISTERED = "arg_pair_reg";
-    /** Represents boolean indicating if the app should attempt to log the user in. */
-    public static final String ARG_ATTEMPT_LOGIN = "arg_attempt_login";
     /** Position of HeartFragment instance in ViewPager. */
     public static final byte HEART_FRAGMENT = 0;
     /** Position of ThoughtFragment instance in ViewPager. */
@@ -319,9 +317,11 @@ public class PartnerActivity
                     @Override
                     public void onDeleteAccountStarted()
                     {
-                        runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -336,7 +336,8 @@ public class PartnerActivity
                             @Override
                             public void run()
                             {
-                                Intent loginIntent = new Intent(PartnerActivity.this, LoginActivity.class);
+                                Intent loginIntent =
+                                        new Intent(PartnerActivity.this, LoginActivity.class);
                                 startActivity(loginIntent);
                                 finish();
                             }

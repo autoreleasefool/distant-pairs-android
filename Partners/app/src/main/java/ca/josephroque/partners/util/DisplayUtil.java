@@ -19,7 +19,7 @@ public final class DisplayUtil
     }
 
     /**
-     * Converts a dp value to pixels according to display's density
+     * Converts a dp value to pixels according to display density.
      *
      * @param context to get display density
      * @param dp value to convert

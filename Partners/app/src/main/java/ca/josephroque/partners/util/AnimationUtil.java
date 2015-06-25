@@ -60,7 +60,8 @@ public final class AnimationUtil
         animationSet.addAnimation(rotate);
         animationSet.addAnimation(alpha);
         animationSet.setDuration(duration);
-        animationSet.setAnimationListener(new Animation.AnimationListener() {
+        animationSet.setAnimationListener(new Animation.AnimationListener()
+        {
             @Override
             public void onAnimationStart(Animation animation)
             {

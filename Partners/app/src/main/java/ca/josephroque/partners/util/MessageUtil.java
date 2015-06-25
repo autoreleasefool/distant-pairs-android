@@ -60,6 +60,7 @@ public final class MessageUtil
 
     /**
      * Formats a {@link Date} object to a string.
+     *
      * @param date to format
      * @return string of the format 'yyyy-MM-dd HH:mm:ss'
      */

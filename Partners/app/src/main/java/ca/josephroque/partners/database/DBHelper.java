@@ -9,7 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
  *
  * Database helper to access internal database.
  */
-public final class DBHelper extends SQLiteOpenHelper
+public final class DBHelper
+        extends SQLiteOpenHelper
 {
 
     /** To identify output from this class in the Logcat. */

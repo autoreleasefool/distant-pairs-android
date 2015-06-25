@@ -11,7 +11,8 @@ import ca.josephroque.partners.database.DBHelper;
  *
  * To initialize libraries and objects before app begins.
  */
-public class PartnersApplication extends Application
+public class PartnersApplication
+        extends Application
 {
 
     /** To identify output from this class in the Logcat. */

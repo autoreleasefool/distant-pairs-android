@@ -25,7 +25,8 @@ public final class ThoughtContract
     /**
      * Thought table definition.
      */
-    public static final class ThoughtEntry implements BaseColumns
+    public static final class ThoughtEntry
+            implements BaseColumns
     {
 
         /**
