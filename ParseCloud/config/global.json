@@ -1,0 +1,14 @@
+{
+  "global": {
+    "parseVersion": "1.4.2"
+  },
+  "applications": {
+    "Partners": {
+      "applicationId": "jWG1xELtom5AqG1jrv7swNBg3wgWlLLAAhfzhfM7",
+      "masterKey": "6GJgrPbEeHsWRN82JMi01QBQi14uHBhdTm4ZoHNp"
+    },
+    "_default": {
+      "link": "Partners"
+    }
+  }
+}
