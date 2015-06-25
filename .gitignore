@@ -29,9 +29,3 @@ Partners/.idea/
 
 # Log Files
 *.log
-
-# Secret keys
-*Secret*
-
-# Design files
-/Design
