@@ -37,7 +37,7 @@ Parse.Cloud.define("deleteAccount", function(request, response) {
                 },
                 error: function(object, error) {
                   response.error("could not delete account");
-                }
+                },
                 useMasterKey: true
               });
             } else {
@@ -51,7 +51,7 @@ Parse.Cloud.define("deleteAccount", function(request, response) {
       } else {
         response.error("invalid username or key");
       }
-    }
+    },
     error: function(error) {
       response.error("invalid username or key");
     }
