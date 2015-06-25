@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -14,6 +15,7 @@ import com.parse.ParseUser;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import ca.josephroque.partners.R;
@@ -23,7 +25,7 @@ import ca.josephroque.partners.R;
  *
  * Classes and methods for creating and managing an account.
  */
-@SuppressWarnings("Convert2Lambda")
+@SuppressWarnings({"Convert2Lambda", "Convert2streamapi"})
 public final class AccountUtil
 {
 
@@ -134,9 +136,25 @@ public final class AccountUtil
             @Override
             public void run()
             {
+                String deletionKey = null;
                 ParseUser currentUser = ParseUser.getCurrentUser();
                 if (currentUser != null)
+                {
+                    try
+                    {
+                        deletionKey = ParseCloud.callFunction("requestAccountDeletionKey",
+                                new HashMap<>());
+                        if (deletionKey == null || deletionKey.length() < 35)
+                            throw new ParseException(ParseException.OTHER_CAUSE, "no key");
+                    }
+                    catch (ParseException ex)
+                    {
+                        deletionKey = null;
+                        // TODO: handle errors
+                        // TODO: callback.onDeleteAccountError(); ??
+                    }
                     ParseUser.logOut();
+                }
 
                 SharedPreferences preferences =
                         PreferenceManager.getDefaultSharedPreferences(context);
@@ -163,6 +181,14 @@ public final class AccountUtil
 
                 deleteObjectsFromQuery(pairQuery);
                 deleteObjectsFromQuery(statusQuery);
+
+                if (deletionKey != null)
+                {
+                    HashMap<String, String> deletionMap = new HashMap<>();
+                    deletionMap.put("key", deletionKey);
+                    deletionMap.put("username", username);
+                    ParseCloud.callFunctionInBackground("deleteAccount", deletionMap);
+                }
 
                 if (callback != null)
                     callback.onDeleteAccountEnded();
