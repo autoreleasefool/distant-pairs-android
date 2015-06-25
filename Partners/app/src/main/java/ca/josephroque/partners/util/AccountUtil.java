@@ -23,6 +23,7 @@ import ca.josephroque.partners.R;
  *
  * Classes and methods for creating and managing an account.
  */
+@SuppressWarnings("Convert2Lambda")
 public final class AccountUtil
 {
 
