@@ -54,7 +54,17 @@ public final class DBHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
+        createThoughtsTable(db);
+    }
 
+    /**
+     * Creates the thoughts table in the database. See
+     * {@link ca.josephroque.partners.database.ThoughtContract.ThoughtEntry} for table definition.
+     *
+     * @param db database
+     */
+    private void createThoughtsTable(SQLiteDatabase db)
+    {
         db.execSQL("CREATE TABLE "
                 + ThoughtContract.ThoughtEntry.TABLE_NAME + " ("
                 + ThoughtContract.ThoughtEntry._ID + " INTEGER PRIMARY KEY, "
@@ -69,5 +79,19 @@ public final class DBHelper
     {
         db.execSQL("DROP TABLE IF EXISTS " + ThoughtContract.ThoughtEntry.TABLE_NAME);
         onCreate(db);
+    }
+
+    /**
+     * Drops the thoughts table and recreates it.
+     *
+     * @param context to get instance of database
+     */
+    public static void clearAllThoughts(Context context)
+    {
+        DBHelper helper = getInstance(context);
+        SQLiteDatabase database = helper.getWritableDatabase();
+        
+        database.execSQL("DROP TABLE IF EXISTS" + ThoughtContract.ThoughtEntry.TABLE_NAME);
+        helper.createThoughtsTable(database);
     }
 }

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ca.josephroque.partners.R;
+import ca.josephroque.partners.database.DBHelper;
 
 /**
  * Created by Joseph Roque on 2015-06-16.
@@ -143,6 +144,8 @@ public final class AccountUtil
                 String deletionKey = null;
                 HashMap<String, String> deletionMap = new HashMap<>();
 
+                DBHelper.clearAllThoughts(context);
+
                 ParseUser currentUser = ParseUser.getCurrentUser();
                 if (currentUser != null)
                 {
@@ -227,11 +230,9 @@ public final class AccountUtil
                                                final DeleteAccountCallback callback)
     {
         ParseCloud.callFunctionInBackground("deleteAccount", map,
-                new FunctionCallback<Object>()
-                {
+                new FunctionCallback<Object>() {
                     @Override
-                    public void done(Object o, ParseException e)
-                    {
+                    public void done(Object o, ParseException e) {
                         if (e == null)
                             callback.onDeleteAccountEnded();
                         else
