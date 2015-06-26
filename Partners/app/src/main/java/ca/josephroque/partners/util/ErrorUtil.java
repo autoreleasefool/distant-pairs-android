@@ -57,7 +57,7 @@ public final class ErrorUtil
      * Displays an error to the user in a snackbar without an action.
      *
      * @param rootView view for snackbar
-     * @param message error message
+     * @param message error message string id
      */
     public static void displayErrorSnackbar(View rootView, int message)
     {
@@ -68,8 +68,8 @@ public final class ErrorUtil
      * Displays an error to the user in a snackbar with an action
      *
      * @param rootView view for snackbar
-     * @param message error message
-     * @param action available action to resolve error
+     * @param message error message string id
+     * @param action available action to resolve error string id
      * @param listener listener for action. If null, {@code action} will be ignored
      */
     public static void displayErrorSnackbar(View rootView, int message, int action,
@@ -82,5 +82,16 @@ public final class ErrorUtil
         }
 
         snackbar.show();
+    }
+
+    /**
+     * Displays an error to the user in a snackbar.
+     *
+     * @param rootView view for snackbar
+     * @param message error message
+     */
+    public static void displayErrorSnackbar(View rootView, String message)
+    {
+        Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
     }
 }

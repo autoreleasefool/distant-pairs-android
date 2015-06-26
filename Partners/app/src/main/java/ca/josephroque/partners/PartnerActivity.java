@@ -487,11 +487,19 @@ public class PartnerActivity
      */
     public void sendMessage(String message)
     {
-        // TODO: check for valid message
         if (mPairId == null)
-            //TODO: invalid pair
+        {
+            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                    R.string.text_cannot_find_pair);
             return;
-        mMessageService.sendMessage(mPairId, message);
+        }
+
+        message = MessageUtil.getValidMessage(message);
+        if (message.startsWith(MessageUtil.MESSAGE_TYPE_ERROR))
+            MessageUtil.handleError(findViewById(R.id.cl_partner), message);
+
+        mMessageService.sendMessage(mPairId,
+                message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH));
     }
 
     /**

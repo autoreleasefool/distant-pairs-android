@@ -8,6 +8,9 @@
 
     <!-- Errors -->
     <string name="text_cannot_find_pair">Unable to find your pair.</string>
+    <string name="text_no_message">No message was provided.</string>
+    <string name="text_message_too_long">Message limit is 140 characters.</string>
+    <string name="text_message_invalid_characters">Message contains invalid characters.</string>
 
     <!-- Events -->
     <string name="text_hint_username">Username</string>
