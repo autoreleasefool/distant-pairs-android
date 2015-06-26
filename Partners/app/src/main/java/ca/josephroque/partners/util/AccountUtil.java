@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 
+import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -50,6 +51,9 @@ public final class AccountUtil
     public static final int USERNAME_MAX_LENGTH = 16;
     /** Represents successful account related operation. */
     public static final int SUCCESS = 0;
+
+    /** Represents the minimum length of a valid account deletion key. */
+    private static final int ACCOUNT_DELETION_KEY_LENGTH = 35;
 
     /** Number base. */
     private static final byte BASE = 32;
@@ -137,23 +141,27 @@ public final class AccountUtil
             public void run()
             {
                 String deletionKey = null;
+                HashMap<String, String> deletionMap = new HashMap<>();
+
                 ParseUser currentUser = ParseUser.getCurrentUser();
                 if (currentUser != null)
                 {
                     try
                     {
                         deletionKey = ParseCloud.callFunction("requestAccountDeletionKey",
-                                new HashMap<>());
-                        if (deletionKey == null || deletionKey.length() < 35)
+                                deletionMap);
+                        if (deletionKey == null
+                                || deletionKey.length() < ACCOUNT_DELETION_KEY_LENGTH)
                             throw new ParseException(ParseException.OTHER_CAUSE, "no key");
+                        ParseUser.logOut();
                     }
                     catch (ParseException ex)
                     {
-                        deletionKey = null;
-                        // TODO: handle errors
-                        // TODO: callback.onDeleteAccountError(); ??
+                        if (callback != null)
+                            callback.onDeleteAccountError(null);
+                        ParseUser.logOut();
+                        return;
                     }
-                    ParseUser.logOut();
                 }
 
                 SharedPreferences preferences =
@@ -184,16 +192,38 @@ public final class AccountUtil
 
                 if (deletionKey != null)
                 {
-                    HashMap<String, String> deletionMap = new HashMap<>();
                     deletionMap.put("key", deletionKey);
                     deletionMap.put("username", username);
-                    ParseCloud.callFunctionInBackground("deleteAccount", deletionMap);
+                    deleteAccountCloudCode(deletionMap, callback);
                 }
 
                 if (callback != null)
                     callback.onDeleteAccountEnded();
             }
         }).start();
+    }
+
+    /**
+     * Calls "deleteAccount" method in Parse cloud code.
+     *
+     * @param map hash map with username and deletion key
+     * @param callback to inform calling method if account is deleted
+     */
+    private static void deleteAccountCloudCode(HashMap<String, String> map,
+                                               final DeleteAccountCallback callback)
+    {
+        ParseCloud.callFunctionInBackground("deleteAccount", map,
+                new FunctionCallback<Object>()
+                {
+                    @Override
+                    public void done(Object o, ParseException e)
+                    {
+                        if (e == null)
+                            callback.onDeleteAccountEnded();
+                        else
+                            callback.onDeleteAccountError(null);
+                    }
+                });
     }
 
     /**
@@ -211,7 +241,7 @@ public final class AccountUtil
         }
         catch (ParseException ex)
         {
-            // TODO: error handling
+            // does nothing - user can assume these objects were deleted
         }
     }
 
@@ -259,5 +289,12 @@ public final class AccountUtil
          * Invoked when the account has been deleted.
          */
         void onDeleteAccountEnded();
+
+        /**
+         * Invoked when there is an error deleting the account.
+         *
+         * @param message error message
+         */
+        void onDeleteAccountError(String message);
     }
 }

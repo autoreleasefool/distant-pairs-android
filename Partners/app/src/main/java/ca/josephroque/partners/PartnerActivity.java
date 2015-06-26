@@ -149,12 +149,13 @@ public class PartnerActivity
         startService(mIntentMessageService);
         bindService(mIntentMessageService, mServiceConnection, BIND_AUTO_CREATE);
 
+        final int underLollipopMargin = 8;
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
         {
             ViewGroup.MarginLayoutParams p =
                     (ViewGroup.MarginLayoutParams) mFabPrimary.getLayoutParams();
-            p.setMargins(0, 0, DisplayUtil.convertDpToPx(this, 8), 0);
+            p.setMargins(0, 0, DisplayUtil.convertDpToPx(this, underLollipopMargin), 0);
             mFabPrimary.setLayoutParams(p);
         }
         mFabPrimary.setOnClickListener(this);
@@ -343,6 +344,19 @@ public class PartnerActivity
                             }
                         });
 
+                    }
+
+                    @Override
+                    public void onDeleteAccountError(String message)
+                    {
+                        if (message != null)
+                            ErrorUtil.displayErrorMessage(PartnerActivity.this,
+                                    "Error deleting account", message);
+                        else
+                            ErrorUtil.displayErrorMessage(PartnerActivity.this,
+                                    "Error deleting account", "An unknown error occurred and you"
+                                            + " may not be able to use this username again.");
+                        onDeleteAccountEnded();
                     }
                 });
     }
