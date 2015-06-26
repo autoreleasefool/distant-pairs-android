@@ -230,11 +230,13 @@ public class ThoughtFragment
                                       TreeMap<String, Pair<String, String>> thoughtMap,
                                       HashMap<String, Boolean> savedMap)
         {
-            final String userParseId = preferences.getString(AccountUtil.PARSE_USER_ID, null);
-            if (userParseId != null)
+            final String username = preferences.getString(AccountUtil.USERNAME, null);
+            final String partnerName = preferences.getString(AccountUtil.PAIR, null);
+            if (username != null && partnerName != null)
             {
-                ParseQuery<ParseObject> thoughtQuery = new ParseQuery<>("Thought");
-                thoughtQuery.whereEqualTo("recipientId", userParseId);
+                ParseQuery<ParseObject> thoughtQuery = new ParseQuery<>("Thought")
+                        .whereEqualTo("recipientName", username)
+                        .whereEqualTo("senderName", partnerName);
                 List<ParseObject> thoughtResults = Collections.emptyList();
 
                 try

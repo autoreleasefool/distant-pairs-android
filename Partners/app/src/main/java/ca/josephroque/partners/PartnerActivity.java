@@ -124,6 +124,10 @@ public class PartnerActivity
     /** Counts the number of times a message has failed to send. */
     private HashMap<String, Integer> mFailedMessageCount;
 
+    /** Name of user. */
+    private String mUsername;
+    /** Username of partner. */
+    private String mPartnerName;
     /** Parse object id of partner. */
     private String mPairId;
     /** Indicates if the user has registered a pair. */
@@ -188,7 +192,6 @@ public class PartnerActivity
 
         updateFloatingActionButton();
         showServiceSpinner();
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         populateHeartImageViews();
     }
 
@@ -276,8 +279,10 @@ public class PartnerActivity
     @Override
     public void pairRegistered()
     {
-        mPairId = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(AccountUtil.PARSE_PAIR_ID, null);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mPairId = preferences.getString(AccountUtil.PARSE_PAIR_ID, null);
+        mPartnerName = preferences.getString(AccountUtil.PAIR, null);
+        mUsername = preferences.getString(AccountUtil.USERNAME, null);
         mIsPairRegistered = true;
         mPagerAdapter.notifyDataSetChanged();
         updateFloatingActionButton();
@@ -836,8 +841,10 @@ public class PartnerActivity
                         if (messageList.size() == 0)
                         {
                             ParseObject parseMessage = new ParseObject("ParseMessage");
-                            parseMessage.put("senderId", mPairId);
-                            parseMessage.put("recipientId", message.getRecipientIds().get(0));
+                            //parseMessage.put("senderId", mPairId);
+                            //parseMessage.put("recipientId", message.getRecipientIds().get(0));
+                            parseMessage.put("recipientName", mPartnerName);
+                            parseMessage.put("senderName", mUsername);
                             parseMessage.put("messageText", messageText);
                             parseMessage.put("sinchId", message.getMessageId());
                             parseMessage.put("sentTime", messageTime);

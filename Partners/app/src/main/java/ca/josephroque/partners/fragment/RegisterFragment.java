@@ -2,6 +2,7 @@ package ca.josephroque.partners.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -32,6 +34,7 @@ import java.util.List;
 import ca.josephroque.partners.ProgressActivity;
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.util.AccountUtil;
+import ca.josephroque.partners.util.DisplayUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 
 /**
@@ -311,6 +314,7 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
+            DisplayUtil.hideKeyboard(getActivity());
             mRelativeLayoutRegister.setVisibility(View.GONE);
             ((ProgressActivity) getActivity()).showProgressBar(R.string.text_registering);
         }
@@ -392,6 +396,7 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
+            DisplayUtil.hideKeyboard(getActivity());
             mRelativeLayoutRegister.setVisibility(View.GONE);
             ((ProgressActivity) getActivity()).showProgressBar(R.string.text_checking);
         }
@@ -461,6 +466,7 @@ public class RegisterFragment
         @Override
         protected void onPreExecute()
         {
+            DisplayUtil.hideKeyboard(getActivity());
             mRelativeLayoutRegister.setVisibility(View.GONE);
             ((ProgressActivity) getActivity()).showProgressBar(R.string.text_registering);
         }

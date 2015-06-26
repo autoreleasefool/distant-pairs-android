@@ -179,16 +179,7 @@ public final class AccountUtil
                         .remove(MessageUtil.STATUS_OBJECT_ID)
                         .apply();
 
-                ParseQuery<ParseObject> pairQuery = ParseQuery.or(Arrays.asList(
-                        new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
-                        new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
-
-                ParseQuery<ParseObject> statusQuery = ParseQuery.getQuery("Status")
-                        .whereEqualTo(AccountUtil.USERNAME, username);
-                // TODO: get other objects with user's name
-
-                deleteObjectsFromQuery(pairQuery);
-                deleteObjectsFromQuery(statusQuery);
+                deleteAccountObjects(username);
 
                 if (deletionKey != null)
                 {
@@ -201,6 +192,29 @@ public final class AccountUtil
                     callback.onDeleteAccountEnded();
             }
         }).start();
+    }
+
+    /**
+     * Deletes all Parse objects associated with the username.
+     *
+     * @param username user to delete objects for
+     */
+    private static void deleteAccountObjects(String username)
+    {
+        ParseQuery<ParseObject> pairQuery = ParseQuery.or(Arrays.asList(
+                new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
+                new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
+
+        ParseQuery<ParseObject> statusQuery = ParseQuery.getQuery("Status")
+                .whereEqualTo(AccountUtil.USERNAME, username);
+
+        ParseQuery<ParseObject> thoughtQuery = ParseQuery.or(Arrays.asList(
+                new ParseQuery<>("Thought").whereEqualTo("recipientName", username),
+                new ParseQuery<>("Thought").whereEqualTo("senderName", username)));
+
+        deleteObjectsFromQuery(pairQuery);
+        deleteObjectsFromQuery(statusQuery);
+        deleteObjectsFromQuery(thoughtQuery);
     }
 
     /**
