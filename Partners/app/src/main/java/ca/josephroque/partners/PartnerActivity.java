@@ -355,10 +355,10 @@ public class PartnerActivity
                     public void onDeleteAccountError(String message)
                     {
                         if (message != null)
-                            ErrorUtil.displayErrorMessage(PartnerActivity.this,
+                            ErrorUtil.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
                         else
-                            ErrorUtil.displayErrorMessage(PartnerActivity.this,
+                            ErrorUtil.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", "An unknown error occurred and you"
                                             + " may not be able to use this username again.");
                         onDeleteAccountEnded();
@@ -385,7 +385,7 @@ public class PartnerActivity
                 mProgressDialogMessageService.dismiss();
                 if (!success)
                 {
-                    ErrorUtil.displayErrorMessage(PartnerActivity.this, "Service failure",
+                    ErrorUtil.displayErrorDialog(PartnerActivity.this, "Service failure",
                             "Messaging service failed to start.");
                 }
             }
@@ -601,9 +601,8 @@ public class PartnerActivity
                 }
                 else
                 {
-                    Snackbar.make(findViewById(R.id.cl_partner), "Unable to find your pair",
-                            Snackbar.LENGTH_SHORT)
-                            .show();
+                    ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                            R.string.text_cannot_find_pair);
                 }
             }
         });

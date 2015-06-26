@@ -265,7 +265,7 @@ public class ThoughtFragment
         {
             if (mListThoughtIds.size() == 0)
             {
-                ErrorUtil.displayErrorMessage(getActivity(), "No thoughts loaded",
+                ErrorUtil.displayErrorDialog(getActivity(), "No thoughts loaded",
                         "Could not find any thoughts from your pair to display.");
             }
             else

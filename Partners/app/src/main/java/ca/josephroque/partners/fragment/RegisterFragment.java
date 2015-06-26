@@ -2,7 +2,6 @@ package ca.josephroque.partners.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -17,7 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -193,7 +191,7 @@ public class RegisterFragment
 
             if (username == null)
             {
-                ErrorUtil.displayErrorMessage(getActivity(), "Invalid username",
+                ErrorUtil.displayErrorDialog(getActivity(), "Invalid username",
                         "Username must be 16 characters or less and can only contain letters or"
                                 + " numbers. Please, try again.");
                 return;
@@ -220,7 +218,7 @@ public class RegisterFragment
     {
         if (!requests.hasNext())
         {
-            ErrorUtil.displayErrorMessage(getActivity(), "No requests",
+            ErrorUtil.displayErrorDialog(getActivity(), "No requests",
                     "Nobody has requested to be your pair.");
             mRelativeLayoutRegister.setVisibility(View.VISIBLE);
             return;
@@ -297,7 +295,7 @@ public class RegisterFragment
                 }
                 else
                 {
-                    ErrorUtil.displayErrorMessage(getActivity(), "Error",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Error",
                             "Could not delete requests. Please, try again.");
                 }
             }
@@ -364,18 +362,18 @@ public class RegisterFragment
                     });
                     break;
                 case ParseException.CONNECTION_FAILED:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Connection failed",
                             "Failed to connect to the server. Please, try again. If this error"
                                     + "persists, your connection may not be sufficient.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.USERNAME_TAKEN:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Username taken",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Username taken",
                             "That username is already in use. Please, try another.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 default:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Error",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Error",
                             "An error has occurred. Please, try again.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
@@ -438,17 +436,17 @@ public class RegisterFragment
                     displayPairRequests(mListPairRequests.iterator());
                     break;
                 case ParseException.OBJECT_NOT_FOUND:
-                    ErrorUtil.displayErrorMessage(getActivity(), "No requests",
+                    ErrorUtil.displayErrorDialog(getActivity(), "No requests",
                             "Nobody has requested to be your pair.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.CONNECTION_FAILED:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Connection failed",
                             "Unable to connect to server. Please, try again.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 default:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Unknown error",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Unknown error",
                             "An unknown error occurred. Please, try again.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
@@ -533,27 +531,27 @@ public class RegisterFragment
                     mCallback.pairRegistered();
                     return;
                 case ParseException.UNSUPPORTED_SERVICE:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Invalid name",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Invalid name",
                             "You cannot add yourself as your pair.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.CONNECTION_FAILED:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Connection failed",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Connection failed",
                             "Unable to connect to server. Please, try again.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.USERNAME_MISSING:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Error registering pair",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Error registering pair",
                             "This user does not exist. Please, try again.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 case ParseException.USERNAME_TAKEN:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Error registering pair",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Error registering pair",
                             "This user already has a pair. Please, try again.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;
                 default:
-                    ErrorUtil.displayErrorMessage(getActivity(), "Error registering pair",
+                    ErrorUtil.displayErrorDialog(getActivity(), "Error registering pair",
                             "This user may not exist or may already be paired. Please, try again.");
                     mRelativeLayoutRegister.setVisibility(View.VISIBLE);
                     break;

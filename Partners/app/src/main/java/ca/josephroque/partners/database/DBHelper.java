@@ -90,7 +90,7 @@ public final class DBHelper
     {
         DBHelper helper = getInstance(context);
         SQLiteDatabase database = helper.getWritableDatabase();
-        
+
         database.execSQL("DROP TABLE IF EXISTS" + ThoughtContract.ThoughtEntry.TABLE_NAME);
         helper.createThoughtsTable(database);
     }
