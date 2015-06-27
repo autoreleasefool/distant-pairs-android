@@ -144,7 +144,8 @@ public final class AccountUtil
                 String deletionKey = null;
                 HashMap<String, String> deletionMap = new HashMap<>();
 
-                DBHelper.clearAllThoughts(context);
+                DBHelper helper = DBHelper.getInstance(context);
+                helper.clearAllThoughts();
 
                 ParseUser currentUser = ParseUser.getCurrentUser();
                 if (currentUser != null)
@@ -232,7 +233,8 @@ public final class AccountUtil
         ParseCloud.callFunctionInBackground("deleteAccount", map,
                 new FunctionCallback<Object>() {
                     @Override
-                    public void done(Object o, ParseException e) {
+                    public void done(Object o, ParseException e)
+                    {
                         if (e == null)
                             callback.onDeleteAccountEnded();
                         else

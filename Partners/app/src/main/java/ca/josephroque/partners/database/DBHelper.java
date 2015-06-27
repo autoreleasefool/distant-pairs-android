@@ -1,8 +1,25 @@
 package ca.josephroque.partners.database;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
+import java.lang.ref.WeakReference;
+import java.util.List;
+
+import ca.josephroque.partners.R;
+import ca.josephroque.partners.util.ErrorUtil;
 
 /**
  * Created by Joseph Roque on 2015-06-23.
@@ -25,6 +42,9 @@ public final class DBHelper
     /** Singleton instance of {@code DBHelper}. */
     private static DBHelper sDatabaseHelperInstance;
 
+    /** Weak reference to context which created instance. */
+    private WeakReference<Context> mContext;
+
     /**
      * Private constructor which creates database.
      *
@@ -33,6 +53,7 @@ public final class DBHelper
     private DBHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = new WeakReference<>(context);
     }
 
     /**
@@ -82,16 +103,114 @@ public final class DBHelper
     }
 
     /**
-     * Drops the thoughts table and recreates it.
+     * Saves a thought to the thoughts table in the database, removes from Parse database.
      *
-     * @param context to get instance of database
+     * @param id unique id of message
+     * @param message thought
+     * @param time time message was sent
      */
-    public static void clearAllThoughts(Context context)
+    public void saveThoughtToDatabase(final String id, final String message, final String time)
     {
-        DBHelper helper = getInstance(context);
-        SQLiteDatabase database = helper.getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
+        try
+        {
+            database.beginTransaction();
 
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(ThoughtContract.ThoughtEntry.COLUMN_ID, id);
+            contentValues.put(ThoughtContract.ThoughtEntry.COLUMN_MESSAGE, message);
+            contentValues.put(ThoughtContract.ThoughtEntry.COLUMN_TIME, time);
+            database.insert(ThoughtContract.ThoughtEntry.TABLE_NAME, null, contentValues);
+
+            database.setTransactionSuccessful();
+        }
+        catch (Exception ex)
+        {
+            if (mContext.get() != null)
+                ErrorUtil.displayErrorDialog(mContext.get(), "Database error",
+                        "Unfortunately, your message could not be saved locally");
+            return;
+        }
+        finally
+        {
+            database.endTransaction();
+        }
+
+        ParseQuery<ParseObject> thoughtQuery = new ParseQuery<>("Thought")
+                .whereEqualTo("sinchId", id);
+
+        try
+        {
+            List<ParseObject> results = thoughtQuery.find();
+            ParseObject.deleteAllInBackground(results);
+        }
+        catch (ParseException ex)
+        {
+            // do nothing, message already doesn't exist in database
+        }
+    }
+
+    /**
+     * Prompts user to delete a thought from the database, and removes it if they accept.
+     *
+     * @param activity to create dialog
+     * @param id unique id of thought to delete
+     * @param message thought
+     */
+    public void promptDeleteThoughtFromDatabase(final Activity activity, final String id,
+                                                final String message)
+    {
+        final View rootView = LayoutInflater.from(activity)
+                .inflate(R.layout.dialog_delete_thought, null);
+        ((TextView) rootView.findViewById(R.id.tv_thought_to_delete)).setText(message);
+        final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                if (which == DialogInterface.BUTTON_POSITIVE)
+                {
+                    deleteThoughtFromDatabase(id);
+                }
+                dialog.dismiss();
+            }
+        };
+
+        activity.runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                new AlertDialog.Builder(activity)
+                        .setView(rootView)
+                        .setPositiveButton(R.string.text_dialog_okay, listener)
+                        .setNegativeButton(R.string.text_dialog_cancel, listener)
+                        .create()
+                        .show();
+            }
+        });
+    }
+
+    /**
+     * Deletes a thought from the database.
+     *
+     * @param id unique id of thought to delete
+     */
+    public void deleteThoughtFromDatabase(final String id)
+    {
+        SQLiteDatabase database = getWritableDatabase();
+        database.delete(ThoughtContract.ThoughtEntry.TABLE_NAME,
+                ThoughtContract.ThoughtEntry.COLUMN_ID + "=?",
+                new String[]{id});
+    }
+
+    /**
+     * Drops the thoughts table and recreates it.
+     */
+    public void clearAllThoughts()
+    {
+        SQLiteDatabase database = getWritableDatabase();
         database.execSQL("DROP TABLE IF EXISTS" + ThoughtContract.ThoughtEntry.TABLE_NAME);
-        helper.createThoughtsTable(database);
+        createThoughtsTable(database);
     }
 }

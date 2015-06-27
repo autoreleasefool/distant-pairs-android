@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.adapter.ThoughtAdapter;
@@ -50,6 +52,9 @@ public class ThoughtFragment
 
     /** Manages data in a {@link RecyclerView}. */
     private ThoughtAdapter mRecyclerViewThoughtsAdapter;
+
+    /** Executes database operations in order.*/
+    private final ExecutorService mDatabaseExecutorService = Executors.newSingleThreadExecutor();
 
     /** List of unique identifiers for thoughts. */
     private List<String> mListThoughtIds;
@@ -122,11 +127,22 @@ public class ThoughtFragment
     }
 
     @Override
-    public void setThoughtSavedToDatabase(int position, String id, String message, String time,
-                                          boolean save)
+    public void setThoughtSavedToDatabase(final String id, final String message, final String time,
+                                          final boolean save)
     {
-        mRecyclerViewThoughtsAdapter.notifyItemChanged(position);
         // TODO: save thought to database, remove from parse
+        mDatabaseExecutorService.submit(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                DBHelper helper = DBHelper.getInstance(getActivity());
+                if (save)
+                    helper.saveThoughtToDatabase(id, message, time);
+                else
+                    helper.promptDeleteThoughtFromDatabase(getActivity(), id, message);
+            }
+        });
     }
 
     /**
@@ -264,14 +280,9 @@ public class ThoughtFragment
         protected void onPostExecute(Void result)
         {
             if (mListThoughtIds.size() == 0)
-            {
-                ErrorUtil.displayErrorDialog(getActivity(), "No thoughts loaded",
-                        "Could not find any thoughts from your pair to display.");
-            }
+                ErrorUtil.displayErrorSnackbar(getView(), "No thoughts loaded");
             else
-            {
                 mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
-            }
         }
     }
 }
