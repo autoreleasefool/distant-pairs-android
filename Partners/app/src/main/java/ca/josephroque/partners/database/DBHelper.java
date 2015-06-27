@@ -210,7 +210,7 @@ public final class DBHelper
     public void clearAllThoughts()
     {
         SQLiteDatabase database = getWritableDatabase();
-        database.execSQL("DROP TABLE IF EXISTS" + ThoughtContract.ThoughtEntry.TABLE_NAME);
+        database.execSQL("DROP TABLE IF EXISTS " + ThoughtContract.ThoughtEntry.TABLE_NAME);
         createThoughtsTable(database);
     }
 }
