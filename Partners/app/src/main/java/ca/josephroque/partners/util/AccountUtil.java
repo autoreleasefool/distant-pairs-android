@@ -191,9 +191,6 @@ public final class AccountUtil
                     deletionMap.put("username", username);
                     deleteAccountCloudCode(deletionMap, callback);
                 }
-
-                if (callback != null)
-                    callback.onDeleteAccountEnded();
             }
         }).start();
     }
