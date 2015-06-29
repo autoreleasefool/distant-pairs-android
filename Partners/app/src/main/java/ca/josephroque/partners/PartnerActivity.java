@@ -40,7 +40,6 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
@@ -136,14 +135,12 @@ public class PartnerActivity
     private int mCurrentViewPagerPosition = 0;
     /** Id of the current icon of {@code mFabPrimary}. */
     private int mCurrentFabIcon;
+    /** Tracks number of attempts made to appear online. */
+    private int mStatusAttemptCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_partner);
 
@@ -189,6 +186,14 @@ public class PartnerActivity
             mIsPairRegistered = AccountUtil.doesPartnerExist(this);
         }
         mPagerAdapter.notifyDataSetChanged();
+
+        if (mIsPairRegistered)
+        {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            mPairId = preferences.getString(AccountUtil.PARSE_PAIR_ID, null);
+            mPartnerName = preferences.getString(AccountUtil.PAIR, null);
+            mUsername = preferences.getString(AccountUtil.USERNAME, null);
+        }
 
         updateFloatingActionButton();
         showServiceSpinner();
@@ -289,6 +294,7 @@ public class PartnerActivity
         mUsername = preferences.getString(AccountUtil.USERNAME, null);
         mIsPairRegistered = true;
         mPagerAdapter.notifyDataSetChanged();
+        setOnlineStatus(true);
         updateFloatingActionButton();
     }
 
@@ -322,16 +328,12 @@ public class PartnerActivity
     public void deleteAccount()
     {
         AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback()
-                {
+                new AccountUtil.DeleteAccountCallback() {
                     @Override
-                    public void onDeleteAccountStarted()
-                    {
-                        runOnUiThread(new Runnable()
-                        {
+                    public void onDeleteAccountStarted() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -339,13 +341,10 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded()
-                    {
-                        runOnUiThread(new Runnable()
-                        {
+                    public void onDeleteAccountEnded() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, LoginActivity.class);
                                 startActivity(loginIntent);
@@ -356,8 +355,7 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message)
-                    {
+                    public void onDeleteAccountError(String message) {
                         if (message != null)
                             ErrorUtil.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
@@ -533,16 +531,35 @@ public class PartnerActivity
                 {
                     if (e == null)
                     {
-                        // TODO: send message to pair of new status
                         Log.i(TAG, "Status saved");
+                        mStatusAttemptCount = 0;
                         preferences.edit()
                                 .putString(MessageUtil.STATUS_OBJECT_ID, status.getObjectId())
                                 .apply();
+                        if (AccountUtil.doesPartnerExist(PartnerActivity.this))
+                            sendMessage(MessageUtil.LOGIN_MESSAGE);
                     }
                     else
                     {
                         Log.e(TAG, "Status save failed", e);
-                        // TODO: error handling - could not appear online / notify pair
+                        if (online) {
+                            if (mStatusAttemptCount < 3) {
+                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                                        R.string.text_cannot_appear_online, R.string.text_try_again,
+                                        new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mStatusAttemptCount++;
+                                                setOnlineStatus(true);
+                                            }
+                                        });
+                            }
+                            else
+                            {
+                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                                        R.string.text_too_many_attemps);
+                            }
+                        }
                     }
                 }
             });
@@ -551,22 +568,36 @@ public class PartnerActivity
         {
             Log.i(TAG, "Existing status object");
             final ParseObject status = ParseObject.createWithoutData(MessageUtil.STATUS, statusId);
-            status.fetchInBackground(new GetCallback<ParseObject>()
-            {
+            status.fetchInBackground(new GetCallback<ParseObject>() {
                 @Override
-                public void done(ParseObject parseObject, ParseException e)
-                {
-                    if (e == null)
-                    {
-                        // TODO: send message to pair of new status
+                public void done(ParseObject parseObject, ParseException e) {
+                    if (e == null) {
                         Log.i(TAG, "Status fetch success");
+                        mStatusAttemptCount = 0;
                         parseObject.put(MessageUtil.ONLINE_STATUS, online);
                         parseObject.saveInBackground();
-                    }
-                    else
-                    {
+                        if (AccountUtil.doesPartnerExist(PartnerActivity.this))
+                            sendMessage(MessageUtil.LOGIN_MESSAGE);
+                    } else {
                         Log.e(TAG, "Status fetch failed", e);
-                        // TODO: error handling - could not appear online / notify pair
+                        if (online) {
+                            if (mStatusAttemptCount < 3) {
+                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                                        R.string.text_cannot_appear_online, R.string.text_try_again,
+                                        new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                mStatusAttemptCount++;
+                                                setOnlineStatus(true);
+                                            }
+                                        });
+                            }
+                            else
+                            {
+                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                                        R.string.text_too_many_attemps);
+                            }
+                        }
                     }
                 }
             });

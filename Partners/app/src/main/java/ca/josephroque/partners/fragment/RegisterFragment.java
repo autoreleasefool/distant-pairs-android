@@ -98,13 +98,9 @@ public class RegisterFragment
         View rootView = inflater.inflate(R.layout.fragment_register, container, false);
 
         if (savedInstanceState != null)
-        {
             mRegisterOrPair = savedInstanceState.getBoolean(REGISTER_OR_PAIR, true);
-        }
         else
-        {
             mRegisterOrPair = getArguments().getBoolean(REGISTER_OR_PAIR, true);
-        }
 
         mButtonRegister = (Button) rootView.findViewById(R.id.btn_login_register);
         mButtonPairCheck = (Button) rootView.findViewById(R.id.btn_check_pairs);

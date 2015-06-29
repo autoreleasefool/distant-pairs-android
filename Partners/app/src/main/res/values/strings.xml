@@ -11,6 +11,8 @@
     <string name="text_no_message">No message was provided.</string>
     <string name="text_message_too_long">Message limit is 140 characters.</string>
     <string name="text_message_invalid_characters">Message contains invalid characters.</string>
+    <string name="text_cannot_appear_online">Unable to appear online.</string>
+    <string name="text_too_many_attemps">Too many attemps.</string>
 
     <!-- Events -->
     <string name="text_hint_username">Username</string>
@@ -34,6 +36,7 @@
     <string name="text_dialog_no">No</string>
     <string name="text_dialog_no_to_all">No to all</string>
     <string name="text_dialog_send">Send</string>
+    <string name="text_try_again">Try again</string>
 
     <!-- Content descriptions -->
     <string name="text_content_description_heart_active">Your pair is online</string>
