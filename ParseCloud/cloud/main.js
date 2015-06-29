@@ -36,6 +36,7 @@ Parse.Cloud.define("deleteAccount", function(request, response) {
                 var timeToLive = 1000 * 60;
                 var expirationTime = new Date(createdAt.getTime() + timeToLive);
                 var currentTime = new Date();
+                results[0].destroy();
 
                 // A key is only valid for 30 seconds
                 if (currentTime > expirationTime)
@@ -45,7 +46,6 @@ Parse.Cloud.define("deleteAccount", function(request, response) {
                 }
 
                 // If the key is valid, the user is fetched and deleted
-                results[0].destroy();
                 var query = new Parse.Query("User");
                 query.equalTo("username", username);
                 query.find({
