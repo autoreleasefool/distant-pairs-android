@@ -55,16 +55,16 @@ public class MessageService
             new Intent(MessageUtil.CLIENT_STATUS);
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId)
+    public void onCreate()
     {
+        super.onCreate();
         mCurrentUserId = ParseUser.getCurrentUser().getObjectId();
 
         if (mCurrentUserId != null && !isSinchClientStarted())
             startSinchClient(mCurrentUserId);
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
-        Log.i(TAG, "onStartCommand completed");
-        return super.onStartCommand(intent, flags, startId);
+        Log.i(TAG, "onCreateCompleted");
     }
 
     /**
@@ -124,6 +124,7 @@ public class MessageService
     public void onClientStopped(SinchClient client)
     {
         mSinchClient = null;
+        Log.i(TAG, "Client stopped");
     }
 
     @Override

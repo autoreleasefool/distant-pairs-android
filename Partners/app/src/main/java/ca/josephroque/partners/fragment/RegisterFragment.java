@@ -465,7 +465,6 @@ public class RegisterFragment
             ((ProgressActivity) getActivity()).showProgressBar(R.string.text_registering);
         }
 
-        @SuppressLint("CommitPrefEdits")
         @Override
         protected Integer doInBackground(String... partnerName)
         {
@@ -505,7 +504,7 @@ public class RegisterFragment
                 preferences.edit()
                         .putString(AccountUtil.PAIR, partnerName[0])
                         .putString(AccountUtil.PARSE_PAIR_ID, result.get(0).getObjectId())
-                        .commit();
+                        .apply();
 
                 return AccountUtil.SUCCESS;
             }

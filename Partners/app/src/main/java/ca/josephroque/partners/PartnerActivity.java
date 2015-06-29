@@ -147,10 +147,7 @@ public class PartnerActivity
         setContentView(R.layout.activity_partner);
 
         mFailedMessageCount = new HashMap<>();
-
         mIntentMessageService = new Intent(PartnerActivity.this, MessageService.class);
-        startService(mIntentMessageService);
-        bindService(mIntentMessageService, mServiceConnection, BIND_AUTO_CREATE);
 
         final int underLollipopMargin = 8;
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
@@ -167,11 +164,9 @@ public class PartnerActivity
         mPagerAdapter = new PartnerPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mPagerAdapter);
 
-        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
-        {
+        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onPageSelected(int position)
-            {
+            public void onPageSelected(int position) {
                 mCurrentViewPagerPosition = position;
                 updateFloatingActionButton();
             }
@@ -198,7 +193,6 @@ public class PartnerActivity
         }
 
         updateFloatingActionButton();
-        showServiceSpinner();
         populateHeartImageViews();
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
@@ -210,8 +204,11 @@ public class PartnerActivity
     protected void onResume()
     {
         super.onResume();
+        bindService(mIntentMessageService, mServiceConnection, BIND_AUTO_CREATE);
         setOnlineStatus(true);
         checkIfPartnerOnline();
+
+        showServiceSpinner();
     }
 
     @Override
@@ -219,6 +216,11 @@ public class PartnerActivity
     {
         super.onStop();
         setOnlineStatus(false);
+        unbindService(mServiceConnection);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiverMessageService);
+        Log.i(TAG, "Message receiver unregistered");
+        Log.i(TAG, "Service unbound");
+
     }
 
     @Override
@@ -227,16 +229,6 @@ public class PartnerActivity
         super.onSaveInstanceState(outState);
         outState.putInt(ARG_CURRENT_FRAGMENT, mCurrentViewPagerPosition);
         outState.putBoolean(ARG_PAIR_REGISTERED, mIsPairRegistered);
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiverMessageService);
-        unbindService(mServiceConnection);
-        stopService(mIntentMessageService);
-        Log.i(TAG, "Service stopped & unbound");
     }
 
     @Override
@@ -434,6 +426,7 @@ public class PartnerActivity
 
         if (newDrawableId != mCurrentFabIcon)
         {
+
             final int animTime =
                     getResources().getInteger(android.R.integer.config_mediumAnimTime);
             ScaleAnimation shrink = new ScaleAnimation(1.0f, 0f, 1.0f, 0f,
@@ -451,6 +444,7 @@ public class PartnerActivity
                 @Override
                 public void onAnimationEnd(Animation animation)
                 {
+                    mFabPrimary.setVisibility(View.VISIBLE);
                     mFabPrimary.setImageResource(newDrawableId);
                     mCurrentFabIcon = newDrawableId;
                     ScaleAnimation grow = new ScaleAnimation(0f, 1.0f, 0f, 1.0f,
