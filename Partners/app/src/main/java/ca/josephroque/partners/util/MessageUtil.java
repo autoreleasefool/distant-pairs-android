@@ -90,17 +90,20 @@ public final class MessageUtil
      */
     public static String getValidMessage(String message)
     {
+        if (LOGIN_MESSAGE.equals(message) || LOGOUT_MESSAGE.equals(message))
+            return MESSAGE_TYPE_VALID + ":" + message;
+
         if (message == null || message.length() == 0)
-            return MessageUtil.MESSAGE_TYPE_ERROR + ":" + R.string.text_no_message + ":" + message;
+            return MESSAGE_TYPE_ERROR + ":" + R.string.text_no_message + ":" + message;
         else if (message.length() > MAX_MESSAGE_LENGTH)
-            return MessageUtil.MESSAGE_TYPE_ERROR + ":" + R.string.text_message_too_long
+            return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_too_long
                     + ":" + message;
         // TODO: create regex for valid message characters
         else if (!message.matches("[a-zA-Z0-9 ]"))
-            return MessageUtil.MESSAGE_TYPE_ERROR + ":" + R.string.text_message_invalid_characters
+            return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_invalid_characters
                     + ":" + message;
         else
-            return MessageUtil.MESSAGE_TYPE_VALID + ":" + message;
+            return MESSAGE_TYPE_VALID + ":" + message;
     }
 
     /**

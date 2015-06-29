@@ -130,7 +130,9 @@ public class PartnerActivity
     /** Parse object id of partner. */
     private String mPairId;
     /** Indicates if the user has registered a pair. */
-    private boolean mIsPairRegistered = false;
+    private boolean mIsPairRegistered;
+    /** Indicates if a status message should be sent when the MessageService connects. */
+    private boolean mShouldSendStatusMessage;
     /** The current position of the view pager. */
     private int mCurrentViewPagerPosition = 0;
     /** Id of the current icon of {@code mFabPrimary}. */
@@ -500,8 +502,11 @@ public class PartnerActivity
         if (message.startsWith(MessageUtil.MESSAGE_TYPE_ERROR))
             MessageUtil.handleError(findViewById(R.id.cl_partner), message);
 
-        mMessageService.sendMessage(mPairId,
-                message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH));
+        final String messageToSend = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
+        if (mMessageService != null)
+            mMessageService.sendMessage(mPairId, messageToSend);
+        else if (MessageUtil.LOGIN_MESSAGE.equals(messageToSend))
+            mShouldSendStatusMessage = true;
     }
 
     /**
@@ -771,6 +776,12 @@ public class PartnerActivity
             Log.i(TAG, "Service connected");
             mMessageService = (MessageService.MessageServiceInterface) iBinder;
             mMessageService.addMessageClientListener(mMessageClientListener);
+
+            if (mShouldSendStatusMessage)
+            {
+                mShouldSendStatusMessage = false;
+                sendMessage(MessageUtil.LOGIN_MESSAGE);
+            }
         }
 
         @Override
