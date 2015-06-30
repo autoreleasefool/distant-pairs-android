@@ -4,26 +4,19 @@ import ca.josephroque.partners.fragment.HeartFragment;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.ThoughtFragment;
 import ca.josephroque.partners.message.MessageHandler;
-import ca.josephroque.partners.message.MessageService;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.AnimationUtil;
 import ca.josephroque.partners.util.DisplayUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 import ca.josephroque.partners.util.MessageUtil;
 
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -31,7 +24,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
@@ -56,12 +48,6 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.sinch.android.rtc.PushPair;
-import com.sinch.android.rtc.messaging.Message;
-import com.sinch.android.rtc.messaging.MessageClient;
-import com.sinch.android.rtc.messaging.MessageClientListener;
-import com.sinch.android.rtc.messaging.MessageDeliveryInfo;
-import com.sinch.android.rtc.messaging.MessageFailureInfo;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -92,19 +78,6 @@ public class PartnerActivity
     /** Center pivot for scale animation. */
     private static final float CENTER_PIVOT = 0.5f;
 
-    /** Displays a spinning progress dialog. */
-    private ProgressDialog mProgressDialogMessageService;
-    /** Receives intent to hide spinning progress dialog. */
-    private BroadcastReceiver mReceiverMessageService = null;
-    /** Intent to initiate instance of {@link MessageService}. */
-    private Intent mIntentMessageService;
-    /** Instanace of service connection. */
-    private ServiceConnection mServiceConnection = new MessageServiceConnection();
-    /** Instance of service interface. */
-    private MessageService.MessageServiceInterface mMessageService;
-    /** Instance of message listener. */
-    private MessageClientListener mMessageClientListener = new PartnerMessageClientListener();
-
     /** Floating Action Button for primary action in the current fragment. */
     private FloatingActionButton mFabPrimary;
     /** View pager for fragments. */
@@ -131,8 +104,6 @@ public class PartnerActivity
     private String mPairId;
     /** Indicates if the user has registered a pair. */
     private boolean mIsPairRegistered;
-    /** Indicates if a status message should be sent when the MessageService connects. */
-    private boolean mShouldSendStatusMessage;
     /** The current position of the view pager. */
     private int mCurrentViewPagerPosition = 0;
     /** Id of the current icon of {@code mFabPrimary}. */
@@ -147,7 +118,6 @@ public class PartnerActivity
         setContentView(R.layout.activity_partner);
 
         mFailedMessageCount = new HashMap<>();
-        mIntentMessageService = new Intent(PartnerActivity.this, MessageService.class);
 
         final int underLollipopMargin = 8;
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
@@ -206,11 +176,8 @@ public class PartnerActivity
     protected void onResume()
     {
         super.onResume();
-        bindService(mIntentMessageService, mServiceConnection, BIND_AUTO_CREATE);
         setOnlineStatus(true);
         checkIfPartnerOnline();
-
-        showServiceSpinner();
     }
 
     @Override
@@ -218,11 +185,6 @@ public class PartnerActivity
     {
         super.onStop();
         setOnlineStatus(false);
-        unbindService(mServiceConnection);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiverMessageService);
-        Log.i(TAG, "Message receiver unregistered");
-        Log.i(TAG, "Service unbound");
-
     }
 
     @Override
@@ -372,35 +334,6 @@ public class PartnerActivity
                 });
     }
 
-    /**
-     * Displays a progress dialog and waits for the message service to start.
-     */
-    private void showServiceSpinner()
-    {
-        mProgressDialogMessageService = new ProgressDialog(this);
-        mProgressDialogMessageService.setTitle(R.string.text_loading);
-        mProgressDialogMessageService.setIndeterminate(true);
-
-        mReceiverMessageService = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                Log.i(TAG, "Service spinner dismissed");
-                boolean success = intent.getBooleanExtra(MessageUtil.CLIENT_SUCCESS, false);
-                mProgressDialogMessageService.dismiss();
-                if (!success)
-                {
-                    ErrorUtil.displayErrorDialog(PartnerActivity.this, "Service failure",
-                            "Messaging service failed to start.");
-                }
-            }
-        };
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiverMessageService,
-                new IntentFilter(MessageUtil.CLIENT_STATUS));
-    }
-
     @Override
     public void showProgressBar(int message)
     {
@@ -507,10 +440,7 @@ public class PartnerActivity
             MessageUtil.handleError(findViewById(R.id.cl_partner), message);
 
         final String messageToSend = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
-        if (mMessageService != null)
-            mMessageService.sendMessage(mPairId, messageToSend);
-        else if (MessageUtil.LOGIN_MESSAGE.equals(messageToSend))
-            mShouldSendStatusMessage = true;
+        // TODO: send message
     }
 
     /**
@@ -629,7 +559,6 @@ public class PartnerActivity
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtil.ONLINE_STATUS);
                     if (partnerLoggedIn)
                     {
-                        Log.i(TAG, "Partner is online");
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
@@ -637,7 +566,6 @@ public class PartnerActivity
                     }
                     else
                     {
-                        Log.i(TAG, "Partner is offline");
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
@@ -659,7 +587,6 @@ public class PartnerActivity
      */
     private void superCuteHeartAnimation()
     {
-        Log.i(TAG, "Super cute heart animation");
         DisplayMetrics display = getResources().getDisplayMetrics();
         int deviceWidth = display.widthPixels;
         int deviceHeight = display.heightPixels;
@@ -758,165 +685,6 @@ public class PartnerActivity
         private Fragment getCurrentFragment()
         {
             return getFragment(mCurrentViewPagerPosition);
-        }
-    }
-
-    /**
-     * Handles a messaging service connection.
-     */
-    private class MessageServiceConnection
-            implements ServiceConnection
-    {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder)
-        {
-            Log.i(TAG, "Service connected");
-            mMessageService = (MessageService.MessageServiceInterface) iBinder;
-            mMessageService.addMessageClientListener(mMessageClientListener);
-
-            if (mShouldSendStatusMessage)
-            {
-                mShouldSendStatusMessage = false;
-                sendMessage(MessageUtil.LOGIN_MESSAGE);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName)
-        {
-            mMessageService = null;
-        }
-    }
-
-    /**
-     * Listens for message events.
-     */
-    private class PartnerMessageClientListener
-            implements MessageClientListener
-    {
-
-        @Override
-        public void onMessageFailed(MessageClient client, Message message,
-                                    MessageFailureInfo failureInfo)
-        {
-            Log.i(TAG, "Message failed to send");
-            final String messageText = message.getTextBody();
-            if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
-                    || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
-                return;
-
-            Integer failureCount = mFailedMessageCount.get(messageText);
-            mFailedMessageCount.put(messageText, ((failureCount != null)
-                    ? failureCount
-                    : 0) + 1);
-
-            if (failureCount != null && failureCount > 1)
-            {
-                Snackbar.make(findViewById(R.id.cl_partner), "Failed to send message.",
-                        Snackbar.LENGTH_SHORT)
-                        .setAction("Resend", new View.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(View v)
-                            {
-                                sendMessage(messageText);
-                            }
-                        })
-                        .show();
-            }
-            else
-            {
-                Snackbar.make(findViewById(R.id.cl_partner), "Message failed too many times.",
-                        Snackbar.LENGTH_SHORT)
-                        .show();
-            }
-        }
-
-        @Override
-        public void onIncomingMessage(MessageClient client, Message message)
-        {
-            final String messageText = message.getTextBody();
-            Log.i(TAG, "Message received:" + messageText);
-
-            Fragment fragment = mPagerAdapter.getFragment(0);
-            if (fragment instanceof MessageHandler)
-                ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
-                        MessageUtil.formatDate(message.getTimestamp()),
-                        messageText);
-            try
-            {
-                fragment = mPagerAdapter.getFragment(1);
-                if (fragment instanceof MessageHandler)
-                    ((MessageHandler) fragment).onNewMessage(message.getMessageId(),
-                            MessageUtil.formatDate(message.getTimestamp()),
-                            messageText);
-            }
-            catch (NullPointerException ex)
-            {
-                // does nothing
-            }
-
-            if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
-                    || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
-                // TODO: possibly display animation on login/logout
-                return;
-            superCuteHeartAnimation();
-        }
-
-        @Override
-        public void onMessageSent(MessageClient client, final Message message, String recipientId)
-        {
-            final String messageText = message.getTextBody();
-            final String messageTime = MessageUtil.formatDate(message.getTimestamp());
-            Log.i(TAG, "Message sent:" + messageText);
-
-            if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
-                    || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
-                return;
-
-            mFailedMessageCount.remove(messageText);
-
-            Log.i(TAG, "Saving message to parse: " + message.getTextBody());
-
-            //only add message to parse database if it doesn't already exist there
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Thought");
-            query.whereEqualTo("sinchId", message.getMessageId());
-            query.findInBackground(new FindCallback<ParseObject>()
-            {
-                @Override
-                public void done(List<ParseObject> messageList, com.parse.ParseException e)
-                {
-                    if (e == null)
-                    {
-                        if (messageList.size() == 0)
-                        {
-                            ParseObject parseMessage = new ParseObject("ParseMessage");
-                            //parseMessage.put("senderId", mPairId);
-                            //parseMessage.put("recipientId", message.getRecipientIds().get(0));
-                            parseMessage.put("recipientName", mPartnerName);
-                            parseMessage.put("senderName", mUsername);
-                            parseMessage.put("messageText", messageText);
-                            parseMessage.put("sinchId", message.getMessageId());
-                            parseMessage.put("sentTime", messageTime);
-                            parseMessage.saveInBackground();
-                        }
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onMessageDelivered(MessageClient client, MessageDeliveryInfo deliveryInfo)
-        {
-            // does nothing
-        }
-
-        @Override
-        public void onShouldSendPushData(MessageClient client, Message message,
-                                         List<PushPair> pushPairs)
-        {
-            // does nothing
         }
     }
 }
