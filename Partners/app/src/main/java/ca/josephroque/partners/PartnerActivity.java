@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -508,22 +509,26 @@ public class PartnerActivity
         messageObject.put("senderName", mUsername);
         messageObject.put("messageText", messageText);
         messageObject.put("sentTime", MessageUtil.getCurrentDateAndTime());
-        messageObject.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e)
+
+        if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
+                || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
+        {
+            sendMessage(messageObject);
+        }
+        else
+        {
+            messageObject.saveInBackground(new SaveCallback()
             {
-                if (e == null)
+                @Override
+                public void done(ParseException e)
                 {
-                    sendMessage(messageObject);
+                    if (e == null)
+                        sendMessage(messageObject);
+                    else
+                        messageFailedToSend(messageText);
                 }
-                else
-                {
-                    Log.e(TAG, "Could not save message", e);
-                    // TODO: error, message failed to send
-                    // TODO: attempt resend
-                }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -531,7 +536,7 @@ public class PartnerActivity
      *
      * @param messageObject message data
      */
-    private void sendMessage(ParseObject messageObject)
+    private void sendMessage(final ParseObject messageObject)
     {
         JSONObject data = new JSONObject();
         try
@@ -558,12 +563,46 @@ public class PartnerActivity
             {
                 if (e != null)
                 {
-                    // TODO: attempt resend
-                    ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                            R.string.text_message_failed);
+                    messageFailedToSend(messageObject.getString("messageText"));
                 }
             }
         });
+    }
+
+    /**
+     * Displays error message and prompts user to resend a message if it fails.
+     *
+     * @param messageText message that failed
+     */
+    private void messageFailedToSend(final String messageText)
+    {
+        if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
+                || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
+            return;
+
+        Integer failureCount = mFailedMessageCount.get(messageText);
+        mFailedMessageCount.put(messageText, (failureCount != null)
+                ? failureCount + 1
+                : 1);
+
+        if (failureCount != null && failureCount > 2)
+        {
+            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                    R.string.text_message_failed, R.string.text_resend,
+                    new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v)
+                        {
+                            sendMessage(messageText);
+                        }
+                    });
+        }
+        else
+        {
+            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                    R.string.text_too_many_attemps);
+        }
     }
 
     /**

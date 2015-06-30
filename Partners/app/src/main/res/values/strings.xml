@@ -38,6 +38,7 @@
     <string name="text_dialog_no_to_all">No to all</string>
     <string name="text_dialog_send">Send</string>
     <string name="text_try_again">Try again</string>
+    <string name="text_resend">Resend</string>
 
     <!-- Content descriptions -->
     <string name="text_content_description_heart_active">Your pair is online</string>
