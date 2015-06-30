@@ -37,6 +37,8 @@ public final class MessageUtil
     public static final String LOGIN_MESSAGE = "~LOGIN";
     /** A logout message. */
     public static final String LOGOUT_MESSAGE = "~LOGOUT";
+    /** An intent action for when a message is received. */
+    public static final String ACTION_MESSAGE_RECEIVED = "action_message_received";
 
     /** Maximum length of messages. */
     public static final int MAX_MESSAGE_LENGTH = 140;
@@ -67,17 +69,6 @@ public final class MessageUtil
     public static String getCurrentDateAndTime()
     {
         return sDateFormat.format(new Date());
-    }
-
-    /**
-     * Formats a {@link Date} object to a string.
-     *
-     * @param date to format
-     * @return string of the format 'yyyy-MM-dd HH:mm:ss'
-     */
-    public static String formatDate(Date date)
-    {
-        return sDateFormat.format(date);
     }
 
     /**

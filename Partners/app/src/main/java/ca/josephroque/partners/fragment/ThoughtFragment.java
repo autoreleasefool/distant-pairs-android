@@ -267,7 +267,7 @@ public class ThoughtFragment
                 for (ParseObject thought : thoughtResults)
                 {
                     String date = thought.getString("sentTime");
-                    String id = thought.getString("sinchId");
+                    String id = thought.getObjectId();
                     String message = thought.getString("messageText");
 
                     thoughtMap.put(date, Pair.create(id, message));

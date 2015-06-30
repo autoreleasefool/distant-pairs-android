@@ -10,9 +10,11 @@ import ca.josephroque.partners.util.DisplayUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 import ca.josephroque.partners.util.MessageUtil;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Build;
@@ -20,10 +22,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
@@ -44,10 +46,16 @@ import android.widget.TextView;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SendCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -77,6 +85,9 @@ public class PartnerActivity
 
     /** Center pivot for scale animation. */
     private static final float CENTER_PIVOT = 0.5f;
+
+    /** Broadcast receiver for messages from partner. */
+    private BroadcastReceiver mMessageBroadcastReceiver;
 
     /** Floating Action Button for primary action in the current fragment. */
     private FloatingActionButton mFabPrimary;
@@ -166,10 +177,10 @@ public class PartnerActivity
 
         updateFloatingActionButton();
         populateHeartImageViews();
+        registerMessageReceiver();
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        Log.i(TAG, "PartnerActivity created");
     }
 
     @Override
@@ -193,6 +204,13 @@ public class PartnerActivity
         super.onSaveInstanceState(outState);
         outState.putInt(ARG_CURRENT_FRAGMENT, mCurrentViewPagerPosition);
         outState.putBoolean(ARG_PAIR_REGISTERED, mIsPairRegistered);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageBroadcastReceiver);
     }
 
     @Override
@@ -257,6 +275,48 @@ public class PartnerActivity
     }
 
     /**
+     * Registers a custom {@link android.content.BroadcastReceiver} in the {@link
+     * android.support.v4.content.LocalBroadcastManager}.
+     */
+    private void registerMessageReceiver()
+    {
+        mMessageBroadcastReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                // TODO: get time and unique id
+                String message = intent.getStringExtra("message");
+                String uniqueId = intent.getStringExtra("id");
+                String timestamp = intent.getStringExtra("timestamp");
+
+                Fragment fragment = mPagerAdapter.getFragment(0);
+                if (fragment instanceof MessageHandler)
+                    ((MessageHandler) fragment).onNewMessage(uniqueId, timestamp, message);
+                try
+                {
+                    fragment = mPagerAdapter.getFragment(1);
+                    if (fragment instanceof MessageHandler)
+                        ((MessageHandler) fragment).onNewMessage(uniqueId, timestamp, message);
+                }
+                catch (NullPointerException ex)
+                {
+                    // does nothing
+                }
+
+                if (MessageUtil.LOGIN_MESSAGE.equals(message)
+                        || MessageUtil.LOGOUT_MESSAGE.equals(message))
+                    // TODO: possibly display animation on login/logout
+                    return;
+                superCuteHeartAnimation();
+            }
+        };
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageBroadcastReceiver,
+                new IntentFilter(MessageUtil.ACTION_MESSAGE_RECEIVED));
+    }
+
+    /**
      * Creates an array of ImageView objects for {@code mImageViewHearts}.
      */
     private void populateHeartImageViews()
@@ -281,7 +341,7 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(Context, AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
@@ -428,7 +488,7 @@ public class PartnerActivity
      */
     public void sendMessage(String message)
     {
-        if (mPairId == null)
+        if (mPartnerName == null)
         {
             ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
                     R.string.text_cannot_find_pair);
@@ -437,10 +497,73 @@ public class PartnerActivity
 
         message = MessageUtil.getValidMessage(message);
         if (message.startsWith(MessageUtil.MESSAGE_TYPE_ERROR))
+        {
             MessageUtil.handleError(findViewById(R.id.cl_partner), message);
+            return;
+        }
+        final String messageText = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
 
-        final String messageToSend = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
-        // TODO: send message
+        final ParseObject messageObject = new ParseObject("Thought");
+        messageObject.put("recipientName", mPartnerName);
+        messageObject.put("senderName", mUsername);
+        messageObject.put("messageText", messageText);
+        messageObject.put("sentTime", MessageUtil.getCurrentDateAndTime());
+        messageObject.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e)
+            {
+                if (e == null)
+                {
+                    sendMessage(messageObject);
+                }
+                else
+                {
+                    Log.e(TAG, "Could not save message", e);
+                    // TODO: error, message failed to send
+                    // TODO: attempt resend
+                }
+            }
+        });
+    }
+
+    /**
+     * Sends message to partner, using data from a {@link com.parse.ParseObject}.
+     *
+     * @param messageObject message data
+     */
+    private void sendMessage(ParseObject messageObject)
+    {
+        JSONObject data = new JSONObject();
+        try
+        {
+            data.put("message", messageObject.getString("messageText"));
+            data.put("timestamp", messageObject.getString("sentTime"));
+            data.put("id", messageObject.getObjectId());
+        }
+        catch (JSONException ex)
+        {
+            Log.e(TAG, "JSON error", ex);
+        }
+
+        ParsePush parsePush = new ParsePush();
+        parsePush.setData(data);
+
+        ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
+        parseQuery.whereEqualTo("username", mPartnerName);
+        parsePush.setQuery(parseQuery);
+        parsePush.sendInBackground(new SendCallback()
+        {
+            @Override
+            public void done(ParseException e)
+            {
+                if (e != null)
+                {
+                    // TODO: attempt resend
+                    ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                            R.string.text_message_failed);
+                }
+            }
+        });
     }
 
     /**
@@ -512,7 +635,8 @@ public class PartnerActivity
     }
 
     /**
-     * Displays error in {@link Snackbar} when status object fails to update.
+     * Displays error in {@link android.support.design.widget.Snackbar} when status object fails to
+     * update.
      */
     private void statusFetchFailed()
     {

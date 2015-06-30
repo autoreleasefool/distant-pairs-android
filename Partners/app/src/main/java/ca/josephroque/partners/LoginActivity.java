@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import ca.josephroque.partners.fragment.RegisterFragment;
@@ -120,6 +121,8 @@ public class LoginActivity
 
         /** Instance of callback interface for result. */
         private RegisterFragment.LoginCallback mCallback;
+        /** Username used to log in. */
+        private String mUsername;
 
         @Override
         protected void onPreExecute()
@@ -137,17 +140,17 @@ public class LoginActivity
 
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
-            final String accountName = preferences.getString(AccountUtil.USERNAME, null);
+            mUsername = preferences.getString(AccountUtil.USERNAME, null);
             final String accountPass = preferences.getString(AccountUtil.PASSWORD, null);
 
-            if (accountName == null || accountPass == null)
+            if (mUsername == null || accountPass == null)
             {
                 return ParseException.USERNAME_MISSING;
             }
 
             try
             {
-                ParseUser.logIn(accountName, accountPass);
+                ParseUser.logIn(mUsername, accountPass);
             }
             catch (ParseException ex)
             {
@@ -167,14 +170,13 @@ public class LoginActivity
             if (mCallback != null && result != AccountUtil.SUCCESS)
                 mCallback.onLoginFailed(result);
 
-            // TODO: debug
-            if (result != AccountUtil.SUCCESS)
-                Log.i(TAG, "Login error: " + result);
-
             switch (result)
             {
                 case AccountUtil.SUCCESS:
                     Log.i(TAG, "Starting PartnerActivity, finishing LoginActivity");
+                    ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+                    installation.put("username", mUsername);
+                    installation.saveInBackground();
                     startActivity(mIntentPartnerActivity);
                     finish();
                     break;
