@@ -228,7 +228,8 @@ public final class AccountUtil
                                                final DeleteAccountCallback callback)
     {
         ParseCloud.callFunctionInBackground("deleteAccount", map,
-                new FunctionCallback<Object>() {
+                new FunctionCallback<Object>()
+                {
                     @Override
                     public void done(Object o, ParseException e)
                     {

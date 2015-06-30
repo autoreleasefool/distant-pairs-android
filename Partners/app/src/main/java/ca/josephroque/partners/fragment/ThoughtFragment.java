@@ -53,7 +53,7 @@ public class ThoughtFragment
     /** Manages data in a {@link RecyclerView}. */
     private ThoughtAdapter mRecyclerViewThoughtsAdapter;
 
-    /** Executes database operations in order.*/
+    /** Executes database operations in order. */
     private final ExecutorService mDatabaseExecutorService = Executors.newSingleThreadExecutor();
 
     /** List of unique identifiers for thoughts. */

@@ -81,12 +81,12 @@ public final class MessageUtil
     }
 
     /**
-     * Checks to see if the string is a valid message to send as a thought, and if not a string
-     * of the format 'ERR:X' is returned, where X is the id of a string.
+     * Checks to see if the string is a valid message to send as a thought, and if not a string of
+     * the format 'ERR:X' is returned, where X is the id of a string.
      *
      * @param message message to check
-     * @return if {@code message} is valid, a String formatted 'MSG:message'. Otherwise, returns
-     * a String formatted 'ERR:X'
+     * @return if {@code message} is valid, a String formatted 'MSG:message'. Otherwise, returns a
+     * String formatted 'ERR:X'
      */
     public static String getValidMessage(String message)
     {
@@ -98,7 +98,7 @@ public final class MessageUtil
         else if (message.length() > MAX_MESSAGE_LENGTH)
             return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_too_long
                     + ":" + message;
-        // TODO: create regex for valid message characters
+            // TODO: create regex for valid message characters
         else if (!message.matches("[a-zA-Z0-9 ]"))
             return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_invalid_characters
                     + ":" + message;

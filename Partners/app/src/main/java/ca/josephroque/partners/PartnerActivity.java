@@ -164,9 +164,11 @@ public class PartnerActivity
         mPagerAdapter = new PartnerPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mPagerAdapter);
 
-        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
+        {
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(int position)
+            {
                 mCurrentViewPagerPosition = position;
                 updateFloatingActionButton();
             }
@@ -322,12 +324,16 @@ public class PartnerActivity
     public void deleteAccount()
     {
         AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback() {
+                new AccountUtil.DeleteAccountCallback()
+                {
                     @Override
-                    public void onDeleteAccountStarted() {
-                        runOnUiThread(new Runnable() {
+                    public void onDeleteAccountStarted()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -335,10 +341,13 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded() {
-                        runOnUiThread(new Runnable() {
+                    public void onDeleteAccountEnded()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, LoginActivity.class);
                                 startActivity(loginIntent);
@@ -349,7 +358,8 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message) {
+                    public void onDeleteAccountError(String message)
+                    {
                         if (message != null)
                             ErrorUtil.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
@@ -519,7 +529,6 @@ public class PartnerActivity
 
         if (statusId == null)
         {
-            Log.i(TAG, "No status object, requesting new");
             final ParseObject status = new ParseObject(MessageUtil.STATUS);
             status.put(AccountUtil.USERNAME, accountName);
             status.put(MessageUtil.ONLINE_STATUS, online);
@@ -530,7 +539,6 @@ public class PartnerActivity
                 {
                     if (e == null)
                     {
-                        Log.i(TAG, "Status saved");
                         mStatusAttemptCount = 0;
                         preferences.edit()
                                 .putString(MessageUtil.STATUS_OBJECT_ID, status.getObjectId())
@@ -540,66 +548,62 @@ public class PartnerActivity
                     }
                     else
                     {
-                        Log.e(TAG, "Status save failed", e);
-                        if (online) {
-                            if (mStatusAttemptCount < 3) {
-                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                                        R.string.text_cannot_appear_online, R.string.text_try_again,
-                                        new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                mStatusAttemptCount++;
-                                                setOnlineStatus(true);
-                                            }
-                                        });
-                            }
-                            else
-                            {
-                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                                        R.string.text_too_many_attemps);
-                            }
-                        }
+                        if (online)
+                            statusFetchFailed();
                     }
                 }
             });
         }
         else
         {
-            Log.i(TAG, "Existing status object");
             final ParseObject status = ParseObject.createWithoutData(MessageUtil.STATUS, statusId);
-            status.fetchInBackground(new GetCallback<ParseObject>() {
+            status.fetchInBackground(new GetCallback<ParseObject>()
+            {
                 @Override
-                public void done(ParseObject parseObject, ParseException e) {
-                    if (e == null) {
-                        Log.i(TAG, "Status fetch success");
+                public void done(ParseObject parseObject, ParseException e)
+                {
+                    if (e == null)
+                    {
                         mStatusAttemptCount = 0;
                         parseObject.put(MessageUtil.ONLINE_STATUS, online);
                         parseObject.saveInBackground();
                         if (AccountUtil.doesPartnerExist(PartnerActivity.this))
                             sendMessage(MessageUtil.LOGIN_MESSAGE);
-                    } else {
-                        Log.e(TAG, "Status fetch failed", e);
-                        if (online) {
-                            if (mStatusAttemptCount < 3) {
-                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                                        R.string.text_cannot_appear_online, R.string.text_try_again,
-                                        new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                mStatusAttemptCount++;
-                                                setOnlineStatus(true);
-                                            }
-                                        });
-                            }
-                            else
-                            {
-                                ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                                        R.string.text_too_many_attemps);
-                            }
-                        }
+                    }
+                    else
+                    {
+                        statusFetchFailed();
+                        if (online)
+                            statusFetchFailed();
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * Displays error in {@link Snackbar} when status object fails to update.
+     */
+    private void statusFetchFailed()
+    {
+        if (mStatusAttemptCount < 2)
+        {
+            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                    R.string.text_cannot_appear_online, R.string.text_try_again,
+                    new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v)
+                        {
+                            mStatusAttemptCount++;
+                            setOnlineStatus(true);
+                        }
+                    });
+        }
+        else
+        {
+            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
+                    R.string.text_too_many_attemps);
         }
     }
 
