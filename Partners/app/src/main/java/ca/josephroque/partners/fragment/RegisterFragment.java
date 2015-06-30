@@ -1,6 +1,5 @@
 package ca.josephroque.partners.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -10,8 +9,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,12 +85,6 @@ public class RegisterFragment
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-    }
-
     @SuppressWarnings("deprecation")    // Uses updated methods in APIs where available
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -104,46 +100,23 @@ public class RegisterFragment
 
         mButtonRegister = (Button) rootView.findViewById(R.id.btn_login_register);
         mButtonPairCheck = (Button) rootView.findViewById(R.id.btn_check_pairs);
-        mEditTextUsername = (EditText) rootView.findViewById(R.id.et_username);
         mRelativeLayoutRegister = (RelativeLayout) rootView.findViewById(R.id.rl_login);
 
         if (mRegisterOrPair)
         {
             mButtonRegister.setText(R.string.text_register);
             mButtonPairCheck.setVisibility(View.GONE);
-
-            final Drawable editTextDrawable;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_person, null);
-            else
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_person);
-
-            if (editTextDrawable != null)
-                editTextDrawable.setColorFilter(getResources().getColor(R.color.person_filter),
-                        PorterDuff.Mode.MULTIPLY);
-
-            mEditTextUsername.setCompoundDrawables(editTextDrawable, null, null, null);
         }
         else
         {
             mButtonRegister.setText(R.string.text_set_pair);
             mButtonPairCheck.setVisibility(View.VISIBLE);
-
-            final Drawable editTextDrawable;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair, null);
-            else
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair);
-
-            if (editTextDrawable != null)
-                editTextDrawable.setColorFilter(getResources().getColor(R.color.pair_filter),
-                        PorterDuff.Mode.MULTIPLY);
-
-            mEditTextUsername.setCompoundDrawables(editTextDrawable, null, null, null);
         }
 
         mButtonRegister.setOnClickListener(this);
         mButtonPairCheck.setOnClickListener(this);
+
+        setupEditTextLayout(rootView);
 
         return rootView;
     }
@@ -202,6 +175,85 @@ public class RegisterFragment
         else if (src == mButtonPairCheck && !mRegisterOrPair)
         {
             new PairCheckTask().execute();
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void setupEditTextLayout(View rootView)
+    {
+        mEditTextUsername = (EditText) rootView.findViewById(R.id.et_username);
+        final TextInputLayout textInputLayout =
+                (TextInputLayout) rootView.findViewById(R.id.textinput_username);
+
+        mEditTextUsername.addTextChangedListener(new TextWatcher()
+        {
+            /** Indicates if the text input layout is displaying an error. */
+            private boolean hasErrorMessage = false;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+                // does nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                // does nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                String input = s.toString();
+                if (input.length() > 0 && !input.matches(AccountUtil.REGEX_VALID_USERNAME)) {
+                    if (!hasErrorMessage)
+                        textInputLayout.setError("Numbers and letters only");
+                    hasErrorMessage = true;
+                }
+                else if (input.length() > AccountUtil.USERNAME_MAX_LENGTH)
+                {
+                    if (!hasErrorMessage)
+                        textInputLayout.setError("Max length is 16 characters");
+                    hasErrorMessage = true;
+                }
+                else
+                {
+                    textInputLayout.setErrorEnabled(false);
+                    hasErrorMessage = false;
+                }
+            }
+        });
+
+        if (mRegisterOrPair)
+        {
+            final Drawable editTextDrawable;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_person, null);
+            else
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_person);
+
+            if (editTextDrawable != null)
+                editTextDrawable.setColorFilter(getResources().getColor(R.color.person_filter),
+                        PorterDuff.Mode.MULTIPLY);
+
+            mEditTextUsername.setCompoundDrawablesWithIntrinsicBounds(editTextDrawable, null, null,
+                    null);
+        }
+        else
+        {
+            final Drawable editTextDrawable;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair, null);
+            else
+                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair);
+
+            if (editTextDrawable != null)
+                editTextDrawable.setColorFilter(getResources().getColor(R.color.pair_filter),
+                        PorterDuff.Mode.MULTIPLY);
+
+            mEditTextUsername.setCompoundDrawablesWithIntrinsicBounds(editTextDrawable, null, null,
+                    null);
         }
     }
 

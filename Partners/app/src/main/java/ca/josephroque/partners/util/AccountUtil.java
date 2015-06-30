@@ -35,6 +35,9 @@ public final class AccountUtil
     @SuppressWarnings("unused")
     private static final String TAG = "AccountUtil";
 
+    /** Represents successful account related operation. */
+    public static final int SUCCESS = 0;
+
     /** Represents password in preferences. */
     public static final String PASSWORD = "account_password";
     /** Represents account name in preferences. */
@@ -46,18 +49,18 @@ public final class AccountUtil
     /** Represents parse object container the user's account. */
     public static final String PARSE_USER_ID = "account_user_objid";
 
+    /** Number base. */
+    private static final byte BASE = 32;
     /** Number of random bits to generate. */
     private static final int PASSWORD_BIT_LENGTH = 130;
-    /** Maximum character length for usernames. */
-    public static final int USERNAME_MAX_LENGTH = 16;
-    /** Represents successful account related operation. */
-    public static final int SUCCESS = 0;
 
     /** Represents the minimum length of a valid account deletion key. */
     private static final int ACCOUNT_DELETION_KEY_LENGTH = 35;
 
-    /** Number base. */
-    private static final byte BASE = 32;
+    /** Maximum character length for usernames. */
+    public static final int USERNAME_MAX_LENGTH = 16;
+    /** Regular expression for a valid username. */
+    public static final String REGEX_VALID_USERNAME = "^[a-zA-Z0-9]+$";
 
     /** Secure random number generator. */
     private static SecureRandom sSecureRandom = new SecureRandom();
@@ -79,7 +82,7 @@ public final class AccountUtil
      */
     public static String validateUsername(String username)
     {
-        if (!username.matches("^[a-zA-Z0-9]+$") || username.length() > USERNAME_MAX_LENGTH)
+        if (!username.matches(REGEX_VALID_USERNAME) || username.length() > USERNAME_MAX_LENGTH)
             return null;
 
         return username.toLowerCase();
