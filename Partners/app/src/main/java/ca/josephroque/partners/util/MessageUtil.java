@@ -44,6 +44,9 @@ public final class MessageUtil
     public static final int MAX_MESSAGE_LENGTH = 140;
     /** Number of characters at the start of a message which indicate its type. */
     public static final int MESSAGE_TYPE_RESERVED_LENGTH = 4;
+    /** Regular expression for a valid message. */
+    // TODO: create proper regex for messages
+    public static final String REGEX_VALID_MESSAGE = "^[a-zA-Z0-9 ]+$";
     /** If found at the start of a message, indicates the message describes an error. */
     public static final String MESSAGE_TYPE_ERROR = "ERR";
     /** If found at the start of a message, indicates the message can be sent to a partner. */
@@ -89,8 +92,7 @@ public final class MessageUtil
         else if (message.length() > MAX_MESSAGE_LENGTH)
             return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_too_long
                     + ":" + message;
-            // TODO: create regex for valid message characters
-        else if (!message.matches("[a-zA-Z0-9 ]"))
+        else if (!message.matches(REGEX_VALID_MESSAGE))
             return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_invalid_characters
                     + ":" + message;
         else
