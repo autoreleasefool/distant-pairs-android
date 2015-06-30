@@ -178,6 +178,11 @@ public class RegisterFragment
         }
     }
 
+    /**
+     * Sets up {@link TextInputLayout} for {@code mEditTextUsername}.
+     *
+     * @param rootView to get views
+     */
     @SuppressWarnings("deprecation")
     private void setupEditTextLayout(View rootView)
     {
@@ -188,7 +193,7 @@ public class RegisterFragment
         mEditTextUsername.addTextChangedListener(new TextWatcher()
         {
             /** Indicates if the text input layout is displaying an error. */
-            private boolean hasErrorMessage = false;
+            private boolean mHasErrorMessage = false;
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after)
@@ -206,55 +211,45 @@ public class RegisterFragment
             public void afterTextChanged(Editable s)
             {
                 String input = s.toString();
-                if (input.length() > 0 && !input.matches(AccountUtil.REGEX_VALID_USERNAME)) {
-                    if (!hasErrorMessage)
+                if (input.length() > 0 && !input.matches(AccountUtil.REGEX_VALID_USERNAME))
+                {
+                    if (!mHasErrorMessage)
                         textInputLayout.setError("Numbers and letters only");
-                    hasErrorMessage = true;
+                    mHasErrorMessage = true;
                 }
                 else if (input.length() > AccountUtil.USERNAME_MAX_LENGTH)
                 {
-                    if (!hasErrorMessage)
+                    if (!mHasErrorMessage)
                         textInputLayout.setError("Max length is 16 characters");
-                    hasErrorMessage = true;
+                    mHasErrorMessage = true;
                 }
                 else
                 {
                     textInputLayout.setErrorEnabled(false);
-                    hasErrorMessage = false;
+                    mHasErrorMessage = false;
                 }
             }
         });
 
-        if (mRegisterOrPair)
-        {
-            final Drawable editTextDrawable;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_person, null);
-            else
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_person);
+        final int drawableId = (mRegisterOrPair)
+                ? R.drawable.ic_person
+                : R.drawable.ic_pair;
+        final int filterId = (mRegisterOrPair)
+                ? R.color.person_filter
+                : R.color.pair_filter;
 
-            if (editTextDrawable != null)
-                editTextDrawable.setColorFilter(getResources().getColor(R.color.person_filter),
-                        PorterDuff.Mode.MULTIPLY);
-
-            mEditTextUsername.setCompoundDrawablesWithIntrinsicBounds(editTextDrawable, null, null,
-                    null);
-        }
+        final Drawable editTextDrawable;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+            editTextDrawable = getResources().getDrawable(drawableId, null);
         else
-        {
-            final Drawable editTextDrawable;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair, null);
-            else
-                editTextDrawable = getResources().getDrawable(R.drawable.ic_pair);
+            editTextDrawable = getResources().getDrawable(drawableId);
 
-            if (editTextDrawable != null)
-                editTextDrawable.setColorFilter(getResources().getColor(R.color.pair_filter),
-                        PorterDuff.Mode.MULTIPLY);
+        if (editTextDrawable != null)
+            editTextDrawable.setColorFilter(getResources().getColor(filterId),
+                    PorterDuff.Mode.MULTIPLY);
 
-            mEditTextUsername.setCompoundDrawablesWithIntrinsicBounds(editTextDrawable, null, null,
-                    null);
-        }
+        mEditTextUsername.setCompoundDrawablesWithIntrinsicBounds(editTextDrawable, null, null,
+                null);
     }
 
     /**
@@ -555,7 +550,6 @@ public class RegisterFragment
 
                 preferences.edit()
                         .putString(AccountUtil.PAIR, partnerName[0])
-                        .putString(AccountUtil.PARSE_PAIR_ID, result.get(0).getObjectId())
                         .apply();
 
                 return AccountUtil.SUCCESS;

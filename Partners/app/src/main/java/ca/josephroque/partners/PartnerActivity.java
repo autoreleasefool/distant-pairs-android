@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -42,6 +41,7 @@ import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
@@ -90,6 +90,8 @@ public class PartnerActivity
     /** Broadcast receiver for messages from partner. */
     private BroadcastReceiver mMessageBroadcastReceiver;
 
+    /** Primary coordinator layout. */
+    private CoordinatorLayout mCoordinatorLayout;
     /** Floating Action Button for primary action in the current fragment. */
     private FloatingActionButton mFabPrimary;
     /** View pager for fragments. */
@@ -112,8 +114,6 @@ public class PartnerActivity
     private String mUsername;
     /** Username of partner. */
     private String mPartnerName;
-    /** Parse object id of partner. */
-    private String mPairId;
     /** Indicates if the user has registered a pair. */
     private boolean mIsPairRegistered;
     /** The current position of the view pager. */
@@ -132,6 +132,7 @@ public class PartnerActivity
         mFailedMessageCount = new HashMap<>();
 
         final int underLollipopMargin = 8;
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.cl_partner);
         mFabPrimary = (FloatingActionButton) findViewById(R.id.fab_partner);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
         {
@@ -171,7 +172,6 @@ public class PartnerActivity
         if (mIsPairRegistered)
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            mPairId = preferences.getString(AccountUtil.PARSE_PAIR_ID, null);
             mPartnerName = preferences.getString(AccountUtil.PAIR, null);
             mUsername = preferences.getString(AccountUtil.USERNAME, null);
         }
@@ -266,7 +266,6 @@ public class PartnerActivity
     public void pairRegistered()
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mPairId = preferences.getString(AccountUtil.PARSE_PAIR_ID, null);
         mPartnerName = preferences.getString(AccountUtil.PAIR, null);
         mUsername = preferences.getString(AccountUtil.USERNAME, null);
         mIsPairRegistered = true;
@@ -322,7 +321,7 @@ public class PartnerActivity
      */
     private void populateHeartImageViews()
     {
-        CoordinatorLayout rootLayout = (CoordinatorLayout) findViewById(R.id.cl_partner);
+        RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.rl_partner);
         // TODO: set number of hearts based on size of screen
         final int numberOfHearts = (int) (Math.random() * 12);
         mImageViewHearts = new ImageView[numberOfHearts];
@@ -342,21 +341,18 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context,
+     * AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
         AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback()
-                {
+                new AccountUtil.DeleteAccountCallback() {
                     @Override
-                    public void onDeleteAccountStarted()
-                    {
-                        runOnUiThread(new Runnable()
-                        {
+                    public void onDeleteAccountStarted() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -364,13 +360,10 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded()
-                    {
-                        runOnUiThread(new Runnable()
-                        {
+                    public void onDeleteAccountEnded() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, LoginActivity.class);
                                 startActivity(loginIntent);
@@ -381,8 +374,7 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message)
-                    {
+                    public void onDeleteAccountError(String message) {
                         if (message != null)
                             ErrorUtil.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
@@ -491,15 +483,14 @@ public class PartnerActivity
     {
         if (mPartnerName == null)
         {
-            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                    R.string.text_cannot_find_pair);
+            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_find_pair);
             return;
         }
 
         message = MessageUtil.getValidMessage(message);
         if (message.startsWith(MessageUtil.MESSAGE_TYPE_ERROR))
         {
-            MessageUtil.handleError(findViewById(R.id.cl_partner), message);
+            MessageUtil.handleError(mFabPrimary, message);
             return;
         }
         final String messageText = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
@@ -562,9 +553,7 @@ public class PartnerActivity
             public void done(ParseException e)
             {
                 if (e != null)
-                {
                     messageFailedToSend(messageObject.getString("messageText"));
-                }
             }
         });
     }
@@ -587,9 +576,8 @@ public class PartnerActivity
 
         if (failureCount != null && failureCount > 2)
         {
-            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                    R.string.text_message_failed, R.string.text_resend,
-                    new View.OnClickListener()
+            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_message_failed,
+                    R.string.text_resend, new View.OnClickListener()
                     {
                         @Override
                         public void onClick(View v)
@@ -600,8 +588,7 @@ public class PartnerActivity
         }
         else
         {
-            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                    R.string.text_too_many_attemps);
+            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_too_many_attemps);
         }
     }
 
@@ -624,8 +611,7 @@ public class PartnerActivity
             final ParseObject status = new ParseObject(MessageUtil.STATUS);
             status.put(AccountUtil.USERNAME, accountName);
             status.put(MessageUtil.ONLINE_STATUS, online);
-            status.saveInBackground(new SaveCallback()
-            {
+            status.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e)
                 {
@@ -681,9 +667,8 @@ public class PartnerActivity
     {
         if (mStatusAttemptCount < 2)
         {
-            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                    R.string.text_cannot_appear_online, R.string.text_try_again,
-                    new View.OnClickListener()
+            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_appear_online,
+                    R.string.text_try_again, new View.OnClickListener()
                     {
                         @Override
                         public void onClick(View v)
@@ -695,8 +680,7 @@ public class PartnerActivity
         }
         else
         {
-            ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                    R.string.text_too_many_attemps);
+            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_too_many_attemps);
         }
     }
 
@@ -738,8 +722,7 @@ public class PartnerActivity
                 }
                 else
                 {
-                    ErrorUtil.displayErrorSnackbar(findViewById(R.id.cl_partner),
-                            R.string.text_cannot_find_pair);
+                    ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_find_pair);
                 }
             }
         });
@@ -761,6 +744,16 @@ public class PartnerActivity
             heart.startAnimation(AnimationUtil.getRandomHeartAnimation(heart,
                     (int) (Math.random() * (deviceWidth - heart.getWidth())), deviceHeight));
         }
+    }
+
+    /**
+     * Gets the coordinator layout, for Snackbars.
+     *
+     * @return mCoordinatorLayout
+     */
+    public CoordinatorLayout getCoordinatorLayout()
+    {
+        return mCoordinatorLayout;
     }
 
     /**

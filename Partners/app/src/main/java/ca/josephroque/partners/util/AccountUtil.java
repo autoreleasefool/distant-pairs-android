@@ -44,8 +44,6 @@ public final class AccountUtil
     public static final String USERNAME = "account_username";
     /** Represents pair's name in preferences. */
     public static final String PAIR = "account_pair";
-    /** Represents parse object containing the user's registered pair. */
-    public static final String PARSE_PAIR_ID = "account_pair_objid";
     /** Represents parse object container the user's account. */
     public static final String PARSE_USER_ID = "account_user_objid";
 
@@ -182,7 +180,7 @@ public final class AccountUtil
                         .remove(USERNAME)
                         .remove(PASSWORD)
                         .remove(PAIR)
-                        .remove(PARSE_PAIR_ID)
+                        .remove(PARSE_USER_ID)
                         .remove(MessageUtil.STATUS_OBJECT_ID)
                         .apply();
 

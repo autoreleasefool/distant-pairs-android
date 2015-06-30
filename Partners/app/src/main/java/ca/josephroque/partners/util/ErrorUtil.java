@@ -65,7 +65,7 @@ public final class ErrorUtil
     }
 
     /**
-     * Displays an error to the user in a snackbar with an action
+     * Displays an error to the user in a snackbar with an action.
      *
      * @param rootView view for snackbar
      * @param message error message string id

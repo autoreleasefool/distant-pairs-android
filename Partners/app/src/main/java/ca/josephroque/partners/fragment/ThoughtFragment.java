@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.adapter.ThoughtAdapter;
 import ca.josephroque.partners.database.DBHelper;
@@ -280,8 +281,10 @@ public class ThoughtFragment
         protected void onPostExecute(Void result)
         {
             if (mListThoughtIds.size() == 0)
-                ErrorUtil.displayErrorSnackbar(getView(), "No thoughts loaded");
-            else
+                ErrorUtil.displayErrorSnackbar(
+                        ((PartnerActivity) getActivity()).getCoordinatorLayout(),
+                        "No thoughts loaded");
+           else
                 mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
         }
     }
