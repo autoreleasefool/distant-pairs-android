@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,10 +19,13 @@ import ca.josephroque.partners.util.MessageUtil;
 public class MessageReceiver extends BroadcastReceiver
 {
 
+    private static final String TAG = "MessageReceiver";
+
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        String jsonData = intent.getStringExtra("data");
+        String jsonData = intent.getStringExtra("com.parse.Data");
+        Log.i(TAG, "Message received:" + jsonData);
         try
         {
             JSONObject data = new JSONObject(jsonData);
@@ -37,6 +41,7 @@ public class MessageReceiver extends BroadcastReceiver
         }
         catch (JSONException ex)
         {
+            Log.e(TAG, "JSON error: ", ex);
             // do nothing - app may not be open
         }
     }

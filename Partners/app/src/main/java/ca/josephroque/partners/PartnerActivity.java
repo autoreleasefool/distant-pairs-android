@@ -232,8 +232,12 @@ public class PartnerActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
+                            Log.i(TAG, "Send message dialog dismissed");
                             if (which == DialogInterface.BUTTON_POSITIVE)
+                            {
+                                Log.i(TAG, "Message to send: " + editTextMessage.getText().toString());
                                 sendMessage(editTextMessage.getText().toString());
+                            }
                             dialog.dismiss();
                         }
                     };
@@ -429,17 +433,14 @@ public class PartnerActivity
                     Animation.RELATIVE_TO_SELF, CENTER_PIVOT, Animation.RELATIVE_TO_SELF,
                     CENTER_PIVOT);
             shrink.setDuration(animTime);
-            shrink.setAnimationListener(new Animation.AnimationListener()
-            {
+            shrink.setAnimationListener(new Animation.AnimationListener() {
                 @Override
-                public void onAnimationStart(Animation animation)
-                {
+                public void onAnimationStart(Animation animation) {
                     // does nothing
                 }
 
                 @Override
-                public void onAnimationEnd(Animation animation)
-                {
+                public void onAnimationEnd(Animation animation) {
                     mFabPrimary.setVisibility(View.VISIBLE);
                     mFabPrimary.setImageResource(newDrawableId);
                     mCurrentFabIcon = newDrawableId;
@@ -453,8 +454,7 @@ public class PartnerActivity
                 }
 
                 @Override
-                public void onAnimationRepeat(Animation animation)
-                {
+                public void onAnimationRepeat(Animation animation) {
                     // does nothing
                 }
             });
@@ -490,6 +490,7 @@ public class PartnerActivity
         message = MessageUtil.getValidMessage(message);
         if (message.startsWith(MessageUtil.MESSAGE_TYPE_ERROR))
         {
+            Log.i(TAG, "Message error: " + message);
             MessageUtil.handleError(mFabPrimary, message);
             return;
         }
@@ -504,17 +505,19 @@ public class PartnerActivity
         if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
                 || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
         {
-            sendMessage(messageObject);
+            sendMessage(messageObject, true);
+            Log.i(TAG, "Sending status message");
         }
         else
         {
+            Log.i(TAG, "Sending regular message");
             messageObject.saveInBackground(new SaveCallback()
             {
                 @Override
                 public void done(ParseException e)
                 {
                     if (e == null)
-                        sendMessage(messageObject);
+                        sendMessage(messageObject, false);
                     else
                         messageFailedToSend(messageText);
                 }
@@ -527,14 +530,17 @@ public class PartnerActivity
      *
      * @param messageObject message data
      */
-    private void sendMessage(final ParseObject messageObject)
+    private void sendMessage(final ParseObject messageObject, boolean statusMessage)
     {
         JSONObject data = new JSONObject();
         try
         {
             data.put("message", messageObject.getString("messageText"));
             data.put("timestamp", messageObject.getString("sentTime"));
-            data.put("id", messageObject.getObjectId());
+            if (statusMessage)
+                data.put("id", "status");
+            else
+                data.put("id", messageObject.getObjectId());
         }
         catch (JSONException ex)
         {
@@ -544,6 +550,7 @@ public class PartnerActivity
         ParsePush parsePush = new ParsePush();
         parsePush.setData(data);
 
+        Log.i(TAG, "Attempting to push");
         ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
         parseQuery.whereEqualTo("username", mPartnerName);
         parsePush.setQuery(parseQuery);
@@ -552,6 +559,7 @@ public class PartnerActivity
             @Override
             public void done(ParseException e)
             {
+                Log.i(TAG, "Message error: " + e);
                 if (e != null)
                     messageFailedToSend(messageObject.getString("messageText"));
             }
@@ -599,12 +607,16 @@ public class PartnerActivity
      */
     private void setOnlineStatus(final boolean online)
     {
-        if (ParseUser.getCurrentUser() == null || !AccountUtil.doesAccountExist(this))
+        if (ParseUser.getCurrentUser() == null || !AccountUtil.doesAccountExist(this)
+                || !AccountUtil.doesPartnerExist(this))
             return;
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         final String statusId = preferences.getString(MessageUtil.STATUS_OBJECT_ID, null);
         final String accountName = preferences.getString(AccountUtil.USERNAME, null);
+        final String message = (online)
+                ? MessageUtil.LOGIN_MESSAGE
+                : MessageUtil.LOGOUT_MESSAGE;
 
         if (statusId == null)
         {
@@ -621,8 +633,7 @@ public class PartnerActivity
                         preferences.edit()
                                 .putString(MessageUtil.STATUS_OBJECT_ID, status.getObjectId())
                                 .apply();
-                        if (AccountUtil.doesPartnerExist(PartnerActivity.this))
-                            sendMessage(MessageUtil.LOGIN_MESSAGE);
+                        sendMessage(message);
                     }
                     else
                     {
@@ -645,8 +656,7 @@ public class PartnerActivity
                         mStatusAttemptCount = 0;
                         parseObject.put(MessageUtil.ONLINE_STATUS, online);
                         parseObject.saveInBackground();
-                        if (AccountUtil.doesPartnerExist(PartnerActivity.this))
-                            sendMessage(MessageUtil.LOGIN_MESSAGE);
+                        sendMessage(message);
                     }
                     else
                     {
