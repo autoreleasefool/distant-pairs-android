@@ -235,7 +235,8 @@ public class PartnerActivity
                             Log.i(TAG, "Send message dialog dismissed");
                             if (which == DialogInterface.BUTTON_POSITIVE)
                             {
-                                Log.i(TAG, "Message to send: " + editTextMessage.getText().toString());
+                                Log.i(TAG,
+                                        "Message to send: " + editTextMessage.getText().toString());
                                 sendMessage(editTextMessage.getText().toString());
                             }
                             dialog.dismiss();
@@ -345,18 +346,21 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context,
-     * AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
         AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback() {
+                new AccountUtil.DeleteAccountCallback()
+                {
                     @Override
-                    public void onDeleteAccountStarted() {
-                        runOnUiThread(new Runnable() {
+                    public void onDeleteAccountStarted()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -364,10 +368,13 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded() {
-                        runOnUiThread(new Runnable() {
+                    public void onDeleteAccountEnded()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, LoginActivity.class);
                                 startActivity(loginIntent);
@@ -378,7 +385,8 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message) {
+                    public void onDeleteAccountError(String message)
+                    {
                         if (message != null)
                             ErrorUtil.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
@@ -433,14 +441,17 @@ public class PartnerActivity
                     Animation.RELATIVE_TO_SELF, CENTER_PIVOT, Animation.RELATIVE_TO_SELF,
                     CENTER_PIVOT);
             shrink.setDuration(animTime);
-            shrink.setAnimationListener(new Animation.AnimationListener() {
+            shrink.setAnimationListener(new Animation.AnimationListener()
+            {
                 @Override
-                public void onAnimationStart(Animation animation) {
+                public void onAnimationStart(Animation animation)
+                {
                     // does nothing
                 }
 
                 @Override
-                public void onAnimationEnd(Animation animation) {
+                public void onAnimationEnd(Animation animation)
+                {
                     mFabPrimary.setVisibility(View.VISIBLE);
                     mFabPrimary.setImageResource(newDrawableId);
                     mCurrentFabIcon = newDrawableId;
@@ -449,18 +460,17 @@ public class PartnerActivity
                             CENTER_PIVOT);
                     grow.setDuration(animTime);
                     grow.setInterpolator(new OvershootInterpolator());
-                    mFabPrimary.setAnimation(grow);
-                    grow.start();
+                    mFabPrimary.startAnimation(grow);
                 }
 
                 @Override
-                public void onAnimationRepeat(Animation animation) {
+                public void onAnimationRepeat(Animation animation)
+                {
                     // does nothing
                 }
             });
 
-            mFabPrimary.setAnimation(shrink);
-            shrink.start();
+            mFabPrimary.startAnimation(shrink);
         }
     }
 
@@ -529,6 +539,7 @@ public class PartnerActivity
      * Sends message to partner, using data from a {@link com.parse.ParseObject}.
      *
      * @param messageObject message data
+     * @param statusMessage indicates if a status message is being sent
      */
     private void sendMessage(final ParseObject messageObject, boolean statusMessage)
     {
@@ -623,7 +634,8 @@ public class PartnerActivity
             final ParseObject status = new ParseObject(MessageUtil.STATUS);
             status.put(AccountUtil.USERNAME, accountName);
             status.put(MessageUtil.ONLINE_STATUS, online);
-            status.saveInBackground(new SaveCallback() {
+            status.saveInBackground(new SaveCallback()
+            {
                 @Override
                 public void done(ParseException e)
                 {
@@ -660,7 +672,6 @@ public class PartnerActivity
                     }
                     else
                     {
-                        statusFetchFailed();
                         if (online)
                             statusFetchFailed();
                     }
@@ -732,7 +743,8 @@ public class PartnerActivity
                 }
                 else
                 {
-                    ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_find_pair);
+                    ErrorUtil.displayErrorSnackbar(mCoordinatorLayout,
+                            R.string.text_cannot_find_pair);
                 }
             }
         });

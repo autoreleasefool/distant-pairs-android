@@ -284,7 +284,7 @@ public class ThoughtFragment
                 ErrorUtil.displayErrorSnackbar(
                         ((PartnerActivity) getActivity()).getCoordinatorLayout(),
                         "No thoughts loaded");
-           else
+            else
                 mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
         }
     }
