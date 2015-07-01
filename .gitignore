@@ -31,4 +31,4 @@ Partners/.idea/
 *.log
 
 # Secret files
-ParseCloud/config/global.json
+Partners_Cloud/config/global.json
