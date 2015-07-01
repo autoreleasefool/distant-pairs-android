@@ -21,11 +21,6 @@ public final class MessageUtil
     @SuppressWarnings("unused")
     private static final String TAG = "MessageUtil";
 
-    /** Represents broadcasted intent for indicating client status to application. */
-    public static final String CLIENT_STATUS = "ca.josephroque.partners.client_success";
-    /** Represents a successful or unsuccessful client connection. */
-    public static final String CLIENT_SUCCESS = "message_success";
-
     /** Parse object identifier for user's online status. */
     public static final String STATUS = "Status";
     /** Represents a boolean indicating user's online status. */
@@ -89,14 +84,16 @@ public final class MessageUtil
 
         if (message == null || message.length() == 0)
             return MESSAGE_TYPE_ERROR + ":" + R.string.text_no_message + ":" + message;
-        else if (message.length() > MAX_MESSAGE_LENGTH)
+
+        message = message.trim();
+        if (message.length() > MAX_MESSAGE_LENGTH)
             return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_too_long
                     + ":" + message;
         else if (!message.matches(REGEX_VALID_MESSAGE))
             return MESSAGE_TYPE_ERROR + ":" + R.string.text_message_invalid_characters
                     + ":" + message;
         else
-            return MESSAGE_TYPE_VALID + ":" + message;
+            return MESSAGE_TYPE_VALID + ":" + message.trim();
     }
 
     /**

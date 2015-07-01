@@ -253,40 +253,8 @@ public class PartnerActivity
     {
         View view = getLayoutInflater().inflate(R.layout.dialog_thought, null);
         final TextView textViewLimit = (TextView) view.findViewById(R.id.tv_message_limit);
-        final EditText editTextMessage = (EditText) view.findViewById(R.id.et_message);
-
-        editTextMessage.addTextChangedListener(new TextWatcher() {
-
-            private boolean mWasValidLength;
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after)
-            {
-                // does nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
-            {
-                // does nothing
-            }
-
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-                textViewLimit.setText(s.length() + "/" + MessageUtil.MAX_MESSAGE_LENGTH);
-                if (s.length() > MessageUtil.MAX_MESSAGE_LENGTH && mWasValidLength)
-                {
-                    textViewLimit.setTextColor(getResources().getColor(R.color.error_color));
-                    mWasValidLength = false;
-                }
-                else if (s.length() <= MessageUtil.MAX_MESSAGE_LENGTH && !mWasValidLength)
-                {
-                    textViewLimit.setTextColor(
-                            getResources().getColor(android.R.color.primary_text_dark));
-                    mWasValidLength = true;
-                }
-            }
-        });
+        final EditText editTextMessage = (EditText) view.findViewById(R.id.et_thought);
+        editTextMessage.addTextChangedListener(new ThoughtWatcher(textViewLimit));
 
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
@@ -379,8 +347,7 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context,
-     * AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
@@ -810,6 +777,67 @@ public class PartnerActivity
     public CoordinatorLayout getCoordinatorLayout()
     {
         return mCoordinatorLayout;
+    }
+
+    /**
+     * Manages an input field for thoughts.
+     */
+    private final class ThoughtWatcher
+            implements TextWatcher
+    {
+
+        /** Text view to display errors and text limit regarding input field. */
+        private TextView mTextViewLimit;
+        /** Indicates if the message is valid. */
+        private boolean mIsValidMessage;
+
+        /**
+         * Assigns references to member variables.
+         *
+         * @param textViewLimit to display text limit and errors
+         */
+        private ThoughtWatcher(TextView textViewLimit)
+        {
+            this.mTextViewLimit = textViewLimit;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after)
+        {
+            // does nothing
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count)
+        {
+            // does nothing
+        }
+
+        @Override
+        public void afterTextChanged(Editable s)
+        {
+            String input = s.toString();
+            if (input.matches(MessageUtil.REGEX_VALID_MESSAGE) && mIsValidMessage)
+            {
+                mTextViewLimit.setText(R.string.text_message_invalid_characters);
+                mTextViewLimit.setTextColor(getResources().getColor(R.color.error_color));
+                mIsValidMessage = false;
+                return;
+            }
+            else if (input.length() > MessageUtil.MAX_MESSAGE_LENGTH && mIsValidMessage)
+            {
+                mTextViewLimit.setTextColor(getResources().getColor(R.color.error_color));
+                mIsValidMessage = false;
+            }
+            else if (input.length() <= MessageUtil.MAX_MESSAGE_LENGTH && !mIsValidMessage)
+            {
+                mTextViewLimit.setTextColor(
+                        getResources().getColor(android.R.color.primary_text_dark));
+                mIsValidMessage = true;
+            }
+
+            mTextViewLimit.setText(input.length() + "/" + MessageUtil.MAX_MESSAGE_LENGTH);
+        }
     }
 
     /**
