@@ -131,7 +131,6 @@ public class ThoughtFragment
     public void setThoughtSavedToDatabase(final String id, final String message, final String time,
                                           final boolean save)
     {
-        // TODO: save thought to database, remove from parse
         mDatabaseExecutorService.submit(new Runnable()
         {
             @Override
@@ -265,6 +264,10 @@ public class ThoughtFragment
                     // does nothing - no thoughts found, or no connection
                 }
 
+                if (thoughtResults == null)
+                    thoughtResults = Collections.emptyList();
+
+                MessageUtil.filterAndDeleteOldThoughts(thoughtResults);
                 for (ParseObject thought : thoughtResults)
                 {
                     String date = thought.getString("sentTime");

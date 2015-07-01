@@ -3,8 +3,13 @@ package ca.josephroque.partners.util;
 import android.util.Log;
 import android.view.View;
 
+import com.parse.ParseObject;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import ca.josephroque.partners.R;
@@ -125,5 +130,33 @@ public final class MessageUtil
 
         // TODO: check message to figure out what error was
         ErrorUtil.displayErrorSnackbar(rootView, errorMessage);
+    }
+
+    /**
+     * Deletes thoughts that are older than 3 days from the list and the Parse database.
+     *
+     * @param thoughts list of thoughts from Parse database.
+     */
+    public static void filterAndDeleteOldThoughts(List<ParseObject> thoughts)
+    {
+        final long threeDaysInMillis = 1000 * 60 * 60 * 24 * 3;
+        List<ParseObject> thoughtsToDelete = new ArrayList<>(thoughts.size());
+        Iterator<ParseObject> it = thoughts.iterator();
+
+        while (it.hasNext())
+        {
+            ParseObject thought = it.next();
+            Date createdDate = thought.getCreatedAt();
+            Date threeDaysAgo = new Date();
+            threeDaysAgo.setTime(threeDaysAgo.getTime() - threeDaysInMillis);
+
+            if (createdDate.before(threeDaysAgo))
+            {
+                thoughtsToDelete.add(thought);
+                it.remove();
+            }
+        }
+
+        ParseObject.deleteAllInBackground(thoughtsToDelete);
     }
 }

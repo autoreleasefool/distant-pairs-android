@@ -136,18 +136,8 @@ public final class DBHelper
             database.endTransaction();
         }
 
-        ParseQuery<ParseObject> thoughtQuery = new ParseQuery<>("Thought")
-                .whereEqualTo("sinchId", id);
-
-        try
-        {
-            List<ParseObject> results = thoughtQuery.find();
-            ParseObject.deleteAllInBackground(results);
-        }
-        catch (ParseException ex)
-        {
-            // do nothing, message already doesn't exist in database
-        }
+        ParseObject parseObject = ParseObject.createWithoutData("Thought", id);
+        parseObject.deleteInBackground();
     }
 
     /**
@@ -160,7 +150,7 @@ public final class DBHelper
     public void promptDeleteThoughtFromDatabase(final Activity activity, final String id,
                                                 final String message)
     {
-        final View rootView = LayoutInflater.from(activity)
+        final View rootView = activity.getLayoutInflater()
                 .inflate(R.layout.dialog_delete_thought, null);
         ((TextView) rootView.findViewById(R.id.tv_thought_to_delete)).setText(message);
         final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
