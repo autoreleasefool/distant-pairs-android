@@ -346,7 +346,8 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context,
+     * AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {

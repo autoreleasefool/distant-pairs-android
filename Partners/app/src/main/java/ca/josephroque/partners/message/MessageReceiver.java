@@ -19,6 +19,8 @@ import ca.josephroque.partners.util.MessageUtil;
 public class MessageReceiver extends BroadcastReceiver
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
     private static final String TAG = "MessageReceiver";
 
     @Override

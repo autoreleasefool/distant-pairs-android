@@ -34,6 +34,7 @@ public class HeartFragment
     @SuppressWarnings("unused")
     private static final String TAG = "HeartFragment";
 
+    /** Represents boolean indicating the partner's online status. */
     private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
 
     /** Displays most recent thought received. */
@@ -98,6 +99,7 @@ public class HeartFragment
         {
             if (!mPartnerOnline)
             {
+                mPartnerOnline = true;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     heartCircularRevealAnimation();
                 else
@@ -108,6 +110,7 @@ public class HeartFragment
         {
             if (mPartnerOnline)
             {
+                mPartnerOnline = false;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     heartCircularHideAnimation();
                 else
@@ -127,6 +130,9 @@ public class HeartFragment
         }
     }
 
+    /**
+     * Circle reveals the image of the active heart.
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void heartCircularRevealAnimation()
     {
@@ -134,12 +140,15 @@ public class HeartFragment
         int cy = (mImageViewActiveHeart.getTop() + mImageViewActiveHeart.getBottom()) / 2;
         int radius = Math.max(mImageViewActiveHeart.getWidth(), mImageViewActiveHeart.getHeight());
 
-        Animator animator =
+        Animator circularReveal =
                 ViewAnimationUtils.createCircularReveal(mImageViewActiveHeart, cx, cy, 0, radius);
         mImageViewActiveHeart.setVisibility(View.VISIBLE);
-        animator.start();
+        circularReveal.start();
     }
 
+    /**
+     * Circle hides the image of the active heart.
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void heartCircularHideAnimation()
     {
@@ -148,10 +157,10 @@ public class HeartFragment
         int radius = Math.max(mImageViewActiveHeart.getWidth(), mImageViewActiveHeart.getHeight());
 
         // create the animation (the final radius is zero)
-        Animator animator =
+        Animator circularHide =
                 ViewAnimationUtils.createCircularReveal(mImageViewActiveHeart, cx, cy, radius, 0);
 
-        animator.addListener(new AnimatorListenerAdapter()
+        circularHide.addListener(new AnimatorListenerAdapter()
         {
             @Override
             public void onAnimationEnd(Animator animation)
@@ -161,21 +170,27 @@ public class HeartFragment
             }
         });
 
-        animator.start();
+        circularHide.start();
     }
 
+    /**
+     * Fades the image of the active heart to 1.0 alpha.
+     */
     private void heartFadeRevealAnimation()
     {
         mImageViewActiveHeart.setAlpha(0f);
         mImageViewActiveHeart.setVisibility(View.VISIBLE);
-        AlphaAnimation animation = new AlphaAnimation(0f, 1f);
-        mImageViewActiveHeart.setAnimation(animation);
+        AlphaAnimation fade = new AlphaAnimation(0f, 1f);
+        mImageViewActiveHeart.startAnimation(fade);
     }
 
+    /**
+     * Fades the image of the active heart to 0.0 alpha.
+     */
     private void heartFadeHideAnimation()
     {
-        AlphaAnimation animation = new AlphaAnimation(1f, 0f);
-        animation.setAnimationListener(new Animation.AnimationListener()
+        AlphaAnimation fade = new AlphaAnimation(1f, 0f);
+        fade.setAnimationListener(new Animation.AnimationListener()
         {
             @Override
             public void onAnimationStart(Animation animation)
@@ -195,6 +210,6 @@ public class HeartFragment
                 // do nothing
             }
         });
-        mImageViewActiveHeart.startAnimation(animation);
+        mImageViewActiveHeart.startAnimation(fade);
     }
 }
