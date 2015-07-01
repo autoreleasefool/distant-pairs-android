@@ -24,7 +24,7 @@ local.properties
 proguard/
 
 #Android Studio files
-Partners/.idea/
+Partners_Android/.idea/
 *.iml
 
 # Log Files

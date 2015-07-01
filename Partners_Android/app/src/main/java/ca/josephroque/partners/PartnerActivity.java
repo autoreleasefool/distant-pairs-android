@@ -28,7 +28,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.text.InputFilter;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
@@ -221,40 +222,9 @@ public class PartnerActivity
         {
             case R.id.fab_partner:
                 if (mIsPairRegistered)
-                {
-                    // TODO: add view to display number of remaining characters before limit met
-                    View view = getLayoutInflater().inflate(R.layout.dialog_message, null);
-                    final EditText editTextMessage = (EditText) view.findViewById(R.id.et_message);
-                    editTextMessage.setFilters(new InputFilter[]{
-                            new InputFilter.LengthFilter(MessageUtil.MAX_MESSAGE_LENGTH)});
-                    DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            Log.i(TAG, "Send message dialog dismissed");
-                            if (which == DialogInterface.BUTTON_POSITIVE)
-                            {
-                                Log.i(TAG,
-                                        "Message to send: " + editTextMessage.getText().toString());
-                                sendMessage(editTextMessage.getText().toString());
-                            }
-                            dialog.dismiss();
-                        }
-                    };
-
-                    new AlertDialog.Builder(this)
-                            .setTitle(R.string.text_send_message)
-                            .setView(view)
-                            .setPositiveButton(R.string.text_dialog_send, listener)
-                            .setNegativeButton(R.string.text_dialog_cancel, listener)
-                            .create()
-                            .show();
-                }
+                    displayThoughtDialog();
                 else
-                {
                     deleteAccount();
-                }
                 break;
             default:
                 //does nothing
@@ -277,6 +247,69 @@ public class PartnerActivity
         mPagerAdapter.notifyDataSetChanged();
         setOnlineStatus(true);
         updateFloatingActionButton();
+    }
+
+    private void displayThoughtDialog()
+    {
+        View view = getLayoutInflater().inflate(R.layout.dialog_thought, null);
+        final TextView textViewLimit = (TextView) view.findViewById(R.id.tv_message_limit);
+        final EditText editTextMessage = (EditText) view.findViewById(R.id.et_message);
+
+        editTextMessage.addTextChangedListener(new TextWatcher() {
+
+            private boolean mWasValidLength;
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+                // does nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                // does nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                textViewLimit.setText(s.length() + "/" + MessageUtil.MAX_MESSAGE_LENGTH);
+                if (s.length() > MessageUtil.MAX_MESSAGE_LENGTH && mWasValidLength)
+                {
+                    textViewLimit.setTextColor(getResources().getColor(R.color.error_color));
+                    mWasValidLength = false;
+                }
+                else if (s.length() <= MessageUtil.MAX_MESSAGE_LENGTH && !mWasValidLength)
+                {
+                    textViewLimit.setTextColor(
+                            getResources().getColor(android.R.color.primary_text_dark));
+                    mWasValidLength = true;
+                }
+            }
+        });
+
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                Log.i(TAG, "Send message dialog dismissed");
+                if (which == DialogInterface.BUTTON_POSITIVE)
+                {
+                    Log.i(TAG, "Message to send: " + editTextMessage.getText().toString());
+                    sendMessage(editTextMessage.getText().toString());
+                }
+                dialog.dismiss();
+            }
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.text_send_message)
+                .setView(view)
+                .setPositiveButton(R.string.text_dialog_send, listener)
+                .setNegativeButton(R.string.text_dialog_cancel, listener)
+                .create()
+                .show();
     }
 
     /**

@@ -76,6 +76,7 @@ public class ThoughtAdapter
     {
         viewHolder.mTextViewThought.setText(mListThoughts.get(position));
         viewHolder.mTextViewTime.setText(mListDateAndTime.get(position));
+        // TODO: change background color of fab, not color of icon
         viewHolder.mFabThought.setColorFilter((mListThoughtSaved.get(position))
                 ? COLOR_THOUGHT_SAVED
                 : COLOR_THOUGHT_NOT_SAVED, PorterDuff.Mode.MULTIPLY);
