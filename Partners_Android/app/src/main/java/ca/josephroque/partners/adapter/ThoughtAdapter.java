@@ -138,7 +138,7 @@ public class ThoughtAdapter
         public ThoughtViewHolder(View itemView)
         {
             super(itemView);
-            mImageViewThought = (ImageView) itemView.findViewById(R.id.fab_thought);
+            mImageViewThought = (ImageView) itemView.findViewById(R.id.iv_thought_heart);
             mTextViewTime = (TextView) itemView.findViewById(R.id.tv_thought_time);
             mTextViewThought = (TextView) itemView.findViewById(R.id.tv_thought_message);
         }
