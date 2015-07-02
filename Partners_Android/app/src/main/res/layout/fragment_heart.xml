@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/iv_heart_inactive"
-        card_view:cardBackgroundColor="@color/primary_background"
+        card_view:cardBackgroundColor="@color/primary_color_light"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="4dp"
         card_view:cardUseCompatPadding="true">

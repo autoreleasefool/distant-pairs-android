@@ -140,7 +140,31 @@ public class ThoughtFragment
                 if (save)
                     helper.saveThoughtToDatabase(id, message, time);
                 else
-                    helper.promptDeleteThoughtFromDatabase(getActivity(), id, message);
+                    helper.promptDeleteThoughtFromDatabase(getActivity(), id, message,
+                            new DBHelper.DBDeleteCallback()
+                            {
+                                @Override
+                                public void thoughtDeleted(String id)
+                                {
+                                    final int indexToDelete = mListThoughtIds.indexOf(id);
+                                    if (indexToDelete > -1)
+                                    {
+                                        mListThoughtIds.remove(indexToDelete);
+                                        mListThoughts.remove(indexToDelete);
+                                        mListDateAndTime.remove(indexToDelete);
+                                        mListThoughtSaved.remove(indexToDelete);
+                                        getActivity().runOnUiThread(new Runnable()
+                                        {
+                                            @Override
+                                            public void run()
+                                            {
+                                                mRecyclerViewThoughtsAdapter
+                                                        .notifyItemRemoved(indexToDelete);
+                                            }
+                                        });
+                                    }
+                                }
+                            });
             }
         });
     }

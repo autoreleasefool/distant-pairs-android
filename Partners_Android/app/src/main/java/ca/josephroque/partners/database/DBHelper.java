@@ -146,9 +146,12 @@ public final class DBHelper
      * @param activity to create dialog
      * @param id unique id of thought to delete
      * @param message thought
+     * @param callback to notify of deleted thought.
      */
-    public void promptDeleteThoughtFromDatabase(final Activity activity, final String id,
-                                                final String message)
+    public void promptDeleteThoughtFromDatabase(final Activity activity,
+                                                final String id,
+                                                final String message,
+                                                final DBDeleteCallback callback)
     {
         final View rootView = activity.getLayoutInflater()
                 .inflate(R.layout.dialog_delete_thought, null);
@@ -160,6 +163,7 @@ public final class DBHelper
             {
                 if (which == DialogInterface.BUTTON_POSITIVE)
                 {
+                    callback.thoughtDeleted(id);
                     deleteThoughtFromDatabase(id);
                 }
                 dialog.dismiss();
@@ -202,5 +206,18 @@ public final class DBHelper
         SQLiteDatabase database = getWritableDatabase();
         database.execSQL("DROP TABLE IF EXISTS " + ThoughtContract.ThoughtEntry.TABLE_NAME);
         createThoughtsTable(database);
+    }
+
+    /**
+     * Callback interface for when a thought is deleted from the local database.
+     */
+    public interface DBDeleteCallback
+    {
+        /**
+         * Indicates a thought was deleted from the database.
+         *
+         * @param id id of deleted thought.
+         */
+        void thoughtDeleted(String id);
     }
 }

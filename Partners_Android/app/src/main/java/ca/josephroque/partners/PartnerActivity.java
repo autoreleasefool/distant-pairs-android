@@ -818,7 +818,7 @@ public class PartnerActivity
         public void afterTextChanged(Editable s)
         {
             String input = s.toString();
-            if (input.matches(MessageUtil.REGEX_VALID_MESSAGE) && mIsValidMessage)
+            if (!input.matches(MessageUtil.REGEX_VALID_MESSAGE) && mIsValidMessage)
             {
                 mTextViewLimit.setText(R.string.text_message_invalid_characters);
                 mTextViewLimit.setTextColor(getResources().getColor(R.color.error_color));
