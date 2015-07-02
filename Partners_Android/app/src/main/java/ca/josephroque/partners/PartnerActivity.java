@@ -512,6 +512,7 @@ public class PartnerActivity
         messageObject.put("senderName", mUsername);
         messageObject.put("messageText", messageText);
         messageObject.put("sentTime", MessageUtil.getCurrentDateAndTime());
+        messageObject.put("read", false);
 
         if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
                 || MessageUtil.LOGOUT_MESSAGE.equals(messageText))

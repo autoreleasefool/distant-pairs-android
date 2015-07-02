@@ -141,11 +141,20 @@ public final class MessageUtil
     {
         final long threeDaysInMillis = 1000 * 60 * 60 * 24 * 3;
         List<ParseObject> thoughtsToDelete = new ArrayList<>(thoughts.size());
+        List<ParseObject> thoughtsToUpdate = new ArrayList<>(thoughts.size());
         Iterator<ParseObject> it = thoughts.iterator();
 
         while (it.hasNext())
         {
             ParseObject thought = it.next();
+
+            if (!thought.getBoolean("read"))
+            {
+                thought.put("read", true);
+                thoughtsToUpdate.add(thought);
+                continue;
+            }
+
             Date createdDate = thought.getCreatedAt();
             Date threeDaysAgo = new Date();
             threeDaysAgo.setTime(threeDaysAgo.getTime() - threeDaysInMillis);
@@ -157,6 +166,8 @@ public final class MessageUtil
             }
         }
 
+        // Deletes old thoughts, updates unread thoughts to read.
         ParseObject.deleteAllInBackground(thoughtsToDelete);
+        ParseObject.saveAllInBackground(thoughtsToUpdate);
     }
 }
