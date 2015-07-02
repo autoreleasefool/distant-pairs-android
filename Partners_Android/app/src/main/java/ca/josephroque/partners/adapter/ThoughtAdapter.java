@@ -1,11 +1,11 @@
 package ca.josephroque.partners.adapter;
 
 import android.graphics.PorterDuff;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -76,12 +76,11 @@ public class ThoughtAdapter
     {
         viewHolder.mTextViewThought.setText(mListThoughts.get(position));
         viewHolder.mTextViewTime.setText(mListDateAndTime.get(position));
-        // TODO: change background color of fab, not color of icon
-        viewHolder.mFabThought.setColorFilter((mListThoughtSaved.get(position))
+        viewHolder.mImageViewThought.setColorFilter((mListThoughtSaved.get(position))
                 ? COLOR_THOUGHT_SAVED
                 : COLOR_THOUGHT_NOT_SAVED, PorterDuff.Mode.MULTIPLY);
-        viewHolder.mFabThought.setTag(position);
-        viewHolder.mFabThought.setOnClickListener(this);
+        viewHolder.mImageViewThought.setTag(position);
+        viewHolder.mImageViewThought.setOnClickListener(this);
     }
 
     @Override
@@ -124,8 +123,8 @@ public class ThoughtAdapter
             extends RecyclerView.ViewHolder
     {
 
-        /** Floating Action Button for interaction with a thought. */
-        private FloatingActionButton mFabThought;
+        /** Image of heart to indicate whether a message is saved locally. */
+        private ImageView mImageViewThought;
         /** Time the thought was sent. */
         private TextView mTextViewTime;
         /** Message of a thought. */
@@ -139,7 +138,7 @@ public class ThoughtAdapter
         public ThoughtViewHolder(View itemView)
         {
             super(itemView);
-            mFabThought = (FloatingActionButton) itemView.findViewById(R.id.fab_thought);
+            mImageViewThought = (ImageView) itemView.findViewById(R.id.fab_thought);
             mTextViewTime = (TextView) itemView.findViewById(R.id.tv_thought_time);
             mTextViewThought = (TextView) itemView.findViewById(R.id.tv_thought_message);
         }
