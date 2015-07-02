@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
@@ -249,12 +250,17 @@ public class PartnerActivity
         updateFloatingActionButton();
     }
 
+    /**
+     * Displays a dialog for the user to send a thought to their partner.
+     */
     private void displayThoughtDialog()
     {
         View view = getLayoutInflater().inflate(R.layout.dialog_thought, null);
         final TextView textViewLimit = (TextView) view.findViewById(R.id.tv_message_limit);
         final EditText editTextMessage = (EditText) view.findViewById(R.id.et_thought);
         editTextMessage.addTextChangedListener(new ThoughtWatcher(textViewLimit));
+
+        // TODO: only allow dialog once if partner is not online.
 
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
@@ -291,7 +297,6 @@ public class PartnerActivity
             @Override
             public void onReceive(Context context, Intent intent)
             {
-                // TODO: get time and unique id
                 String message = intent.getStringExtra("message");
                 String uniqueId = intent.getStringExtra("id");
                 String timestamp = intent.getStringExtra("timestamp");
@@ -312,7 +317,7 @@ public class PartnerActivity
 
                 if (MessageUtil.LOGIN_MESSAGE.equals(message)
                         || MessageUtil.LOGOUT_MESSAGE.equals(message))
-                    // TODO: possibly display animation on login/logout
+                    // TODO: add glowing red animation at bottom of activity for partner login
                     return;
                 superCuteHeartAnimation();
             }
@@ -325,21 +330,25 @@ public class PartnerActivity
     /**
      * Creates an array of ImageView objects for {@code mImageViewHearts}.
      */
+    @SuppressWarnings("deprecation")        // Newer methods used on newer api, deprecated on old
     private void populateHeartImageViews()
     {
+        final int deviceWidth = getResources().getDisplayMetrics().widthPixels;
+        final int numberOfHearts = (int) (deviceWidth / AnimationUtil.HEART_RATIO * 10);
+        final int numberOfLargeHearts = numberOfHearts / AnimationUtil.HEART_SIZE_RATIO;
+
         RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.rl_partner);
-        // TODO: set number of hearts based on size of screen
-        final int numberOfHearts = (int) (Math.random() * 12);
         mImageViewHearts = new ImageView[numberOfHearts];
 
-        for (int i = 0; i < mImageViewHearts.length; i++)
+        for (int i = 0; i < numberOfHearts; i++)
         {
             mImageViewHearts[i] = new ImageView(this);
             mImageViewHearts[i].setVisibility(View.GONE);
             mImageViewHearts[i].setAdjustViewBounds(true);
-            mImageViewHearts[i].setImageResource(R.drawable.ic_heart);
-            // TODO: randomize color
-            mImageViewHearts[i].setColorFilter(0xffff0000, PorterDuff.Mode.MULTIPLY);
+            if (i < numberOfLargeHearts)
+                mImageViewHearts[i].setImageResource(R.drawable.ic_heart_large);
+            else
+                mImageViewHearts[i].setImageResource(R.drawable.ic_heart_med);
             rootLayout.addView(mImageViewHearts[i]);
         }
     }
@@ -347,7 +356,8 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context,
+     * AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
@@ -763,8 +773,9 @@ public class PartnerActivity
 
         for (ImageView heart : mImageViewHearts)
         {
-            // TODO: randomize heart size
-            // heart.getLayoutParams.width = ???
+            int red = (int) (Math.random() * AnimationUtil.HEART_MAX_RED_OFFSET)
+                    + AnimationUtil.HEART_DARKEST_RED;
+            heart.setColorFilter(Color.rgb(red, 0, 0), PorterDuff.Mode.MULTIPLY);
             heart.startAnimation(AnimationUtil.getRandomHeartAnimation(heart,
                     (int) (Math.random() * (deviceWidth - heart.getWidth())), deviceHeight));
         }

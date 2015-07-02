@@ -96,11 +96,10 @@ public class ThoughtFragment
                 mListDateAndTime, mListThoughtSaved);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        // TODO: check if below works
-        // if not, try: layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
 
         mRecyclerViewThoughts = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
+        mRecyclerViewThoughts.setHasFixedSize(true);
         mRecyclerViewThoughts.setAdapter(mRecyclerViewThoughtsAdapter);
         mRecyclerViewThoughts.setLayoutManager(layoutManager);
 

@@ -101,7 +101,8 @@ public class HeartFragment
             {
                 mPartnerOnline = true;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    heartCircularRevealAnimation();
+                    //heartCircularRevealAnimation();
+                    heartFadeRevealAnimation();
                 else
                     heartFadeRevealAnimation();
             }
@@ -112,7 +113,8 @@ public class HeartFragment
             {
                 mPartnerOnline = false;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    heartCircularHideAnimation();
+                    //heartCircularHideAnimation();
+                    heartFadeHideAnimation();
                 else
                     heartFadeHideAnimation();
             }
@@ -181,7 +183,6 @@ public class HeartFragment
      */
     private void heartFadeRevealAnimation()
     {
-        mImageViewActiveHeart.setAlpha(0f);
         mImageViewActiveHeart.setVisibility(View.VISIBLE);
         AlphaAnimation fade = new AlphaAnimation(0f, 1f);
         fade.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
