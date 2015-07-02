@@ -3,13 +3,9 @@ package ca.josephroque.partners.util;
 import android.util.Log;
 import android.view.View;
 
-import com.parse.ParseObject;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 
 import ca.josephroque.partners.R;

@@ -101,8 +101,7 @@ public class HeartFragment
             {
                 mPartnerOnline = true;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    //heartCircularRevealAnimation();
-                    heartFadeRevealAnimation();
+                    heartCircularRevealAnimation();
                 else
                     heartFadeRevealAnimation();
             }
@@ -113,8 +112,7 @@ public class HeartFragment
             {
                 mPartnerOnline = false;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    //heartCircularHideAnimation();
-                    heartFadeHideAnimation();
+                    heartCircularHideAnimation();
                 else
                     heartFadeHideAnimation();
             }

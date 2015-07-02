@@ -22,6 +22,11 @@ public final class DisplayUtil
     }
 
     /**
+     * Offset for converting dp to px.
+     */
+    private static final float DENSITY_OFFSET = 0.5f;
+
+    /**
      * Converts a dp value to pixels according to display density.
      *
      * @param context to get display density
@@ -31,7 +36,7 @@ public final class DisplayUtil
     public static int convertDpToPx(Context context, float dp)
     {
         float scale = context.getResources().getDisplayMetrics().density;
-        return (int) ((dp * scale) + 0.5f);
+        return (int) ((dp * scale) + DENSITY_OFFSET);
     }
 
     /**

@@ -7,16 +7,12 @@ import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.util.ErrorUtil;
@@ -153,8 +149,7 @@ public final class DBHelper
                                                 final String message,
                                                 final DBDeleteCallback callback)
     {
-        final View rootView = activity.getLayoutInflater()
-                .inflate(R.layout.dialog_delete_thought, null);
+        final View rootView = View.inflate(activity, R.layout.dialog_delete_thought, null);
         ((TextView) rootView.findViewById(R.id.tv_thought_to_delete)).setText(message);
         final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
@@ -213,6 +208,7 @@ public final class DBHelper
      */
     public interface DBDeleteCallback
     {
+
         /**
          * Indicates a thought was deleted from the database.
          *

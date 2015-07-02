@@ -53,8 +53,6 @@ public class ThoughtFragment
 
     /** Manages data in a {@link RecyclerView}. */
     private ThoughtAdapter mRecyclerViewThoughtsAdapter;
-    /** To display thoughts. */
-    private RecyclerView mRecyclerViewThoughts;
 
     /** Executes database operations in order. */
     private final ExecutorService mDatabaseExecutorService = Executors.newSingleThreadExecutor();
@@ -98,10 +96,10 @@ public class ThoughtFragment
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setStackFromEnd(true);
 
-        mRecyclerViewThoughts = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
-        mRecyclerViewThoughts.setHasFixedSize(true);
-        mRecyclerViewThoughts.setAdapter(mRecyclerViewThoughtsAdapter);
-        mRecyclerViewThoughts.setLayoutManager(layoutManager);
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(mRecyclerViewThoughtsAdapter);
+        recyclerView.setLayoutManager(layoutManager);
 
         return rootView;
     }

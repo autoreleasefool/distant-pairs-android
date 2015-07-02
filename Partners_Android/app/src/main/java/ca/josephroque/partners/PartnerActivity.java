@@ -260,7 +260,7 @@ public class PartnerActivity
      */
     private void displayThoughtDialog()
     {
-        View view = getLayoutInflater().inflate(R.layout.dialog_thought, null);
+        View view = View.inflate(this, R.layout.dialog_delete_thought, null);
         final TextView textViewLimit = (TextView) view.findViewById(R.id.tv_message_limit);
         final EditText editTextMessage = (EditText) view.findViewById(R.id.et_thought);
         editTextMessage.addTextChangedListener(new ThoughtWatcher(textViewLimit));
@@ -360,8 +360,7 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context,
-     * AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {

@@ -14,9 +14,10 @@ import ca.josephroque.partners.util.MessageUtil;
 /**
  * Created by Joseph Roque on 2015-06-30.
  *
- * INSERT CLASS DESCRIPTION HERE
+ * Handles push notifications from GCM.
  */
-public class MessageReceiver extends BroadcastReceiver
+public class MessageReceiver
+        extends BroadcastReceiver
 {
 
     /** To identify output from this class in the Logcat. */

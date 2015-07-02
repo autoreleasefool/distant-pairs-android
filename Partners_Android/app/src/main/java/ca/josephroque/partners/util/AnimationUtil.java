@@ -6,8 +6,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 
-import ca.josephroque.partners.PartnerActivity;
-
 /**
  * Created by Joseph Roque on 2015-06-16.
  *
@@ -23,21 +21,21 @@ public final class AnimationUtil
     /**
      * For every X pixels, 10 hearts are added to the super cute heart animation.
      *
-     * @see PartnerActivity#superCuteHeartAnimation()
+     * @see ca.josephroque.partners.PartnerActivity#superCuteHeartAnimation()
      */
     public static final float HEART_RATIO = 1400;
 
     /**
      * Ratio of hearts which will be larger vs smaller in the super cute heart animation.
      *
-     * @see PartnerActivity#superCuteHeartAnimation()
+     * @see ca.josephroque.partners.PartnerActivity#superCuteHeartAnimation()
      */
     public static final int HEART_SIZE_RATIO = 3;
 
     /**
      * Minimum red value for RGB of hearts in super cute heart animation.
      *
-     * @see PartnerActivity#superCuteHeartAnimation()
+     * @see ca.josephroque.partners.PartnerActivity#superCuteHeartAnimation()
      */
     public static final int HEART_DARKEST_RED = 155;
 
@@ -45,7 +43,7 @@ public final class AnimationUtil
      * Maximum value to add to {@code HEART_DARKEST_RED} for RGB of hearts in super cute heart
      * animation.
      *
-     * @see PartnerActivity#superCuteHeartAnimation()
+     * @see ca.josephroque.partners.PartnerActivity#superCuteHeartAnimation()
      */
     public static final int HEART_MAX_RED_OFFSET = 65;
 
