@@ -37,6 +37,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
@@ -108,6 +109,8 @@ public class PartnerActivity
 
     /** Images of hearts to animate. */
     private ImageView[] mImageViewHearts;
+    /** Image of soft glow to indicate user logging in. */
+    private ImageView mImageViewLoginGlow;
 
     /** Counts the number of times a message has failed to send. */
     private HashMap<String, Integer> mFailedMessageCount;
@@ -177,6 +180,8 @@ public class PartnerActivity
             mPartnerName = preferences.getString(AccountUtil.PAIR, null);
             mUsername = preferences.getString(AccountUtil.USERNAME, null);
         }
+
+        mImageViewLoginGlow = (ImageView) findViewById(R.id.iv_login_glow);
 
         updateFloatingActionButton();
         populateHeartImageViews();
@@ -315,11 +320,10 @@ public class PartnerActivity
                     // does nothing
                 }
 
-                if (MessageUtil.LOGIN_MESSAGE.equals(message)
-                        || MessageUtil.LOGOUT_MESSAGE.equals(message))
-                    // TODO: add glowing red animation at bottom of activity for partner login
-                    return;
-                superCuteHeartAnimation();
+                if (MessageUtil.LOGIN_MESSAGE.equals(message))
+                    loginGlowAnimation();
+                else if (!MessageUtil.LOGOUT_MESSAGE.equals(message))
+                    superCuteHeartAnimation();
             }
         };
 
@@ -367,6 +371,7 @@ public class PartnerActivity
                     @Override
                     public void onDeleteAccountStarted()
                     {
+                        sendMessage(MessageUtil.LOGOUT_MESSAGE);
                         runOnUiThread(new Runnable()
                         {
                             @Override
@@ -779,6 +784,59 @@ public class PartnerActivity
             heart.startAnimation(AnimationUtil.getRandomHeartAnimation(heart,
                     (int) (Math.random() * (deviceWidth - heart.getWidth())), deviceHeight));
         }
+    }
+
+    /**
+     * Animates a soft glow to fade in and out.
+     */
+    private void loginGlowAnimation()
+    {
+        final int duration = getResources().getInteger(android.R.integer.config_longAnimTime);
+        final AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
+        fadeIn.setDuration(duration);
+        fadeIn.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                mImageViewLoginGlow.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+                AlphaAnimation fadeOut = new AlphaAnimation(1f, 0f);
+                fadeOut.setDuration(duration);
+                fadeOut.setAnimationListener(new Animation.AnimationListener()
+                {
+                    @Override
+                    public void onAnimationStart(Animation animation)
+                    {
+                        // does nothing
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation)
+                    {
+                        mImageViewLoginGlow.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation)
+                    {
+                        // does nothing
+                    }
+                });
+                mImageViewLoginGlow.startAnimation(fadeOut);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+                // does nothing
+            }
+        });
+        mImageViewLoginGlow.startAnimation(fadeIn);
     }
 
     /**

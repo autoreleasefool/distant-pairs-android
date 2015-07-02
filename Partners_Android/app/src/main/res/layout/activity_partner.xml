@@ -34,6 +34,17 @@
 
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/iv_login_glow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:adjustViewBounds="true"
+        android:src="@drawable/login_glow"
+        android:visibility="gone"
+        tools:ignore="ContentDescription" />
+
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/cl_partner"
         android:layout_width="match_parent"
