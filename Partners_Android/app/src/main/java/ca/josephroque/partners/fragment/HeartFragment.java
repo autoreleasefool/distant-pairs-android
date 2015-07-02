@@ -140,10 +140,12 @@ public class HeartFragment
         int cy = (mImageViewActiveHeart.getTop() + mImageViewActiveHeart.getBottom()) / 2;
         int radius = Math.max(mImageViewActiveHeart.getWidth(), mImageViewActiveHeart.getHeight());
 
-        Animator circularReveal =
+        Animator circReveal =
                 ViewAnimationUtils.createCircularReveal(mImageViewActiveHeart, cx, cy, 0, radius);
+        circReveal.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
+
         mImageViewActiveHeart.setVisibility(View.VISIBLE);
-        circularReveal.start();
+        circReveal.start();
     }
 
     /**
@@ -157,10 +159,11 @@ public class HeartFragment
         int radius = Math.max(mImageViewActiveHeart.getWidth(), mImageViewActiveHeart.getHeight());
 
         // create the animation (the final radius is zero)
-        Animator circularHide =
+        Animator circHide =
                 ViewAnimationUtils.createCircularReveal(mImageViewActiveHeart, cx, cy, radius, 0);
+        circHide.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
 
-        circularHide.addListener(new AnimatorListenerAdapter()
+        circHide.addListener(new AnimatorListenerAdapter()
         {
             @Override
             public void onAnimationEnd(Animator animation)
@@ -170,7 +173,7 @@ public class HeartFragment
             }
         });
 
-        circularHide.start();
+        circHide.start();
     }
 
     /**
@@ -181,6 +184,7 @@ public class HeartFragment
         mImageViewActiveHeart.setAlpha(0f);
         mImageViewActiveHeart.setVisibility(View.VISIBLE);
         AlphaAnimation fade = new AlphaAnimation(0f, 1f);
+        fade.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
         mImageViewActiveHeart.startAnimation(fade);
     }
 
@@ -190,6 +194,7 @@ public class HeartFragment
     private void heartFadeHideAnimation()
     {
         AlphaAnimation fade = new AlphaAnimation(1f, 0f);
+        fade.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
         fade.setAnimationListener(new Animation.AnimationListener()
         {
             @Override

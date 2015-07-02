@@ -11,4 +11,5 @@
     <dimen name="login_width">280dp</dimen>
 
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="rv_fab_clearance">88dp</dimen>
 </resources>

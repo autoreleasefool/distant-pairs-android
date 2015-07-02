@@ -53,6 +53,8 @@ public class ThoughtFragment
 
     /** Manages data in a {@link RecyclerView}. */
     private ThoughtAdapter mRecyclerViewThoughtsAdapter;
+    /** To display thoughts. */
+    private RecyclerView mRecyclerViewThoughts;
 
     /** Executes database operations in order. */
     private final ExecutorService mDatabaseExecutorService = Executors.newSingleThreadExecutor();
@@ -98,9 +100,9 @@ public class ThoughtFragment
         // if not, try: layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
 
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
-        recyclerView.setAdapter(mRecyclerViewThoughtsAdapter);
-        recyclerView.setLayoutManager(layoutManager);
+        mRecyclerViewThoughts = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
+        mRecyclerViewThoughts.setAdapter(mRecyclerViewThoughtsAdapter);
+        mRecyclerViewThoughts.setLayoutManager(layoutManager);
 
         return rootView;
     }
@@ -120,11 +122,11 @@ public class ThoughtFragment
                 || MessageUtil.LOGOUT_MESSAGE.equals(message))
             return;
 
-        mListThoughtIds.add(0, messageId);
-        mListDateAndTime.add(0, dateAndTime);
-        mListThoughts.add(0, message);
-        mListThoughtSaved.add(0, false);
-        mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
+        mListThoughtIds.add(messageId);
+        mListDateAndTime.add(dateAndTime);
+        mListThoughts.add(message);
+        mListThoughtSaved.add(false);
+        mRecyclerViewThoughtsAdapter.notifyItemInserted(mListThoughtIds.size());
     }
 
     @Override

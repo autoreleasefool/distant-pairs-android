@@ -131,43 +131,4 @@ public final class MessageUtil
         // TODO: check message to figure out what error was
         ErrorUtil.displayErrorSnackbar(rootView, errorMessage);
     }
-
-    /**
-     * Deletes thoughts that are older than 3 days from the list and the Parse database.
-     *
-     * @param thoughts list of thoughts from Parse database.
-     */
-    /*public static void filterAndDeleteOldThoughts(List<ParseObject> thoughts)
-    {
-        final long threeDaysInMillis = 1000 * 60 * 60 * 24 * 3;
-        List<ParseObject> thoughtsToDelete = new ArrayList<>(thoughts.size());
-        List<ParseObject> thoughtsToUpdate = new ArrayList<>(thoughts.size());
-        Iterator<ParseObject> it = thoughts.iterator();
-
-        while (it.hasNext())
-        {
-            ParseObject thought = it.next();
-
-            if (thought.getLong("timeRead") == 0)
-            {
-                thought.put("timeRead", new Date().getTime());
-                thoughtsToUpdate.add(thought);
-                continue;
-            }
-
-            Date createdDate = thought.getCreatedAt();
-            Date threeDaysAgo = new Date();
-            threeDaysAgo.setTime(threeDaysAgo.getTime() - threeDaysInMillis);
-
-            if (createdDate.before(threeDaysAgo))
-            {
-                thoughtsToDelete.add(thought);
-                it.remove();
-            }
-        }
-
-        // Deletes old thoughts, updates unread thoughts to read.
-        ParseObject.deleteAllInBackground(thoughtsToDelete);
-        ParseObject.saveAllInBackground(thoughtsToUpdate);
-    }*/
 }
