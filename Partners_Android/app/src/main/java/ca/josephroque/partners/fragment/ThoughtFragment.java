@@ -267,7 +267,7 @@ public class ThoughtFragment
                 if (thoughtResults == null)
                     thoughtResults = Collections.emptyList();
 
-                MessageUtil.filterAndDeleteOldThoughts(thoughtResults);
+                //MessageUtil.filterAndDeleteOldThoughts(thoughtResults);
                 for (ParseObject thought : thoughtResults)
                 {
                     String date = thought.getString("sentTime");

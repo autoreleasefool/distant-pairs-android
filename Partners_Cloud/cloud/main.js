@@ -1,3 +1,6 @@
+// Enables filter to be used as background job
+require('cloud/filter.js');
+
 // Generates a random one-time use key to delete a user's account.
 // Saves the key to the database, along with the user's name and returns the key
 Parse.Cloud.define("requestAccountDeletionKey", function(request, response) {
@@ -39,8 +42,7 @@ Parse.Cloud.define("deleteAccount", function(request, response) {
                 results[0].destroy();
 
                 // A key is only valid for 30 seconds
-                if (currentTime > expirationTime)
-                {
+                if (currentTime > expirationTime) {
                     response.error(4);
                     return;
                 }

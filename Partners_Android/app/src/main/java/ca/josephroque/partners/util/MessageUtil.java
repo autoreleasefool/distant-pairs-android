@@ -137,7 +137,7 @@ public final class MessageUtil
      *
      * @param thoughts list of thoughts from Parse database.
      */
-    public static void filterAndDeleteOldThoughts(List<ParseObject> thoughts)
+    /*public static void filterAndDeleteOldThoughts(List<ParseObject> thoughts)
     {
         final long threeDaysInMillis = 1000 * 60 * 60 * 24 * 3;
         List<ParseObject> thoughtsToDelete = new ArrayList<>(thoughts.size());
@@ -148,9 +148,9 @@ public final class MessageUtil
         {
             ParseObject thought = it.next();
 
-            if (!thought.getBoolean("read"))
+            if (thought.getLong("timeRead") == 0)
             {
-                thought.put("read", true);
+                thought.put("timeRead", new Date().getTime());
                 thoughtsToUpdate.add(thought);
                 continue;
             }
@@ -169,5 +169,5 @@ public final class MessageUtil
         // Deletes old thoughts, updates unread thoughts to read.
         ParseObject.deleteAllInBackground(thoughtsToDelete);
         ParseObject.saveAllInBackground(thoughtsToUpdate);
-    }
+    }*/
 }
