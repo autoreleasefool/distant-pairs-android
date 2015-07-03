@@ -41,8 +41,9 @@ public final class MessageUtil
     /** Number of characters at the start of a message which indicate its type. */
     public static final int MESSAGE_TYPE_RESERVED_LENGTH = 4;
     /** Regular expression for a valid message. */
-    // TODO: create proper regex for messages
-    public static final String REGEX_VALID_MESSAGE = "^[A-Za-z0-9@$_/.,\"():;\\-=+&%#!?<>' \\n]+$";
+    public static final String REGEX_VALID_MESSAGE = "^[A-Za-z0-9 \\r\\n@£$¥èéùìòÇØøÅå\u0394_\u03A6\u0393\u039B\u03A9\u03A0\u03A8\u03A3\u0398\u039EÆæßÉ!\"#$%&amp;'()*+,\\-./:;&lt;=&gt;?¡ÄÖÑÜ§¿äöñüà^{}\\\\\\[~\\]|\u20AC]*$";
+
+
     /** If found at the start of a message, indicates the message describes an error. */
     public static final String MESSAGE_TYPE_ERROR = "ERR";
     /** If found at the start of a message, indicates the message can be sent to a partner. */
