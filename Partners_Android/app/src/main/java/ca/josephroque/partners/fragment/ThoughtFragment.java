@@ -92,7 +92,7 @@ public class ThoughtFragment
         mListThoughtSaved = new ArrayList<>();
 
         mRecyclerViewThoughtsAdapter = new ThoughtAdapter(this, mListThoughtIds, mListThoughts,
-                mListDateAndTime, mListThoughtSaved);
+                mListDateAndTime, mListThoughtSaved, getResources().getConfiguration().locale);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setStackFromEnd(true);
@@ -109,6 +109,7 @@ public class ThoughtFragment
     public void onResume()
     {
         super.onResume();
+        mRecyclerViewThoughtsAdapter.setLocale(getResources().getConfiguration().locale);
         new PopulateMessagesTask().execute();
     }
 
@@ -260,7 +261,7 @@ public class ThoughtFragment
         }
 
         /**
-         * Gets thoughts stored in pARSE database and populates maps.
+         * Gets thoughts stored in Parse database and populates maps.
          *
          * @param preferences to get user object id
          * @param thoughtMap thought contents
