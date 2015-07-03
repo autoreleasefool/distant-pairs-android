@@ -6,6 +6,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +16,9 @@ import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,6 +50,25 @@ public class HeartFragment
 
     /** Indicates if the user's partner is online. */
     private boolean mPartnerOnline;
+
+    /** To delay animations. */
+    private Handler mHandlerPulse;
+    /** Count that the pulse animation has run. */
+    private int mAnimationCount;
+    /** Animation which causes the heart image to pulse larger. */
+    private Animation mHeartPulseGrowAnimation;
+    /** Animation which causes the heart image to shrink to its original size. */
+    private Animation mHeartPulseShrinkAnimation;
+
+    /** Starts the pulse animation. */
+    private Runnable mPulseAnimation = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            mImageViewActiveHeart.startAnimation(mHeartPulseGrowAnimation);
+        }
+    };
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -143,6 +168,14 @@ public class HeartFragment
         Animator circReveal =
                 ViewAnimationUtils.createCircularReveal(mImageViewActiveHeart, cx, cy, 0, radius);
         circReveal.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
+        circReveal.addListener(new AnimatorListenerAdapter()
+        {
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+                startPulseAnimation();
+            }
+        });
 
         mImageViewActiveHeart.setVisibility(View.VISIBLE);
         circReveal.start();
@@ -154,6 +187,7 @@ public class HeartFragment
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void heartCircularHideAnimation()
     {
+        stopPulseAnimation();
         int cx = (mImageViewActiveHeart.getLeft() + mImageViewActiveHeart.getRight()) / 2;
         int cy = (mImageViewActiveHeart.getTop() + mImageViewActiveHeart.getBottom()) / 2;
         int radius = Math.max(mImageViewActiveHeart.getWidth(), mImageViewActiveHeart.getHeight());
@@ -168,7 +202,6 @@ public class HeartFragment
             @Override
             public void onAnimationEnd(Animator animation)
             {
-                super.onAnimationEnd(animation);
                 mImageViewActiveHeart.setVisibility(View.GONE);
             }
         });
@@ -184,6 +217,26 @@ public class HeartFragment
         mImageViewActiveHeart.setVisibility(View.VISIBLE);
         AlphaAnimation fade = new AlphaAnimation(0f, 1f);
         fade.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
+        fade.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                // does nothing
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+                startPulseAnimation();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+                // does nothing
+            }
+        });
         mImageViewActiveHeart.startAnimation(fade);
     }
 
@@ -192,6 +245,7 @@ public class HeartFragment
      */
     private void heartFadeHideAnimation()
     {
+        stopPulseAnimation();
         AlphaAnimation fade = new AlphaAnimation(1f, 0f);
         fade.setDuration(getResources().getInteger(android.R.integer.config_longAnimTime));
         fade.setAnimationListener(new Animation.AnimationListener()
@@ -215,5 +269,99 @@ public class HeartFragment
             }
         });
         mImageViewActiveHeart.startAnimation(fade);
+    }
+
+    /**
+     * Begins an animation which pulses the heart image.
+     */
+    private void startPulseAnimation()
+    {
+        mHeartPulseGrowAnimation = new ScaleAnimation(1f, 1.1f, 1f, 1.1f,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        mHeartPulseGrowAnimation.setInterpolator(new OvershootInterpolator());
+        mHeartPulseGrowAnimation.setDuration(200);
+        mHeartPulseGrowAnimation.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                // does nothing
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+                mImageViewActiveHeart.startAnimation(mHeartPulseShrinkAnimation);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+                // does nothing
+            }
+        });
+
+        mHeartPulseShrinkAnimation = new ScaleAnimation(1.1f, 1f, 1.1f, 1f,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        mHeartPulseShrinkAnimation.setInterpolator(new LinearInterpolator());
+        mHeartPulseShrinkAnimation.setDuration(200);
+        mHeartPulseShrinkAnimation.setAnimationListener(new Animation.AnimationListener()
+        {
+            @Override
+            public void onAnimationStart(Animation animation)
+            {
+                // does nothing
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation)
+            {
+                if (mAnimationCount % 2 == 0)
+                    mHandlerPulse.postDelayed(mPulseAnimation, 200);
+                else
+                    mHandlerPulse.postDelayed(mPulseAnimation, 1000);
+                mAnimationCount++;
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation)
+            {
+                // does nothing
+            }
+        });
+
+        mHandlerPulse = new PulseHandler(Looper.getMainLooper());
+        mHandlerPulse.postDelayed(mPulseAnimation, 1000);
+    }
+
+    /**
+     * Stops the pulsing heart animation.
+     */
+    private void stopPulseAnimation()
+    {
+    }
+
+    /**
+     * To delay animations.
+     */
+    private static final class PulseHandler
+            extends Handler
+    {
+
+        /**
+         * Sends {@code Looper} to super class.
+         *
+         * @param looper looper
+         */
+        private PulseHandler(Looper looper)
+        {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message message)
+        {
+            // does nothing;
+        }
     }
 }
