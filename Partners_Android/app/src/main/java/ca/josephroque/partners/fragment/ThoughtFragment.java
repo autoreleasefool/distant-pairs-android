@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -130,6 +129,12 @@ public class ThoughtFragment
         mListThoughts.add(message);
         mListThoughtSaved.add(false);
         mRecyclerViewThoughtsAdapter.notifyItemInserted(mListThoughtIds.size());
+    }
+
+    @Override
+    public int getColor(int colorId)
+    {
+        return getResources().getColor(colorId);
     }
 
     @Override
@@ -257,7 +262,7 @@ public class ThoughtFragment
             }
             catch (Exception ex)
             {
-                Log.e(TAG, "Error reading thoughts", ex);
+                // does nothing
             }
             finally
             {

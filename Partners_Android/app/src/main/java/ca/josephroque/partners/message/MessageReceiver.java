@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +27,6 @@ public class MessageReceiver
     public void onReceive(Context context, Intent intent)
     {
         String jsonData = intent.getStringExtra("com.parse.Data");
-        Log.i(TAG, "Message received:" + jsonData);
         try
         {
             // TODO: fixing date
@@ -45,7 +43,6 @@ public class MessageReceiver
         }
         catch (JSONException ex)
         {
-            Log.e(TAG, "JSON error: ", ex);
             // do nothing - app may not be open
         }
     }

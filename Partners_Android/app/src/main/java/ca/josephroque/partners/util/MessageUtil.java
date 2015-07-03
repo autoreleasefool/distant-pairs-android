@@ -2,15 +2,9 @@ package ca.josephroque.partners.util;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import ca.josephroque.partners.R;
 
@@ -54,10 +48,6 @@ public final class MessageUtil
     public static final String MESSAGE_TYPE_ERROR = "ERR";
     /** If found at the start of a message, indicates the message can be sent to a partner. */
     public static final String MESSAGE_TYPE_VALID = "MSG";
-
-    /** To format a {@link Date} object to string. */
-    private static SimpleDateFormat sDateFormat =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CANADA);
 
     /**
      * Default private constructor.
@@ -124,9 +114,8 @@ public final class MessageUtil
         }
         catch (Exception ex)
         {
-            Log.e(TAG, "Error message must follow format 'ERR:X:message' where X is an integer and"
-                    + "message is the message that caused the error");
-            return;
+            throw new IllegalArgumentException("Error message must follow format 'ERR:X:message' "
+                    + "where X is an integer and message is the message that caused the error");
         }
 
         if (errorId == R.string.text_message_too_long)

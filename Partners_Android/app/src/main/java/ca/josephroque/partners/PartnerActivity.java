@@ -32,7 +32,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -295,12 +294,8 @@ public class PartnerActivity
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                Log.i(TAG, "Send message dialog dismissed");
                 if (which == DialogInterface.BUTTON_POSITIVE)
-                {
-                    Log.i(TAG, "Message to send: " + editTextMessage.getText().toString());
                     sendMessage(editTextMessage.getText().toString());
-                }
                 dialog.dismiss();
             }
         };
@@ -554,7 +549,6 @@ public class PartnerActivity
         message = MessageUtil.getValidMessage(message);
         if (message.startsWith(MessageUtil.MESSAGE_TYPE_ERROR))
         {
-            Log.i(TAG, "Message error: " + message);
             MessageUtil.handleError(mFabPrimary, message);
             return;
         }
@@ -570,11 +564,9 @@ public class PartnerActivity
                 || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
         {
             sendMessage(messageObject, true);
-            Log.i(TAG, "Sending status message");
         }
         else
         {
-            Log.i(TAG, "Sending regular message");
             messageObject.saveInBackground(new SaveCallback()
             {
                 @Override
@@ -609,13 +601,13 @@ public class PartnerActivity
         }
         catch (JSONException ex)
         {
-            Log.e(TAG, "JSON error", ex);
+            messageFailedToSend(messageObject.getString("messageText"));
+            return;
         }
 
         ParsePush parsePush = new ParsePush();
         parsePush.setData(data);
 
-        Log.i(TAG, "Attempting to push");
         ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
         parseQuery.whereEqualTo("username", mPartnerName);
         parsePush.setQuery(parseQuery);
@@ -624,7 +616,6 @@ public class PartnerActivity
             @Override
             public void done(ParseException e)
             {
-                Log.i(TAG, "Message error: " + e);
                 if (e != null)
                     messageFailedToSend(messageObject.getString("messageText"));
             }

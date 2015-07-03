@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -55,14 +54,12 @@ public class LoginActivity
 
         if (ParseUser.getCurrentUser() != null)
         {
-            Log.i(TAG, "Starting partner activity");
             startActivity(mIntentPartnerActivity);
             finish();
             return;
         }
         else if (AccountUtil.doesAccountExist(this))
         {
-            Log.i(TAG, "Attempting login");
             login(null);
         }
 
@@ -77,13 +74,11 @@ public class LoginActivity
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        Log.i(TAG, "Login Activity created");
     }
 
     @Override
     public void login(final RegisterFragment.LoginCallback callback)
     {
-        Log.i(TAG, "Starting login task");
         new LoginTask().execute(callback);
     }
 
@@ -137,7 +132,6 @@ public class LoginActivity
         protected Integer doInBackground(
                 RegisterFragment.LoginCallback... callback)
         {
-            Log.i(TAG, "Login task started");
             if (callback != null)
                 mCallback = callback[0];
 
@@ -160,14 +154,12 @@ public class LoginActivity
                 return ex.getCode();
             }
 
-            Log.i(TAG, "Login task completed");
             return AccountUtil.SUCCESS;
         }
 
         @Override
         protected void onPostExecute(Integer result)
         {
-            Log.i(TAG, "Login result: " + result);
             hideProgressBar();
 
             if (mCallback != null && result != AccountUtil.SUCCESS)
@@ -176,7 +168,6 @@ public class LoginActivity
             switch (result)
             {
                 case AccountUtil.SUCCESS:
-                    Log.i(TAG, "Starting PartnerActivity, finishing LoginActivity");
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
                     installation.put("username", mUsername);
                     installation.saveInBackground();

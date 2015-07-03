@@ -14,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -389,7 +388,6 @@ public class RegisterFragment
         @Override
         protected void onPostExecute(Integer result)
         {
-            Log.i(TAG, "Result: " + result);
             ((ProgressActivity) getActivity()).hideProgressBar();
 
             switch (result)
@@ -564,7 +562,6 @@ public class RegisterFragment
         protected void onPostExecute(Integer result)
         {
             ((ProgressActivity) getActivity()).hideProgressBar();
-            Log.i(TAG, "Register partner result: " + result);
 
             switch (result)
             {
