@@ -66,6 +66,8 @@ public class ThoughtFragment
     private List<String> mListDateAndTime;
     /** Indicates if a thought has been saved to the database. */
     private List<Boolean> mListThoughtSaved;
+    /** Indicates if a user has seen a thought before. */
+    private List<Boolean> mListThoughtSeen;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -90,9 +92,11 @@ public class ThoughtFragment
         mListThoughts = new ArrayList<>();
         mListDateAndTime = new ArrayList<>();
         mListThoughtSaved = new ArrayList<>();
+        mListThoughtSeen = new ArrayList<>();
 
         mRecyclerViewThoughtsAdapter = new ThoughtAdapter(this, mListThoughtIds, mListThoughts,
-                mListDateAndTime, mListThoughtSaved, getResources().getConfiguration().locale);
+                mListDateAndTime, mListThoughtSaved, mListThoughtSeen,
+                getResources().getConfiguration().locale);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setStackFromEnd(true);
@@ -196,18 +200,20 @@ public class ThoughtFragment
             // Key is date/time, value is pair containing id and message
             TreeMap<String, Pair<String, String>> thoughtMap = new TreeMap<>();
 
-            // To indicate if a thought was retrieved from the database or not
-            HashMap<String, Boolean> savedMap = new HashMap<>();
+            // To indicate if a thought was retrieved from the database or not, and if it has
+            // been seen before
+            HashMap<String, Pair<Boolean, Boolean>> savedSeenMap = new HashMap<>();
 
-            getDatabaseThoughts(thoughtMap, savedMap);
-            getParseThoughts(preferences, thoughtMap, savedMap);
+            getDatabaseThoughts(thoughtMap, savedSeenMap);
+            getParseThoughts(preferences, thoughtMap, savedSeenMap);
 
             for (Map.Entry<String, Pair<String, String>> entry : thoughtMap.entrySet())
             {
                 mListDateAndTime.add(entry.getKey());
                 mListThoughtIds.add(entry.getValue().first);
                 mListThoughts.add(entry.getValue().second);
-                mListThoughtSaved.add(savedMap.get(entry.getKey()));
+                mListThoughtSaved.add(savedSeenMap.get(entry.getKey()).first);
+                mListThoughtSeen.add(savedSeenMap.get(entry.getKey()).second);
             }
             return null;
         }
@@ -216,10 +222,10 @@ public class ThoughtFragment
          * Gets thoughts stored in internal database and populates maps.
          *
          * @param thoughtMap thought contents
-         * @param savedMap values will be true for any messages loaded
+         * @param savedSeenMap values will be true for any messages loaded
          */
         private void getDatabaseThoughts(TreeMap<String, Pair<String, String>> thoughtMap,
-                                         HashMap<String, Boolean> savedMap)
+                                         HashMap<String, Pair<Boolean, Boolean>> savedSeenMap)
         {
             String rawThoughtQuery = "SELECT "
                     + ThoughtContract.ThoughtEntry.COLUMN_ID + ", "
@@ -244,7 +250,7 @@ public class ThoughtFragment
                                 ThoughtContract.ThoughtEntry.COLUMN_MESSAGE));
 
                         thoughtMap.put(date, Pair.create(id, message));
-                        savedMap.put(date, true);
+                        savedSeenMap.put(date, Pair.create(true, true));
                         cursor.moveToNext();
                     }
                 }
@@ -265,11 +271,11 @@ public class ThoughtFragment
          *
          * @param preferences to get user object id
          * @param thoughtMap thought contents
-         * @param savedMap values will be false for any messages loaded
+         * @param savedSeenMap values will be false for any messages loaded
          */
         private void getParseThoughts(SharedPreferences preferences,
                                       TreeMap<String, Pair<String, String>> thoughtMap,
-                                      HashMap<String, Boolean> savedMap)
+                                      HashMap<String, Pair<Boolean, Boolean>> savedSeenMap)
         {
             final String username = preferences.getString(AccountUtil.USERNAME, null);
             final String partnerName = preferences.getString(AccountUtil.PAIR, null);
@@ -295,18 +301,21 @@ public class ThoughtFragment
 
                 for (ParseObject thought : thoughtResults)
                 {
-                    // TODO: fixing date
                     String date = Long.toString(thought.getCreatedAt().getTime());
                     String id = thought.getObjectId();
                     String message = thought.getString("messageText");
 
                     thoughtMap.put(date, Pair.create(id, message));
-                    savedMap.put(date, false);
 
                     if (thought.getLong("timeRead") == 0)
                     {
                         thought.put("timeRead", new Date().getTime());
                         thoughtsToSave.add(thought);
+                        savedSeenMap.put(date, Pair.create(false, false));
+                    }
+                    else
+                    {
+                        savedSeenMap.put(date, Pair.create(false, true));
                     }
                 }
 

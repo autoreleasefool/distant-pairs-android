@@ -560,7 +560,6 @@ public class PartnerActivity
         }
         final String messageText = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
 
-        // TODO: fixing date
         final ParseObject messageObject = new ParseObject("Thought");
         messageObject.put("recipientName", mPartnerName);
         messageObject.put("senderName", mUsername);
@@ -601,7 +600,6 @@ public class PartnerActivity
         JSONObject data = new JSONObject();
         try
         {
-            // TODO: fixing date
             data.put("message", messageObject.getString("messageText"));
             data.put("timestamp", MessageUtil.getCurrentDateAndTime());
             if (statusMessage)

@@ -30,10 +30,16 @@ public class ThoughtAdapter
     @SuppressWarnings("unused")
     private static final String TAG = "ThoughtAdapter";
 
-    /** Color of floating action button for saved thoughts. */
+    /** Color of icon for saved thoughts. */
     private static final int COLOR_THOUGHT_SAVED = 0xffff0000;
-    /** Color of floating action button for thoughts which have not been saved. */
+    /** Color of icon for thoughts which have not been saved. */
     private static final int COLOR_THOUGHT_NOT_SAVED = 0xffffffff;
+
+    // TODO: choose better colors
+    /** Color of item for previously seen thoughts. */
+    private static final int COLOR_THOUGHT_SEEN = 0xffff0000;
+    /** Color of item for previously unseen thoughts. */
+    private static final int COLOR_THOUGHT_NOT_SEEN = 0xffffffff;
 
     /** Instance of callback interface. */
     private ThoughtAdapterCallback mCallback;
@@ -53,6 +59,8 @@ public class ThoughtAdapter
     private List<String> mListDateAndTime;
     /** Indicates if a thought has been saved to the database. */
     private List<Boolean> mListThoughtSaved;
+    /** Indicates if a user has seen a thought before. */
+    private List<Boolean> mListThoughtSeen;
 
     /**
      * Assigns references to member variables.
@@ -61,18 +69,20 @@ public class ThoughtAdapter
      * @param listIds list of unique identifiers
      * @param listMessages list of thoughts
      * @param listDateAndTime list of times thoughts were received
-     * @param listSaved list of boolean indicating if a thought is saved
+     * @param listSaved list of boolean indicating if a thought is saved locally
+     * @param listSeen list of boolean indicating if a thought has been seen
      * @param locale current locale
      */
     public ThoughtAdapter(ThoughtAdapterCallback callback, List<String> listIds,
                           List<String> listMessages, List<String> listDateAndTime,
-                          List<Boolean> listSaved, Locale locale)
+                          List<Boolean> listSaved, List<Boolean> listSeen, Locale locale)
     {
         this.mCallback = callback;
-        mListThoughtIds = listIds;
+        this.mListThoughtIds = listIds;
         this.mListThoughts = listMessages;
         this.mListDateAndTime = listDateAndTime;
         this.mListThoughtSaved = listSaved;
+        this.mListThoughtSeen = listSeen;
 
         mDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
         mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
@@ -103,6 +113,11 @@ public class ThoughtAdapter
             viewHolder.mTextViewTime.setText(mTimeFormat.format(thoughtDate));
         else
             viewHolder.mTextViewTime.setText(mDateFormat.format(thoughtDate));
+
+        if (mListThoughtSeen.get(position))
+            viewHolder.itemView.setBackgroundColor(COLOR_THOUGHT_SEEN);
+        else
+            viewHolder.itemView.setBackgroundColor(COLOR_THOUGHT_NOT_SEEN);
 
         viewHolder.mTextViewThought.setText(mListThoughts.get(position));
         viewHolder.mImageViewThought.setColorFilter((mListThoughtSaved.get(position))
