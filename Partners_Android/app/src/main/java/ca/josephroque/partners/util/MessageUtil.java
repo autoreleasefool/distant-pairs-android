@@ -122,9 +122,15 @@ public final class MessageUtil
             return;
         }
 
-        final String errorMessage = rootView.getContext().getResources().getString(errorId);
-
-        // TODO: check message to figure out what error was
-        ErrorUtil.displayErrorSnackbar(rootView, errorMessage);
+        if (errorId == R.string.text_message_too_long)
+        {
+            ErrorUtil.displayErrorSnackbar(rootView, "Message length over limit: "
+                    + message.length() + "/" + MessageUtil.MAX_MESSAGE_LENGTH);
+        }
+        else
+        {
+            ErrorUtil.displayErrorSnackbar(rootView,
+                    rootView.getContext().getResources().getString(errorId));
+        }
     }
 }
