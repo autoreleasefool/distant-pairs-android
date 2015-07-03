@@ -19,6 +19,7 @@ import com.parse.ParseUser;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
+import ca.josephroque.partners.util.MessageUtil;
 
 /**
  * Provides interface for user registration and login.
@@ -47,6 +48,8 @@ public class LoginActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        MessageUtil.setThoughtSent(this, false);
 
         mIntentPartnerActivity = new Intent(LoginActivity.this, PartnerActivity.class);
 

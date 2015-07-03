@@ -86,6 +86,8 @@ public class PartnerActivity
     public static final byte HEART_FRAGMENT = 0;
     /** Position of ThoughtFragment instance in ViewPager. */
     public static final byte THOUGHT_FRAGMENT = 1;
+    /** Represents boolean indicating the partner's online status. */
+    private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
 
     /** Center pivot for scale animation. */
     private static final float CENTER_PIVOT = 0.5f;
@@ -127,6 +129,8 @@ public class PartnerActivity
     private int mCurrentFabIcon;
     /** Tracks number of attempts made to appear online. */
     private int mStatusAttemptCount;
+    /** Indicates if the user's partner is online. */
+    private boolean mIsPartnerOnline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -164,6 +168,7 @@ public class PartnerActivity
 
         if (savedInstanceState != null)
         {
+            mIsPartnerOnline = savedInstanceState.getBoolean(ARG_PARTNER_ONLINE, false);
             mIsPairRegistered = savedInstanceState.getBoolean(ARG_PAIR_REGISTERED, false);
             mCurrentViewPagerPosition = savedInstanceState.getInt(ARG_CURRENT_FRAGMENT);
             mViewPager.setCurrentItem(mCurrentViewPagerPosition);
@@ -212,6 +217,7 @@ public class PartnerActivity
         super.onSaveInstanceState(outState);
         outState.putInt(ARG_CURRENT_FRAGMENT, mCurrentViewPagerPosition);
         outState.putBoolean(ARG_PAIR_REGISTERED, mIsPairRegistered);
+        outState.putBoolean(ARG_PARTNER_ONLINE, mIsPartnerOnline);
     }
 
     @Override
@@ -260,12 +266,29 @@ public class PartnerActivity
      */
     private void displayThoughtDialog()
     {
+        if (!mIsPartnerOnline && MessageUtil.wasThoughtSent(this))
+        {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.text_message_already_sent)
+                    .setMessage(R.string.text_message_already_sent_content)
+                    .setPositiveButton(R.string.text_dialog_okay,
+                            new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    dialog.dismiss();
+                                }
+                            })
+                    .create()
+                    .show();
+            return;
+        }
+
         View view = View.inflate(this, R.layout.dialog_delete_thought, null);
         final TextView textViewLimit = (TextView) view.findViewById(R.id.tv_message_limit);
         final EditText editTextMessage = (EditText) view.findViewById(R.id.et_thought);
         editTextMessage.addTextChangedListener(new ThoughtWatcher(textViewLimit));
-
-        // TODO: only allow dialog once if partner is not online.
 
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
@@ -321,9 +344,14 @@ public class PartnerActivity
                 }
 
                 if (MessageUtil.LOGIN_MESSAGE.equals(message))
+                {
+                    setPartnerOnline(true);
                     loginGlowAnimation();
+                }
                 else if (!MessageUtil.LOGOUT_MESSAGE.equals(message))
                     superCuteHeartAnimation();
+                else
+                    setPartnerOnline(false);
             }
         };
 
@@ -358,9 +386,20 @@ public class PartnerActivity
     }
 
     /**
+     * Sets whether partner is online or not.
+     *
+     * @param online new value for {@code mIsPartnerOnline}
+     */
+    private void setPartnerOnline(boolean online)
+    {
+        this.mIsPartnerOnline = online;
+    }
+
+    /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context,
+     * AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {

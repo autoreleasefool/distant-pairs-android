@@ -14,6 +14,8 @@
     <string name="text_message_failed">Message failed to send.</string>
     <string name="text_cannot_appear_online">Unable to appear online.</string>
     <string name="text_too_many_attemps">Too many attempts.</string>
+    <string name="text_message_already_sent">Unable to send thought</string>
+    <string name="text_message_already_sent_content">You should only send a single thought each time you open the app.</string>
 
     <!-- Events -->
     <string name="text_hint_username">Username</string>

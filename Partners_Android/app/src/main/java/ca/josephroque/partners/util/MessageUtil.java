@@ -1,5 +1,7 @@
 package ca.josephroque.partners.util;
 
+import android.content.Context;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
@@ -28,6 +30,8 @@ public final class MessageUtil
     public static final String ONLINE_STATUS = "status_online";
     /** Represents Parse object id for status object. */
     public static final String STATUS_OBJECT_ID = "status_object_id";
+    /** Represents a boolean indicating if a thought has been sent since the app was opened. */
+    public static final String THOUGHT_SENT = "thought_sent";
 
     /** A login message. */
     public static final String LOGIN_MESSAGE = "~LOGIN";
@@ -133,5 +137,32 @@ public final class MessageUtil
             ErrorUtil.displayErrorSnackbar(rootView,
                     rootView.getContext().getResources().getString(errorId));
         }
+    }
+
+    /**
+     * Sets whether a thought was sent since the app was opened. Should be set to false each time
+     * the app opens.
+     *
+     * @param context to get shared preferences
+     * @param sent new value for {@code THOUGHT_SENT} in {@link android.content.SharedPreferences}
+     */
+    public static void setThoughtSent(Context context, boolean sent)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(THOUGHT_SENT, sent)
+                .apply();
+    }
+
+    /**
+     * Returns true if a thought has been sent since the app was opened, false otherwise.
+     *
+     * @param context to get shared preferences
+     * @return true if a thought was sent, false otherwise
+     */
+    public static boolean wasThoughtSent(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(THOUGHT_SENT, false);
     }
 }
