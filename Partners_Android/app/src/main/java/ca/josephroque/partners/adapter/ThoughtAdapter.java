@@ -1,5 +1,9 @@
 package ca.josephroque.partners.adapter;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +15,7 @@ import android.widget.TextView;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,17 +34,6 @@ public class ThoughtAdapter
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
     private static final String TAG = "ThoughtAdapter";
-
-    /** Color of icon for saved thoughts. */
-    private static final int COLOR_THOUGHT_SAVED = 0xffff0000;
-    /** Color of icon for thoughts which have not been saved. */
-    private static final int COLOR_THOUGHT_NOT_SAVED = 0xffffffff;
-
-    // TODO: choose better colors
-    /** Color of item for previously seen thoughts. */
-    private static final int COLOR_THOUGHT_SEEN = 0xffff0000;
-    /** Color of item for previously unseen thoughts. */
-    private static final int COLOR_THOUGHT_NOT_SEEN = 0xffffffff;
 
     /** Instance of callback interface. */
     private ThoughtAdapterCallback mCallback;
@@ -61,6 +55,8 @@ public class ThoughtAdapter
     private List<Boolean> mListThoughtSaved;
     /** Indicates if a user has seen a thought before. */
     private List<Boolean> mListThoughtSeen;
+    /** Animations attached to a view. */
+    private HashMap<View, Animator> mMapViewAnimation;
 
     /**
      * Assigns references to member variables.
@@ -83,6 +79,7 @@ public class ThoughtAdapter
         this.mListDateAndTime = listDateAndTime;
         this.mListThoughtSaved = listSaved;
         this.mListThoughtSeen = listSeen;
+        this.mMapViewAnimation = new HashMap<>();
 
         mDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
         mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
@@ -114,15 +111,21 @@ public class ThoughtAdapter
         else
             viewHolder.mTextViewTime.setText(mDateFormat.format(thoughtDate));
 
+        if (mMapViewAnimation.containsKey(viewHolder.itemView))
+        {
+            Animator animator = mMapViewAnimation.remove(viewHolder.itemView);
+            animator.end();
+        }
         if (mListThoughtSeen.get(position))
-            viewHolder.itemView.setBackgroundColor(COLOR_THOUGHT_SEEN);
-        else
-            viewHolder.itemView.setBackgroundColor(COLOR_THOUGHT_NOT_SEEN);
+        {
+            mListThoughtSeen.set(position, true);
+            startNewThoughtAnimation(viewHolder.itemView);
+        }
 
         viewHolder.mTextViewThought.setText(mListThoughts.get(position));
         viewHolder.mImageViewThought.setColorFilter((mListThoughtSaved.get(position))
-                ? COLOR_THOUGHT_SAVED
-                : COLOR_THOUGHT_NOT_SAVED, PorterDuff.Mode.MULTIPLY);
+                ? mCallback.getColor(R.color.thought_saved)
+                : mCallback.getColor(R.color.thought_not_saved), PorterDuff.Mode.MULTIPLY);
         viewHolder.mImageViewThought.setTag(position);
         viewHolder.mImageViewThought.setOnClickListener(this);
     }
@@ -160,6 +163,35 @@ public class ThoughtAdapter
     {
         super.onDetachedFromRecyclerView(recyclerView);
         mCallback = null;
+    }
+
+    /**
+     * Starts a short pulsing animation for new thoughts.
+     *
+     * @param rootView view to animate
+     */
+    private void startNewThoughtAnimation(final View rootView)
+    {
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
+                mCallback.getColor(R.color.primary_color_light),
+                mCallback.getColor(R.color.thought_unread));
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
+        {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation)
+            {
+                rootView.setBackgroundColor((Integer) animation.getAnimatedValue());
+            }
+        });
+        colorAnimation.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation)
+            {
+                mMapViewAnimation.remove(rootView);
+            }
+        });
+        mMapViewAnimation.put(rootView, colorAnimation);
+        colorAnimation.start();
     }
 
     /**
@@ -217,5 +249,13 @@ public class ThoughtAdapter
          * @param save if true, thought should be saved. Otherwise, it should be removed.
          */
         void setThoughtSavedToDatabase(String id, String message, String time, boolean save);
+
+        /**
+         * Requests a color from the callback interface by id.
+         *
+         * @param id id of color
+         * @return integer value of color
+         */
+        int getColor(int id);
     }
 }
