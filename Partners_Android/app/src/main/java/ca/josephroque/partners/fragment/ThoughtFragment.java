@@ -21,6 +21,7 @@ import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -277,6 +278,7 @@ public class ThoughtFragment
                         .whereEqualTo("recipientName", username)
                         .whereEqualTo("senderName", partnerName);
                 List<ParseObject> thoughtResults = Collections.emptyList();
+                List<ParseObject> thoughtsToSave = new ArrayList<>();
 
                 try
                 {
@@ -290,16 +292,24 @@ public class ThoughtFragment
                 if (thoughtResults == null)
                     thoughtResults = Collections.emptyList();
 
-                //MessageUtil.filterAndDeleteOldThoughts(thoughtResults);
                 for (ParseObject thought : thoughtResults)
                 {
-                    String date = thought.getString("sentTime");
+                    // TODO: fixing date
+                    String date = Long.toString(thought.getCreatedAt().getTime());
                     String id = thought.getObjectId();
                     String message = thought.getString("messageText");
 
                     thoughtMap.put(date, Pair.create(id, message));
                     savedMap.put(date, false);
+
+                    if (thought.getLong("timeRead") == 0)
+                    {
+                        thought.put("timeRead", new Date().getTime());
+                        thoughtsToSave.add(thought);
+                    }
                 }
+
+                ParseObject.saveAllInBackground(thoughtsToSave);
             }
         }
 

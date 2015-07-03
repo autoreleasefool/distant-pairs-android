@@ -31,6 +31,7 @@ public class MessageReceiver
         Log.i(TAG, "Message received:" + jsonData);
         try
         {
+            // TODO: fixing date
             JSONObject data = new JSONObject(jsonData);
             String message = data.getString("message");
             String timestamp = data.getString("timestamp");

@@ -560,11 +560,11 @@ public class PartnerActivity
         }
         final String messageText = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
 
+        // TODO: fixing date
         final ParseObject messageObject = new ParseObject("Thought");
         messageObject.put("recipientName", mPartnerName);
         messageObject.put("senderName", mUsername);
         messageObject.put("messageText", messageText);
-        messageObject.put("sentTime", MessageUtil.getCurrentDateAndTime());
         messageObject.put("timeRead", 0L);
 
         if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
@@ -601,8 +601,9 @@ public class PartnerActivity
         JSONObject data = new JSONObject();
         try
         {
+            // TODO: fixing date
             data.put("message", messageObject.getString("messageText"));
-            data.put("timestamp", messageObject.getString("sentTime"));
+            data.put("timestamp", MessageUtil.getCurrentDateAndTime());
             if (statusMessage)
                 data.put("id", "status");
             else

@@ -7,16 +7,14 @@ Parse.Cloud.job("filterThoughts", function(request, status) {
     query.each(function(thought) {
         var read = thought.get("timeRead");
         if (read == 0) {
-            thought.put("readTime", new Date().getTime());
-            return thought.save();
+            return;
         }
 
         var timeRead = thought.get("timeRead");
         var expirationTime = new Date(timeRead + timeToLive);
         if (currentTime > expirationTime) {
             return thought.destroy();
-        }
-        else {
+        } else {
             return;
         }
     }).then(function() {

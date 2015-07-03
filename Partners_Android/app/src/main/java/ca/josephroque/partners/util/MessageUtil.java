@@ -7,8 +7,10 @@ import android.view.View;
 
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import ca.josephroque.partners.R;
 
@@ -72,7 +74,7 @@ public final class MessageUtil
      */
     public static String getCurrentDateAndTime()
     {
-        return sDateFormat.format(new Date());
+        return Long.toString(new Date().getTime());
     }
 
     /**
