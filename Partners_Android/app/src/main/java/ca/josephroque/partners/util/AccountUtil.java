@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.database.DBHelper;
@@ -47,16 +48,15 @@ public final class AccountUtil
     /** Represents parse object container the user's account. */
     public static final String PARSE_USER_ID = "account_user_objid";
 
-    /** Number base. */
-    private static final byte BASE = 32;
-    /** Number of random bits to generate. */
-    private static final int PASSWORD_BIT_LENGTH = 130;
-
     /** Represents the minimum length of a valid account deletion key. */
     private static final int ACCOUNT_DELETION_KEY_LENGTH = 35;
 
     /** Maximum character length for usernames. */
     public static final int USERNAME_MAX_LENGTH = 16;
+    /** Minimum character length for passwords. */
+    public static final int PASSWORD_MIN_LENGTH = 50;
+    /** Maximum character length for passwords. */
+    public static final int PASSWORD_MAX_LENGTH = 70;
     /** Regular expression for a valid username. */
     public static final String REGEX_VALID_USERNAME = "^[a-zA-Z0-9]+$";
 
@@ -87,13 +87,25 @@ public final class AccountUtil
     }
 
     /**
-     * Generates a random 130 bit password.
+     * Generates a random password with minimum {@code PASSWORD_MIN_LENGTH} characters and max
+     * {@code PASSWORD_MAX_LENGTH} characters.
      *
      * @return random password
      */
     public static String randomAlphaNumericPassword()
     {
-        return new BigInteger(PASSWORD_BIT_LENGTH, sSecureRandom).toString(BASE);
+        final String specials = "!@#$%^&*()_+{}:<>?[];,./`~";
+        final String lowercase = "abcdefghijklmnopqrstuvwxyz";
+        final String uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final String numbers = "0123456789";
+        final String all = specials + lowercase + uppercase + numbers;
+        final int length = sSecureRandom.nextInt(PASSWORD_MAX_LENGTH - PASSWORD_MIN_LENGTH)
+                + PASSWORD_MIN_LENGTH;
+
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++)
+            password.append(all.charAt(sSecureRandom.nextInt(all.length())));
+        return password.toString();
     }
 
     /**
