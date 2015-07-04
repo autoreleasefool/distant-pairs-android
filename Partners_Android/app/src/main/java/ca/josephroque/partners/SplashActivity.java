@@ -5,17 +5,20 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
+import ca.josephroque.partners.adapter.SplashPagerAdapter;
 import ca.josephroque.partners.fragment.RegisterFragment;
+import ca.josephroque.partners.fragment.TutorialFragment;
 import ca.josephroque.partners.util.AccountUtil;
 import ca.josephroque.partners.util.ErrorUtil;
 import ca.josephroque.partners.util.MessageUtil;
@@ -32,15 +35,25 @@ public class SplashActivity
     @SuppressWarnings("unused")
     private static final String TAG = "LoginActivity";
 
+    /** Alpha value for an active indicator dot. */
+    private static final float INDICATOR_ACTIVE = 0.75f;
+    /** Alpha value for an inactive indicator dot. */
+    private static final float INDICATOR_INACTIVE = 0.25f;
+
     /** Displays progress when connecting to server. */
     private LinearLayout mLinearLayoutProgress;
     /** Displays action when connecting to server. */
     private TextView mTextViewProgress;
-    /** Fragment container. */
-    private FrameLayout mFrameLayoutContainer;
+    /** View pager for content fragments. */
+    private ViewPager mViewPagerContent;
+    /** Toolbar associated with view pager. */
+    private RelativeLayout mRelativeLayoutToolbar;
 
     /** Intent to initiate instance of {@link PartnerActivity}. */
     private Intent mIntentPartnerActivity;
+
+    /** Current page of view pager. */
+    private int mCurrentTutorialPage = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -72,6 +85,8 @@ public class SplashActivity
                     .commit();
         }
 
+        setupViewPager();
+
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
@@ -95,19 +110,57 @@ public class SplashActivity
             mLinearLayoutProgress = (LinearLayout) findViewById(R.id.ll_progress);
         if (mTextViewProgress == null)
             mTextViewProgress = (TextView) findViewById(R.id.tv_progress);
-        if (mFrameLayoutContainer == null)
-            mFrameLayoutContainer = (FrameLayout) findViewById(R.id.login_container);
 
         mTextViewProgress.setText(message);
         mLinearLayoutProgress.setVisibility(View.VISIBLE);
-        mFrameLayoutContainer.setVisibility(View.INVISIBLE);
+        mViewPagerContent.setVisibility(View.INVISIBLE);
+        mRelativeLayoutToolbar.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void hideProgressBar()
     {
         mLinearLayoutProgress.setVisibility(View.GONE);
-        mFrameLayoutContainer.setVisibility(View.VISIBLE);
+        mViewPagerContent.setVisibility(View.VISIBLE);
+        if (mViewPagerContent.getCurrentItem() < TutorialFragment.TUTORIAL_PAGES - 1)
+            mRelativeLayoutToolbar.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Gets adapter for view pager and initializes views.
+     */
+    private void setupViewPager()
+    {
+        mViewPagerContent = (ViewPager) findViewById(R.id.splash_view_pager);
+        SplashPagerAdapter adapter = new SplashPagerAdapter(getSupportFragmentManager());
+        mViewPagerContent.setAdapter(adapter);
+
+        final View[] positionIndicator = new View[TutorialFragment.TUTORIAL_PAGES + 1];
+        for (int i = 0; i < positionIndicator.length; i++)
+        {
+            final int viewId = getResources().getIdentifier("view_indicator_" + i, "id",
+                    PartnersApplication.getSimplePackageName());
+            positionIndicator[i] = mRelativeLayoutToolbar.findViewById(viewId);
+            positionIndicator[i].setAlpha(INDICATOR_INACTIVE);
+        }
+
+        mViewPagerContent.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
+        {
+            @Override
+            public void onPageSelected(int position)
+            {
+                if (position == TutorialFragment.TUTORIAL_PAGES)
+                    mRelativeLayoutToolbar.setVisibility(View.INVISIBLE);
+                else
+                    mRelativeLayoutToolbar.setVisibility(View.VISIBLE);
+
+                //Changes which page indicator is 'highlighted'
+                positionIndicator[mCurrentTutorialPage].setAlpha(INDICATOR_INACTIVE);
+                positionIndicator[position].setAlpha(INDICATOR_ACTIVE);
+
+                mCurrentTutorialPage = position;
+            }
+        });
     }
 
     /**

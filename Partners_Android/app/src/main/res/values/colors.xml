@@ -16,4 +16,7 @@
     <color name="pair_filter">#fdeb99</color>
     <color name="person_filter">#ffffff</color>
 
+    <!-- Indicators -->
+    <color name="indicator">#000000</color>
+
 </resources>

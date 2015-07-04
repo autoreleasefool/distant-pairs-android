@@ -13,4 +13,9 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="rv_fab_clearance">88dp</dimen>
 
+    <!-- Indicator dimensions -->
+    <dimen name="indicator_width">8dp</dimen>
+    <dimen name="indicator_height">8dp</dimen>
+    <dimen name="indicator_margin">8dp</dimen>
+
 </resources>

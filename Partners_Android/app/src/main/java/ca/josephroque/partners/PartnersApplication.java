@@ -19,10 +19,14 @@ public class PartnersApplication
     @SuppressWarnings("unused")
     private static final String TAG = "PartnerApp";
 
+    /** Name of application package. */
+    private static String sPackageName;
+
     @Override
     public void onCreate()
     {
         super.onCreate();
+        sPackageName = getPackageName();
 
         // Creates database if it doesn't exist
         DBHelper.getInstance(this);
@@ -30,5 +34,15 @@ public class PartnersApplication
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, "jWG1xELtom5AqG1jrv7swNBg3wgWlLLAAhfzhfM7",
                 "3PijZadO6sQXu4ZazsxjtGTyNfddeQ59jLAl1CCq");
+    }
+
+    /**
+     * Returns package name of the application.
+     *
+     * @return {@code sPackageName}
+     */
+    public static String getSimplePackageName()
+    {
+        return sPackageName;
     }
 }
