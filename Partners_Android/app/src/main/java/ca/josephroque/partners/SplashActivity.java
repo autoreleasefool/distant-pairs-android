@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.WindowManager;
@@ -132,7 +133,7 @@ public class SplashActivity
     private void setupViewPager()
     {
         mViewPagerContent = (ViewPager) findViewById(R.id.splash_view_pager);
-        SplashPagerAdapter adapter = new SplashPagerAdapter(getSupportFragmentManager());
+        final SplashPagerAdapter adapter = new SplashPagerAdapter(getSupportFragmentManager());
         mViewPagerContent.setAdapter(adapter);
 
         final View[] positionIndicator = new View[TutorialFragment.TUTORIAL_PAGES + 1];
@@ -159,6 +160,10 @@ public class SplashActivity
                 positionIndicator[position].setAlpha(INDICATOR_ACTIVE);
 
                 mCurrentTutorialPage = position;
+
+                Fragment fragment = adapter.getRegisteredFragment(mCurrentTutorialPage);
+                if (fragment instanceof TutorialFragment)
+                    ((TutorialFragment) fragment).startAnimation();
             }
         });
     }
