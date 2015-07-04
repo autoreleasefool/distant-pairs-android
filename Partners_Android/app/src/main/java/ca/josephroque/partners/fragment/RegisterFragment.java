@@ -230,12 +230,20 @@ public class RegisterFragment
             }
         });
 
-        final int drawableId = (mRegisterOrPair)
-                ? R.drawable.ic_person
-                : R.drawable.ic_pair;
-        final int filterId = (mRegisterOrPair)
-                ? R.color.person_filter
-                : R.color.pair_filter;
+        final int drawableId;
+        final int filterId;
+
+        if (mRegisterOrPair)
+        {
+            drawableId = R.drawable.ic_person;
+            filterId = R.color.person_filter;
+        }
+        else
+        {
+            drawableId = R.drawable.ic_pair;
+            filterId = R.color.pair_filter;
+            mEditTextUsername.setHint(R.string.text_hint_pair);
+        }
 
         final Drawable editTextDrawable;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)

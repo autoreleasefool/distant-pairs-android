@@ -1,0 +1,35 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/login_width"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:background="@color/primary_color">
+
+    <EditText
+        android:id="@+id/et_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:drawableLeft="@drawable/ic_pair"
+        android:drawableStart="@drawable/ic_pair"
+        android:enabled="false"
+        android:hint="@string/text_hint_pair"
+        android:inputType="textCapWords" />
+
+    <Button
+        android:id="@+id/btn_login_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textinput_username"
+        android:enabled="false"
+        android:text="@string/text_register" />
+
+    <Button
+        android:id="@+id/btn_check_pairs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_login_register"
+        android:enabled="false"
+        android:text="@string/text_check_pairs" />
+
+</RelativeLayout>
