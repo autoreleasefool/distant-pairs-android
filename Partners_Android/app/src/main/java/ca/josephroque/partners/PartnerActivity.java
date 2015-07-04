@@ -425,7 +425,7 @@ public class PartnerActivity
                             public void run()
                             {
                                 Intent loginIntent =
-                                        new Intent(PartnerActivity.this, LoginActivity.class);
+                                        new Intent(PartnerActivity.this, SplashActivity.class);
                                 startActivity(loginIntent);
                                 finish();
                             }

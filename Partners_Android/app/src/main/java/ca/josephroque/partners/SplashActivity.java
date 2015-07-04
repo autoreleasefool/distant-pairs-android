@@ -23,7 +23,7 @@ import ca.josephroque.partners.util.MessageUtil;
 /**
  * Provides interface for user registration and login.
  */
-public class LoginActivity
+public class SplashActivity
         extends ProgressActivity
         implements RegisterFragment.RegisterCallbacks
 {
@@ -46,11 +46,11 @@ public class LoginActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_splash);
 
         MessageUtil.setThoughtSent(this, false);
 
-        mIntentPartnerActivity = new Intent(LoginActivity.this, PartnerActivity.class);
+        mIntentPartnerActivity = new Intent(SplashActivity.this, PartnerActivity.class);
 
         if (ParseUser.getCurrentUser() != null)
         {
@@ -136,7 +136,7 @@ public class LoginActivity
                 mCallback = callback[0];
 
             SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+                    PreferenceManager.getDefaultSharedPreferences(SplashActivity.this);
             mUsername = preferences.getString(AccountUtil.USERNAME, null);
             final String accountPass = preferences.getString(AccountUtil.PASSWORD, null);
 
@@ -175,20 +175,20 @@ public class LoginActivity
                     finish();
                     break;
                 case ParseException.CONNECTION_FAILED:
-                    ErrorUtil.displayErrorDialog(LoginActivity.this, "Connection failed",
+                    ErrorUtil.displayErrorDialog(SplashActivity.this, "Connection failed",
                             "Failed to connect to the server. Please, try again. If this error"
                                     + "persists, your connection may not be sufficient.");
                     break;
                 case ParseException.OBJECT_NOT_FOUND:
-                    ErrorUtil.displayErrorDialog(LoginActivity.this, "Incorrect credentials",
+                    ErrorUtil.displayErrorDialog(SplashActivity.this, "Incorrect credentials",
                             "Your account is no longer valid. Please, create another.");
-                    AccountUtil.deleteAccount(LoginActivity.this, null);
+                    AccountUtil.deleteAccount(SplashActivity.this, null);
                     break;
                 case ParseException.USERNAME_MISSING:
                     // does nothing
                     break;
                 default:
-                    ErrorUtil.displayErrorDialog(LoginActivity.this, "Error",
+                    ErrorUtil.displayErrorDialog(SplashActivity.this, "Error",
                             "An error has occurred. Please, try again.");
             }
         }
