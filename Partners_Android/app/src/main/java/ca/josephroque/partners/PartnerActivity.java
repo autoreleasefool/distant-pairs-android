@@ -967,6 +967,16 @@ public class PartnerActivity
     }
 
     /**
+     * Gets the primary floating action button.
+     *
+     * @return mFabPrimary
+     */
+    public FloatingActionButton getFloatingActionButton()
+    {
+        return mFabPrimary;
+    }
+
+    /**
      * Manages an input field for thoughts.
      */
     private final class ThoughtWatcher

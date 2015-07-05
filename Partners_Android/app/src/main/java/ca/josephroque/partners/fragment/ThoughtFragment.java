@@ -97,13 +97,10 @@ public class ThoughtFragment
                 mListDateAndTime, mListThoughtSaved, mListThoughtSeen,
                 getResources().getConfiguration().locale);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        layoutManager.setStackFromEnd(true);
-
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(mRecyclerViewThoughtsAdapter);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         return rootView;
     }
@@ -124,11 +121,11 @@ public class ThoughtFragment
                 || MessageUtil.LOGOUT_MESSAGE.equals(message))
             return;
 
-        mListThoughtIds.add(messageId);
-        mListDateAndTime.add(dateAndTime);
-        mListThoughts.add(message);
-        mListThoughtSaved.add(false);
-        mRecyclerViewThoughtsAdapter.notifyItemInserted(mListThoughtIds.size());
+        mListThoughtIds.add(0, messageId);
+        mListDateAndTime.add(0, dateAndTime);
+        mListThoughts.add(0, message);
+        mListThoughtSaved.add(0, false);
+        mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
     }
 
     @Override
