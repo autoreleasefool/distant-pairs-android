@@ -58,8 +58,7 @@
             android:layout_margin="@dimen/fab_margin"
             app:borderWidth="0dp"
             app:elevation="4dp"
-            app:fabSize="normal"
-            app:layout_behavior="ca.josephroque.partners.util.ScrollAwareFabBehavior" />
+            app:fabSize="normal" />
 
     </android.support.design.widget.CoordinatorLayout>
 
