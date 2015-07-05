@@ -42,6 +42,8 @@
     <string name="text_offline">Pair offline</string>
     <string name="text_online">Pair online</string>
     <string name="text_partner_logged_in">Someone was thinking of you</string>
+    <string name="text_partner_not_online">Your pair is not online</string>
+    <string name="text_send_thought">Would you like to send a thought for your partner to see when they next open the app?</string>
 
     <!-- Dialog text -->
     <string name="text_dialog_okay">Okay</string>

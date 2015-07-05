@@ -797,6 +797,8 @@ public class PartnerActivity
                             ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtil.getCurrentDateAndTime(),
                                     MessageUtil.LOGOUT_MESSAGE);
+                        if (!MessageUtil.wasThoughtSent(PartnerActivity.this))
+                            displayThoughPrompt();
                     }
                 }
                 else
@@ -855,6 +857,31 @@ public class PartnerActivity
                 }
             }
         });
+    }
+
+    /**
+     * Displays a prompt to ask the user if they want to send a thought.
+     */
+    private void displayThoughPrompt()
+    {
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                if (which == DialogInterface.BUTTON_POSITIVE)
+                    displayThoughtDialog();
+                dialog.dismiss();
+            }
+        };
+
+        new AlertDialog.Builder(PartnerActivity.this)
+                .setTitle(R.string.text_partner_not_online)
+                .setMessage(R.string.text_send_thought)
+                .setPositiveButton(R.string.text_dialog_okay, listener)
+                .setNegativeButton(R.string.text_dialog_no, listener)
+                .create()
+                .show();
     }
 
     /**
