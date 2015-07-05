@@ -70,7 +70,8 @@ import java.util.List;
  */
 public class PartnerActivity
         extends ProgressActivity
-        implements View.OnClickListener, RegisterFragment.RegisterCallbacks
+        implements View.OnClickListener, RegisterFragment.RegisterCallbacks,
+        ThoughtFragment.ThoughtFragmentCallbacks
 {
 
     /** To identify output from this class in the Logcat. */
@@ -259,6 +260,14 @@ public class PartnerActivity
         mPagerAdapter.notifyDataSetChanged();
         setOnlineStatus(true);
         updateFloatingActionButton();
+    }
+
+    @Override
+    public void setMostRecentThought(String message, String timestamp)
+    {
+        Fragment fragment = mPagerAdapter.getFragment(0);
+        if (fragment instanceof HeartFragment)
+            ((HeartFragment) fragment).setMostRecentThought(message, timestamp);
     }
 
     /**
@@ -787,7 +796,7 @@ public class PartnerActivity
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtil.getCurrentDateAndTime(), MessageUtil.LOGIN_MESSAGE);
-                        if (!MessageUtil.wasThoughtSent(PartnerActivity.this))
+                        if (!MessageUtil.wasStatusSent(PartnerActivity.this))
                             saveStatusMessage();
                     }
                     else

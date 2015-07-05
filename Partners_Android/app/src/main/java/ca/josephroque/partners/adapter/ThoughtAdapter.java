@@ -12,14 +12,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import ca.josephroque.partners.R;
+import ca.josephroque.partners.util.MessageUtil;
 
 /**
  * Created by Joseph Roque on 2015-06-22.
@@ -37,13 +36,6 @@ public class ThoughtAdapter
 
     /** Instance of callback interface. */
     private ThoughtAdapterCallback mCallback;
-
-    /** Formats a date to display in the current timezone. */
-    private DateFormat mDateFormat;
-    /** Formats a date to display as the time only in the current timezone. */
-    private DateFormat mTimeFormat;
-    /** The current locale. */
-    private Locale mCurrentLocale;
 
     /** List of unique identifiers for thoughts. */
     private List<String> mListThoughtIds;
@@ -67,11 +59,10 @@ public class ThoughtAdapter
      * @param listDateAndTime list of times thoughts were received
      * @param listSaved list of boolean indicating if a thought is saved locally
      * @param listSeen list of boolean indicating if a thought has been seen
-     * @param locale current locale
      */
     public ThoughtAdapter(ThoughtAdapterCallback callback, List<String> listIds,
                           List<String> listMessages, List<String> listDateAndTime,
-                          List<Boolean> listSaved, List<Boolean> listSeen, Locale locale)
+                          List<Boolean> listSaved, List<Boolean> listSeen)
     {
         this.mCallback = callback;
         this.mListThoughtIds = listIds;
@@ -80,10 +71,6 @@ public class ThoughtAdapter
         this.mListThoughtSaved = listSaved;
         this.mListThoughtSeen = listSeen;
         this.mMapViewAnimation = new HashMap<>();
-
-        mDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
-        mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
-        mCurrentLocale = locale;
     }
 
     @Override
@@ -97,7 +84,7 @@ public class ThoughtAdapter
     @Override
     public void onBindViewHolder(final ThoughtViewHolder viewHolder, final int position)
     {
-        Calendar calendar = Calendar.getInstance(mCurrentLocale);
+        Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());
         calendar.set(Calendar.HOUR, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -107,9 +94,9 @@ public class ThoughtAdapter
         Date thoughtDate = new Date(dateAndTime);
 
         if (thoughtDate.before(today))
-            viewHolder.mTextViewTime.setText(mTimeFormat.format(thoughtDate));
+            viewHolder.mTextViewTime.setText(MessageUtil.getDateFormat().format(thoughtDate));
         else
-            viewHolder.mTextViewTime.setText(mDateFormat.format(thoughtDate));
+            viewHolder.mTextViewTime.setText(MessageUtil.getTimeFormat().format(thoughtDate));
 
         if (mMapViewAnimation.containsKey(viewHolder.itemView))
         {
@@ -192,18 +179,6 @@ public class ThoughtAdapter
         });
         mMapViewAnimation.put(rootView, colorAnimation);
         colorAnimation.start();
-    }
-
-    /**
-     * Defines a new locale for dates.
-     *
-     * @param locale new locale
-     */
-    public void setLocale(Locale locale)
-    {
-        mDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
-        mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
-        mCurrentLocale = locale;
     }
 
     /**

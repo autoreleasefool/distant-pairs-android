@@ -1,5 +1,6 @@
 package ca.josephroque.partners.fragment;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,6 +20,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,6 +59,9 @@ public class ThoughtFragment
     /** Executes database operations in order. */
     private final ExecutorService mDatabaseExecutorService = Executors.newSingleThreadExecutor();
 
+    /** Instance of callback interface. */
+    private ThoughtFragmentCallbacks mCallback;
+
     /** List of unique identifiers for thoughts. */
     private List<String> mListThoughtIds;
     /** List of thoughts to display, relative to {@code mListThoughtIds}. */
@@ -80,6 +85,22 @@ public class ThoughtFragment
     }
 
     @Override
+    public void onAttach(Activity activity)
+    {
+        super.onAttach(activity);
+
+        try
+        {
+            mCallback = (ThoughtFragmentCallbacks) activity;
+        }
+        catch (ClassCastException ex)
+        {
+            throw new ClassCastException("activity must implement callback interface "
+                    + "ThoughtCallbackFragment");
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
@@ -93,9 +114,9 @@ public class ThoughtFragment
         mListThoughtSaved = new ArrayList<>();
         mListThoughtSeen = new ArrayList<>();
 
+        MessageUtil.setLocale(getResources().getConfiguration().locale);
         mRecyclerViewThoughtsAdapter = new ThoughtAdapter(this, mListThoughtIds, mListThoughts,
-                mListDateAndTime, mListThoughtSaved, mListThoughtSeen,
-                getResources().getConfiguration().locale);
+                mListDateAndTime, mListThoughtSaved, mListThoughtSeen);
 
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_thoughts);
         recyclerView.setHasFixedSize(true);
@@ -109,8 +130,15 @@ public class ThoughtFragment
     public void onResume()
     {
         super.onResume();
-        mRecyclerViewThoughtsAdapter.setLocale(getResources().getConfiguration().locale);
+        MessageUtil.setLocale(getResources().getConfiguration().locale);
         new PopulateMessagesTask().execute();
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        mCallback = null;
     }
 
     @Override
@@ -126,6 +154,25 @@ public class ThoughtFragment
         mListThoughts.add(0, message);
         mListThoughtSaved.add(0, false);
         mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
+
+        Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        Date today = calendar.getTime();
+
+        long thoughtTime = Long.parseLong(dateAndTime);
+        Date thoughtDate = new Date(thoughtTime);
+
+        if (mCallback != null)
+        {
+            if (thoughtDate.before(today))
+                mCallback.setMostRecentThought(message,
+                        MessageUtil.getDateFormat().format(thoughtDate));
+            else
+                mCallback.setMostRecentThought(message,
+                        MessageUtil.getTimeFormat().format(thoughtDate));
+        }
     }
 
     @Override
@@ -331,9 +378,31 @@ public class ThoughtFragment
             if (mListThoughtIds.size() == 0)
                 ErrorUtil.displayErrorSnackbar(
                         ((PartnerActivity) getActivity()).getCoordinatorLayout(),
-                        "No thoughts loaded");
+                        R.string.text_no_thoughts);
+                if (mCallback != null)
+                    mCallback.setMostRecentThought(
+                            getResources().getString(R.string.text_no_thoughts), null);
             else
+            {
                 mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
+                if (mCallback != null)
+                    mCallback.setMostRecentThought(mListThoughts.get(0), mListDateAndTime.get(0));
+            }
         }
+    }
+
+    /**
+     * Provides callback utilities from activity.
+     */
+    public interface ThoughtFragmentCallbacks
+    {
+
+        /**
+         * Should update the most recent thought wherever necessary.
+         *
+         * @param message thought contents
+         * @param timestamp time thought was sent
+         */
+        void setMostRecentThought(String message, String timestamp);
     }
 }

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 import android.view.View;
 
+import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import ca.josephroque.partners.R;
 
@@ -50,6 +52,13 @@ public final class MessageUtil
     public static final String MESSAGE_TYPE_ERROR = "ERR";
     /** If found at the start of a message, indicates the message can be sent to a partner. */
     public static final String MESSAGE_TYPE_VALID = "MSG";
+
+    /** Formats a date to display in the current timezone. */
+    private static DateFormat sDateFormat;
+    /** Formats a date to display as the time only in the current timezone. */
+    private static DateFormat sTimeFormat;
+    /** The current locale. */
+    private static Locale sCurrentLocale;
 
     /**
      * Default private constructor.
@@ -184,5 +193,49 @@ public final class MessageUtil
     {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(STATUS_SENT, false);
+    }
+
+    /**
+     * Defines a new locale for dates.
+     *
+     * @param locale new locale
+     */
+    public static void setLocale(Locale locale)
+    {
+        sDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
+        sTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale);
+        sCurrentLocale = locale;
+    }
+
+    /**
+     * Returns the currently set locale.
+     *
+     * @return sCurrentLocale
+     */
+    public static Locale getCurrentLocale()
+    {
+        return sCurrentLocale;
+    }
+
+    /**
+     * Gets a {@link DateFormat} object to format a {@link Date} object in the current timezone
+     * date.
+     *
+     * @return sDateFormat
+     */
+    public static DateFormat getDateFormat()
+    {
+        return sDateFormat;
+    }
+
+    /**
+     * Gets a {@link DateFormat} object to format a {@link Date} object in the current timezone
+     * time.
+     *
+     * @return sTimeFormat
+     */
+    public static DateFormat getTimeFormat()
+    {
+        return sTimeFormat;
     }
 }

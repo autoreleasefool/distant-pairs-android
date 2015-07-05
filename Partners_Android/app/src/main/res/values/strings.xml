@@ -22,6 +22,7 @@
     <string name="text_too_many_attemps">Too many attempts.</string>
     <string name="text_message_already_sent">Unable to send thought</string>
     <string name="text_message_already_sent_content">You should only send a single thought each time you open the app.</string>
+    <string name="text_no_thoughts">No thoughts received.</string>
 
     <!-- Events -->
     <string name="text_hint_username">Username</string>

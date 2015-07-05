@@ -43,8 +43,12 @@ public class HeartFragment
     /** Represents boolean indicating the partner's online status. */
     private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
 
+    /** View which display the most recent thought. */
+    private View mViewMostRecentThought;
     /** Displays most recent thought received. */
     private TextView mTextViewRecentThought;
+    /** Displays time that most recent thought was received. */
+    private TextView mTextViewRecentThoughTime;
     /** Image of active, full heart representing an online partner. */
     private ImageView mImageViewActiveHeart;
 
@@ -88,7 +92,8 @@ public class HeartFragment
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_heart, container, false);
 
-        mTextViewRecentThought = (TextView) rootView.findViewById(R.id.tv_thought_most_recent);
+        mTextViewRecentThought = (TextView) rootView.findViewById(R.id.tv_thought_message);
+        mTextViewRecentThoughTime = (TextView) rootView.findViewById(R.id.tv_thought_message_time);
         mImageViewActiveHeart = (ImageView) rootView.findViewById(R.id.iv_heart_active);
 
         if (savedInstanceState != null)
@@ -98,7 +103,8 @@ public class HeartFragment
                 ? View.VISIBLE
                 : View.INVISIBLE);
 
-        rootView.findViewById(R.id.cv_thought).setOnClickListener(new View.OnClickListener()
+        mViewMostRecentThought = rootView.findViewById(R.id.cv_thought);
+        mViewMostRecentThought.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -142,17 +148,19 @@ public class HeartFragment
                     heartFadeHideAnimation();
             }
         }
-        else
-        {
-            mTextViewRecentThought.post(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    mTextViewRecentThought.setText(message);
-                }
-            });
-        }
+    }
+
+    /**
+     * Sets text for the most recent thought.
+     *
+     * @param message thought content
+     * @param timestamp time thought was sent
+     */
+    public void setMostRecentThought(String message, String timestamp)
+    {
+        mViewMostRecentThought.setVisibility(View.VISIBLE);
+        mTextViewRecentThought.setText(message);
+        mTextViewRecentThoughTime.setText(timestamp);
     }
 
     /**
