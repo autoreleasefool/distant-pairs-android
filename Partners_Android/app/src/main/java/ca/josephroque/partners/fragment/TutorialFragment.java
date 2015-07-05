@@ -192,7 +192,7 @@ public class TutorialFragment
             Space emptySpace = new Space(getActivity().getApplicationContext());
             emptySpace.setId(R.id.space_tutorial);
             layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    getActivity().findViewById(R.id.rl_splash_toolbar).getHeight());
+                    getActivity().findViewById(R.id.ll_splash_toolbar).getHeight());
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
             rootView.addView(emptySpace, layoutParams);
 

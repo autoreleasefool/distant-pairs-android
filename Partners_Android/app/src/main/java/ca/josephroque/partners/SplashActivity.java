@@ -77,15 +77,6 @@ public class SplashActivity
             login(null);
         }
 
-        if (savedInstanceState == null)
-        {
-            // Fragment has not been created yet
-            RegisterFragment fragment = RegisterFragment.newInstance(true);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.login_container, fragment)
-                    .commit();
-        }
-
         setupViewPager();
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
