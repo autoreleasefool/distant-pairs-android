@@ -26,8 +26,10 @@ public final class MessageUtil
     public static final String ONLINE_STATUS = "status_online";
     /** Represents Parse object id for status object. */
     public static final String STATUS_OBJECT_ID = "status_object_id";
-    /** Represents a boolean indicating if a thought has been sent since the app was opened. */
+    /** Represents a boolean indicating if a thought has been sent since the app opened. */
     public static final String THOUGHT_SENT = "thought_sent";
+    /** Represents a boolean indicating if a status update has been sent since the app opened. */
+    public static final String STATUS_SENT = "status_sent";
 
     /** A login message. */
     public static final String LOGIN_MESSAGE = "~LOGIN";
@@ -155,5 +157,32 @@ public final class MessageUtil
     {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(THOUGHT_SENT, false);
+    }
+
+    /**
+     * Sets whether a status update was sent since the app was opened. Should be set to false each
+     * time the app opens.
+     *
+     * @param context to get shared preferences
+     * @param sent new value for {@code STATUS_SENT} in {@link android.content.SharedPreferences}
+     */
+    public static void setStatusSent(Context context, boolean sent)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(STATUS_SENT, sent)
+                .apply();
+    }
+
+    /**
+     * Returns true if a status update has been sent since the app was opened, false otherwise.
+     *
+     * @param context to get shared preferences
+     * @return true if a status update was sent, false otherwise
+     */
+    public static boolean wasStatusSent(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(STATUS_SENT, false);
     }
 }

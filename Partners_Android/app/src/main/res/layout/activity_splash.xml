@@ -11,7 +11,7 @@
         android:layout_height="match_parent" />
 
     <LinearLayout
-        android:id="@+id/rl_splash_toolbar"
+        android:id="@+id/ll_splash_toolbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

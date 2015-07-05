@@ -201,6 +201,7 @@ public class PartnerActivity
         super.onResume();
         setOnlineStatus(true);
         checkIfPartnerOnline();
+        checkForPartnerLogins();
     }
 
     @Override
@@ -393,8 +394,7 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context,
-     * AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
@@ -726,6 +726,17 @@ public class PartnerActivity
     }
 
     /**
+     * Sends a message to the server to indicate the user logged in.
+     */
+    private void saveStatusMessage()
+    {
+        MessageUtil.setStatusSent(PartnerActivity.this, true);
+        ParseObject status = new ParseObject("Login");
+        status.put(AccountUtil.USERNAME, mUsername);
+        status.saveInBackground();
+    }
+
+    /**
      * Displays error in {@link android.support.design.widget.Snackbar} when status object fails to
      * update.
      */
@@ -776,6 +787,8 @@ public class PartnerActivity
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtil.getCurrentDateAndTime(), MessageUtil.LOGIN_MESSAGE);
+                        if (!MessageUtil.wasThoughtSent(PartnerActivity.this))
+                            saveStatusMessage();
                     }
                     else
                     {
@@ -790,6 +803,55 @@ public class PartnerActivity
                 {
                     ErrorUtil.displayErrorSnackbar(mCoordinatorLayout,
                             R.string.text_cannot_find_pair);
+                }
+            }
+        });
+    }
+
+    /**
+     * Checks for status objects posted by the partner.
+     */
+    private void checkForPartnerLogins()
+    {
+        final String partnerName = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(AccountUtil.PAIR, null);
+        if (partnerName == null)
+            return;
+
+        ParseQuery<ParseObject> query = new ParseQuery<>("Login");
+        query.whereEqualTo(AccountUtil.USERNAME, partnerName);
+        query.findInBackground(new FindCallback<ParseObject>()
+        {
+            @Override
+            public void done(List<ParseObject> list, ParseException e)
+            {
+                if (e == null && list != null && list.size() > 0)
+                {
+                    DialogInterface.OnClickListener listener =
+                            new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    if (which == DialogInterface.BUTTON_POSITIVE)
+                                        showFragment(THOUGHT_FRAGMENT);
+                                    dialog.dismiss();
+                                }
+                            };
+
+                    String s = (list.size() > 1)
+                            ? "s"
+                            : "";
+
+                    new AlertDialog.Builder(PartnerActivity.this)
+                            .setTitle(R.string.text_partner_logged_in)
+                            .setMessage(partnerName + " has visited " + list.size() + " time"
+                                    + s + " since your last visit. Click below to see if they've "
+                                    + "left you any messages.")
+                            .setPositiveButton(R.string.text_dialog_thoughts, listener)
+                            .setNegativeButton(R.string.text_dialog_later, listener)
+                            .create()
+                            .show();
                 }
             }
         });

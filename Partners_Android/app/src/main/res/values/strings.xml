@@ -41,6 +41,7 @@
     <string name="text_delete_thought">If you delete the following thought, it cannot be recovered. Are you sure?</string>
     <string name="text_offline">Pair offline</string>
     <string name="text_online">Pair online</string>
+    <string name="text_partner_logged_in">Someone was thinking of you</string>
 
     <!-- Dialog text -->
     <string name="text_dialog_okay">Okay</string>
@@ -50,6 +51,8 @@
     <string name="text_dialog_send">Send</string>
     <string name="text_try_again">Try again</string>
     <string name="text_resend">Resend</string>
+    <string name="text_dialog_thoughts">Thoughts</string>
+    <string name="text_dialog_later">Later</string>
 
     <!-- Content descriptions -->
     <string name="text_content_description_heart_active">Your pair is online</string>

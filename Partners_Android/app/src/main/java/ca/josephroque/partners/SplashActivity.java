@@ -10,7 +10,6 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.ParseException;
@@ -48,7 +47,7 @@ public class SplashActivity
     /** View pager for content fragments. */
     private ViewPager mViewPagerContent;
     /** Toolbar associated with view pager. */
-    private RelativeLayout mRelativeLayoutToolbar;
+    private LinearLayout mLinearLayoutToolbar;
 
     /** Intent to initiate instance of {@link PartnerActivity}. */
     private Intent mIntentPartnerActivity;
@@ -63,6 +62,7 @@ public class SplashActivity
         setContentView(R.layout.activity_splash);
 
         MessageUtil.setThoughtSent(this, false);
+        MessageUtil.setStatusSent(this, false);
 
         mIntentPartnerActivity = new Intent(SplashActivity.this, PartnerActivity.class);
 
@@ -115,7 +115,7 @@ public class SplashActivity
         mTextViewProgress.setText(message);
         mLinearLayoutProgress.setVisibility(View.VISIBLE);
         mViewPagerContent.setVisibility(View.INVISIBLE);
-        mRelativeLayoutToolbar.setVisibility(View.INVISIBLE);
+        mLinearLayoutToolbar.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class SplashActivity
         mLinearLayoutProgress.setVisibility(View.GONE);
         mViewPagerContent.setVisibility(View.VISIBLE);
         if (mViewPagerContent.getCurrentItem() < TutorialFragment.TUTORIAL_PAGES - 1)
-            mRelativeLayoutToolbar.setVisibility(View.VISIBLE);
+            mLinearLayoutToolbar.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -135,13 +135,14 @@ public class SplashActivity
         mViewPagerContent = (ViewPager) findViewById(R.id.splash_view_pager);
         final SplashPagerAdapter adapter = new SplashPagerAdapter(getSupportFragmentManager());
         mViewPagerContent.setAdapter(adapter);
+        mLinearLayoutToolbar = (LinearLayout) findViewById(R.id.ll_splash_toolbar);
 
         final View[] positionIndicator = new View[TutorialFragment.TUTORIAL_PAGES + 1];
         for (int i = 0; i < positionIndicator.length; i++)
         {
             final int viewId = getResources().getIdentifier("view_indicator_" + i, "id",
                     PartnersApplication.getSimplePackageName());
-            positionIndicator[i] = mRelativeLayoutToolbar.findViewById(viewId);
+            positionIndicator[i] = mLinearLayoutToolbar.findViewById(viewId);
             positionIndicator[i].setAlpha(INDICATOR_INACTIVE);
         }
 
@@ -151,9 +152,9 @@ public class SplashActivity
             public void onPageSelected(int position)
             {
                 if (position == TutorialFragment.TUTORIAL_PAGES)
-                    mRelativeLayoutToolbar.setVisibility(View.INVISIBLE);
+                    mLinearLayoutToolbar.setVisibility(View.INVISIBLE);
                 else
-                    mRelativeLayoutToolbar.setVisibility(View.VISIBLE);
+                    mLinearLayoutToolbar.setVisibility(View.VISIBLE);
 
                 //Changes which page indicator is 'highlighted'
                 positionIndicator[mCurrentTutorialPage].setAlpha(INDICATOR_INACTIVE);
