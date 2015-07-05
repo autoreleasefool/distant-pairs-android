@@ -276,10 +276,15 @@ public class HeartFragment
      */
     private void startPulseAnimation()
     {
-        mHeartPulseGrowAnimation = new ScaleAnimation(1f, 1.1f, 1f, 1.1f,
-                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        final float sizeToPulse = 1.1f;
+        final float centerPivot = 0.5f;
+        final int pulseOffset = 1000;
+        final int pulseDuration = 200;
+
+        mHeartPulseGrowAnimation = new ScaleAnimation(1f, sizeToPulse, 1f, sizeToPulse,
+                Animation.RELATIVE_TO_SELF, centerPivot, Animation.RELATIVE_TO_SELF, centerPivot);
         mHeartPulseGrowAnimation.setInterpolator(new OvershootInterpolator());
-        mHeartPulseGrowAnimation.setDuration(200);
+        mHeartPulseGrowAnimation.setDuration(pulseDuration);
         mHeartPulseGrowAnimation.setAnimationListener(new Animation.AnimationListener()
         {
             @Override
@@ -301,10 +306,10 @@ public class HeartFragment
             }
         });
 
-        mHeartPulseShrinkAnimation = new ScaleAnimation(1.1f, 1f, 1.1f, 1f,
-                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        mHeartPulseShrinkAnimation = new ScaleAnimation(sizeToPulse, 1f, sizeToPulse, 1f,
+                Animation.RELATIVE_TO_SELF, centerPivot, Animation.RELATIVE_TO_SELF, centerPivot);
         mHeartPulseShrinkAnimation.setInterpolator(new LinearInterpolator());
-        mHeartPulseShrinkAnimation.setDuration(200);
+        mHeartPulseShrinkAnimation.setDuration(pulseDuration);
         mHeartPulseShrinkAnimation.setAnimationListener(new Animation.AnimationListener()
         {
             @Override
@@ -317,9 +322,9 @@ public class HeartFragment
             public void onAnimationEnd(Animation animation)
             {
                 if (mAnimationCount % 2 == 0)
-                    mHandlerPulse.postDelayed(mPulseAnimation, 200);
+                    mHandlerPulse.postDelayed(mPulseAnimation, pulseDuration);
                 else
-                    mHandlerPulse.postDelayed(mPulseAnimation, 1000);
+                    mHandlerPulse.postDelayed(mPulseAnimation, pulseOffset);
                 mAnimationCount++;
             }
 
@@ -331,7 +336,7 @@ public class HeartFragment
         });
 
         mHandlerPulse = new PulseHandler(Looper.getMainLooper());
-        mHandlerPulse.postDelayed(mPulseAnimation, 1000);
+        mHandlerPulse.postDelayed(mPulseAnimation, pulseOffset);
     }
 
     /**
