@@ -2,7 +2,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:ignore="RtlHardcoded,RtlSymmetry">
 
     <android.support.v7.widget.CardView
         android:id="@+id/cl_thought_content"
@@ -22,35 +23,41 @@
                 android:id="@+id/iv_thought_heart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
+                android:layout_gravity="left"
                 android:paddingBottom="@dimen/thought_vertical_padding"
                 android:paddingLeft="@dimen/thought_horizontal_padding"
-                android:paddingRight="@dimen/thought_horizontal_padding"
                 android:paddingTop="@dimen/thought_vertical_padding"
                 android:src="@drawable/ic_heart_med"
                 tools:ignore="ContentDescription" />
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/iv_thought_heart"
-                android:layout_toRightOf="@id/iv_thought_heart"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/tv_thought_time"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="start"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:gravity="right"
+                    android:paddingRight="@dimen/thought_horizontal_padding"
+                    android:paddingTop="@dimen/thought_vertical_padding"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <TextView
                     android:id="@+id/tv_thought_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="start" />
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@id/tv_thought_time"
+                    android:gravity="left"
+                    android:paddingBottom="@dimen/thought_vertical_padding"
+                    android:paddingLeft="@dimen/list_left_padding"
+                    android:paddingRight="@dimen/thought_time_padding" />
 
-            </LinearLayout>
+            </RelativeLayout>
 
         </RelativeLayout>
 
