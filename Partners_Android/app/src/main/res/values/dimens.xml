@@ -9,11 +9,14 @@
     <dimen name="thought_delete_horizontal_padding">8dp</dimen>
     <dimen name="thought_delete_vertical_padding">8dp</dimen>
 
+    <dimen name="tutorial_top_margin">64dp</dimen>
+
     <dimen name="most_recent_thought_padding">8dp</dimen>
 
     <dimen name="list_left_padding">72dp</dimen>
 
     <dimen name="login_width">280dp</dimen>
+    <dimen name="register_icon_padding">8dp</dimen>
 
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="rv_fab_clearance">88dp</dimen>

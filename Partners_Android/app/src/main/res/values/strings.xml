@@ -7,10 +7,14 @@
     <string name="action_delete_account">Delete account</string>
 
     <!-- Tutorials -->
-    <string name="text_tutorial_register">First, you and your partner choose a username each.</string>
+    <string name="text_tutorial_register">First, you and your partner each choose a username.</string>
     <string name="text_tutorial_register_pair">Next, you\'ll register your partner\'s name as your pair. You can only have one!</string>
-    <string name="text_tutorial_login">When you open the app, you\'ll be able to see if your partner is online and they\'ll see you.</string>
+    <string name="text_tutorial_login">When you open the app, you\'ll be able to see if your pair is online and they\'ll see you.</string>
     <string name="text_tutorial_thought">If they aren\'t, you can leave them a message and let them know what made you think of them.</string>
+    <string name="text_default_thought">I found something I think you\'ll like while I was shopping today! :)</string>
+    <string name="text_default_thought_time">7:08 pm</string>
+    <string name="text_choose_username">Now, choose a username below.</string>
+
 
     <!-- Errors -->
     <string name="text_cannot_find_pair">Unable to find your pair.</string>

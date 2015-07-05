@@ -3,6 +3,5 @@
     <!-- IDs for FeatureFragment views -->
     <item name="tv_tutorial" type="id" />
     <item name="iv_tutorial" type="id" />
-    <item name="space_tutorial" type="id" />
 
 </resources>

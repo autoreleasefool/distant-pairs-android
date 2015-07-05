@@ -136,6 +136,7 @@ public class SplashActivity
             positionIndicator[i] = mLinearLayoutToolbar.findViewById(viewId);
             positionIndicator[i].setAlpha(INDICATOR_INACTIVE);
         }
+        positionIndicator[0].setAlpha(INDICATOR_ACTIVE);
 
         mViewPagerContent.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
         {

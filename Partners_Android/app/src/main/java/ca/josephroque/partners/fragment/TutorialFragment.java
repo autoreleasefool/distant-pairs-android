@@ -1,10 +1,7 @@
 package ca.josephroque.partners.fragment;
 
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
@@ -12,9 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.Space;
 import android.widget.TextView;
 
 import ca.josephroque.partners.R;
@@ -32,7 +27,7 @@ public class TutorialFragment
 
     /** Tutorial page for registering. */
     private static final int TUTORIAL_REGISTER = 0;
-    /** Tutorial page for registering a pair. */
+    /** Tutorial page for registering pair. */
     private static final int TUTORIAL_REGISTER_PAIR = 1;
     /** Tutorial page for logging in. */
     private static final int TUTORIAL_LOG_IN = 2;
@@ -88,9 +83,6 @@ public class TutorialFragment
                 : savedInstanceState;
         mTutorialPage = args.getInt(ARG_PAGE);
 
-        setupTutorialPageAndText();
-        setTutorialLayout(rootView);
-
         return rootView;
     }
 
@@ -99,6 +91,7 @@ public class TutorialFragment
     {
         super.onResume();
 
+        setupTutorialPageAndText((RelativeLayout) getView());
         if (isVisible() && mTutorialPage == 0)
             startAnimation();
     }
@@ -112,8 +105,10 @@ public class TutorialFragment
 
     /**
      * Initializes the text and image objects for the tutorial.
+     *
+     * @param rootView root to attach views to
      */
-    private void setupTutorialPageAndText()
+    private void setupTutorialPageAndText(RelativeLayout rootView)
     {
         final int dp16 = DisplayUtil.convertDpToPx(getActivity(), 16);
 
@@ -124,45 +119,31 @@ public class TutorialFragment
         mTextViewTutorial.setTextAppearance(getActivity().getApplicationContext(),
                 android.R.style.TextAppearance_Large);
 
-        EditText editText;
-        Drawable[] drawables;
-
         switch (mTutorialPage)
         {
             case TUTORIAL_REGISTER:
                 mTextViewTutorial.setText(R.string.text_tutorial_register);
-                mViewTutorial = View.inflate(getActivity().getApplicationContext(),
-                        R.layout.tutorial_register, null);
-                editText = (EditText) mViewTutorial.findViewById(R.id.et_username);
-                drawables = editText.getCompoundDrawables();
-                drawables[0].setColorFilter(getResources().getColor(R.color.person_filter),
-                        PorterDuff.Mode.MULTIPLY);
+                setTutorialLayout(rootView);
                 break;
             case TUTORIAL_REGISTER_PAIR:
                 mTextViewTutorial.setText(R.string.text_tutorial_register_pair);
-                mViewTutorial = View.inflate(getActivity().getApplicationContext(),
-                        R.layout.tutorial_register_pair, null);
-                editText = (EditText) mViewTutorial.findViewById(R.id.et_username);
-                drawables = editText.getCompoundDrawables();
-                drawables[0].setColorFilter(getResources().getColor(R.color.pair_filter),
-                        PorterDuff.Mode.MULTIPLY);
+                setTutorialLayout(rootView);
                 break;
             case TUTORIAL_LOG_IN:
                 mTextViewTutorial.setText(R.string.text_tutorial_login);
                 mViewTutorial = View.inflate(getActivity().getApplicationContext(),
                         R.layout.tutorial_login, null);
+                setTutorialLayout(rootView);
                 break;
             case TUTORIAL_THOUGHT:
                 mTextViewTutorial.setText(R.string.text_tutorial_thought);
                 mViewTutorial = View.inflate(getActivity().getApplicationContext(),
                         R.layout.tutorial_thought, null);
+                setTutorialLayout(rootView);
                 break;
             default:
                 throw new IllegalStateException("invalid tutorial page: " + mTutorialPage);
         }
-
-        mViewTutorial.setVisibility(View.INVISIBLE);
-        mTextViewTutorial.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -175,36 +156,29 @@ public class TutorialFragment
         RelativeLayout.LayoutParams layoutParams;
         rootView.removeAllViews();
 
-        if (mTutorialPage % 2 == 0)
+        final int dp16 = DisplayUtil.convertDpToPx(getActivity(), 16);
+
+        mTextViewTutorial.setVisibility(View.INVISIBLE);
+        if (mViewTutorial != null)
         {
+            mViewTutorial.setVisibility(View.INVISIBLE);
             layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            rootView.addView(mTextViewTutorial, layoutParams);
+            layoutParams.setMargins(dp16, dp16, dp16, dp16);
+            layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+            rootView.addView(mViewTutorial, layoutParams);
 
             layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.addRule(RelativeLayout.BELOW, R.id.tv_tutorial);
-            rootView.addView(mViewTutorial, layoutParams);
+            layoutParams.addRule(RelativeLayout.ABOVE, R.id.tutorial_content);
+            rootView.addView(mTextViewTutorial, layoutParams);
         }
         else
         {
-            Space emptySpace = new Space(getActivity().getApplicationContext());
-            emptySpace.setId(R.id.space_tutorial);
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    getActivity().findViewById(R.id.ll_splash_toolbar).getHeight());
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            rootView.addView(emptySpace, layoutParams);
-
             layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.addRule(RelativeLayout.ABOVE, R.id.space_tutorial);
+            layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
             rootView.addView(mTextViewTutorial, layoutParams);
-
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.addRule(RelativeLayout.ABOVE, R.id.tv_tutorial);
-            rootView.addView(mViewTutorial, layoutParams);
         }
     }
 
@@ -230,21 +204,19 @@ public class TutorialFragment
                     @Override
                     public void onAnimationEnd(Animator animation)
                     {
-                        boolean topToBottom = mTutorialPage % 2 == 0;
-                        mViewTutorial.setAlpha(0f);
-                        mViewTutorial.setVisibility(View.VISIBLE);
-                        mViewTutorial.setY(mViewTutorial.getY()
-                                + ANIMATION_POSITION_OFFSET * ((topToBottom)
-                                ? 1
-                                : -1));
-                        mViewTutorial.animate()
-                                .alpha(1f)
-                                .yBy(ANIMATION_POSITION_OFFSET * ((topToBottom)
-                                        ? -1
-                                        : 1))
-                                .setDuration(duration)
-                                .setInterpolator(new DecelerateInterpolator())
-                                .start();
+                        if (mViewTutorial != null)
+                        {
+                            mViewTutorial.setAlpha(0f);
+                            mViewTutorial.setVisibility(View.VISIBLE);
+                            mViewTutorial.setY(mViewTutorial.getY()
+                                    + ANIMATION_POSITION_OFFSET);
+                            mViewTutorial.animate()
+                                    .alpha(1f)
+                                    .yBy(-ANIMATION_POSITION_OFFSET)
+                                    .setDuration(duration)
+                                    .setInterpolator(new DecelerateInterpolator())
+                                    .start();
+                        }
                     }
                 })
                 .start();

@@ -3,10 +3,7 @@ package ca.josephroque.partners.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputLayout;
@@ -105,6 +102,7 @@ public class RegisterFragment
         {
             mButtonRegister.setText(R.string.text_register);
             mButtonPairCheck.setVisibility(View.GONE);
+            rootView.findViewById(R.id.tv_login_prompt).setVisibility(View.VISIBLE);
         }
         else
         {
@@ -230,33 +228,10 @@ public class RegisterFragment
             }
         });
 
-        final int drawableId;
-        final int filterId;
-
         if (mRegisterOrPair)
-        {
-            drawableId = R.drawable.ic_person;
-            filterId = R.color.person_filter;
-        }
+            mEditTextUsername.setHint(R.string.text_hint_username);
         else
-        {
-            drawableId = R.drawable.ic_pair;
-            filterId = R.color.pair_filter;
             mEditTextUsername.setHint(R.string.text_hint_pair);
-        }
-
-        final Drawable editTextDrawable;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            editTextDrawable = getResources().getDrawable(drawableId, null);
-        else
-            editTextDrawable = getResources().getDrawable(drawableId);
-
-        if (editTextDrawable != null)
-            editTextDrawable.setColorFilter(getResources().getColor(filterId),
-                    PorterDuff.Mode.MULTIPLY);
-
-        mEditTextUsername.setCompoundDrawablesWithIntrinsicBounds(editTextDrawable, null, null,
-                null);
     }
 
     /**
