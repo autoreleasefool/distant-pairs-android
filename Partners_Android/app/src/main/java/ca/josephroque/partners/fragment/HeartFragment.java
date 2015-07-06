@@ -356,6 +356,9 @@ public class HeartFragment
      */
     private void stopPulseAnimation()
     {
+        mHandlerPulse.removeCallbacks(mPulseAnimation);
+        mHeartPulseGrowAnimation.cancel();
+        mHeartPulseShrinkAnimation.cancel();
     }
 
     /**
