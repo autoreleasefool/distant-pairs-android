@@ -189,7 +189,8 @@ public class ThoughtFragment
 
     @Override
     public void setThoughtSavedToDatabase(final String id, final String message, final String time,
-                                          final boolean save)
+                                          final boolean save,
+                                          final ThoughtAdapter.ThoughtDatabaseCallback callback)
     {
         mDatabaseExecutorService.submit(new Runnable()
         {
@@ -198,8 +199,12 @@ public class ThoughtFragment
             {
                 DBHelper helper = DBHelper.getInstance(getActivity());
                 if (save)
+                {
                     helper.saveThoughtToDatabase(id, message, time);
+                    callback.onThoughtSavedToDatabase();
+                }
                 else
+                {
                     helper.promptDeleteThoughtFromDatabase(getActivity(), id, message,
                             new DBHelper.DBDeleteCallback()
                             {
@@ -213,18 +218,11 @@ public class ThoughtFragment
                                         mListThoughts.remove(indexToDelete);
                                         mListDateAndTime.remove(indexToDelete);
                                         mListThoughtSaved.remove(indexToDelete);
-                                        getActivity().runOnUiThread(new Runnable()
-                                        {
-                                            @Override
-                                            public void run()
-                                            {
-                                                mRecyclerViewThoughtsAdapter
-                                                        .notifyItemRemoved(indexToDelete);
-                                            }
-                                        });
+                                        callback.onThoughtDeletedFromDatabase();
                                     }
                                 }
                             });
+                }
             }
         });
     }

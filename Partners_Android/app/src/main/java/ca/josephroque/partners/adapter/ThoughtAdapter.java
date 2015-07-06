@@ -179,10 +179,23 @@ public class ThoughtAdapter
             throw new IllegalStateException("thought view tag must be position");
         }
 
-        mListThoughtSaved.set(position, !mListThoughtSaved.get(position));
         mCallback.setThoughtSavedToDatabase(mListThoughtIds.get(position),
                 mListThoughts.get(position), mListDateAndTime.get(position),
-                mListThoughtSaved.get(position));
+                mListThoughtSaved.get(position), new ThoughtDatabaseCallback()
+                {
+                    @Override
+                    public void onThoughtDeletedFromDatabase()
+                    {
+                        notifyItemRemoved(position + 1);
+                    }
+
+                    @Override
+                    public void onThoughtSavedToDatabase()
+                    {
+                        notifyItemChanged(position + 1);
+                        mListThoughtSaved.set(position, true);
+                    }
+                });
 
         // Offset to account for header
         notifyItemChanged(position + 1);
@@ -249,9 +262,11 @@ public class ThoughtAdapter
          * @param id unique id of thought
          * @param message thought to save or remove
          * @param time time thought was received
-         * @param save if true, thought should be saved. Otherwise, it should be removed.
+         * @param save if true, thought should be saved. Otherwise, it should be removed
+         * @param callback invoked if thought is deleted from or saved to the database
          */
-        void setThoughtSavedToDatabase(String id, String message, String time, boolean save);
+        void setThoughtSavedToDatabase(String id, String message, String time, boolean save,
+                                       ThoughtDatabaseCallback callback);
 
         /**
          * Requests a color from the callback interface by id.
@@ -265,5 +280,22 @@ public class ThoughtAdapter
          * Invoked when the list header item is clicked.
          */
         void openSettings();
+    }
+
+    /**
+     * Offers callback methods for when thoughts interact with the database.
+     */
+    public interface ThoughtDatabaseCallback
+    {
+
+        /**
+         * Invoked when a thought is deleted from the database.
+         */
+        void onThoughtDeletedFromDatabase();
+
+        /**
+         * Invoked when a thought is saved to the database.
+         */
+        void onThoughtSavedToDatabase();
     }
 }
