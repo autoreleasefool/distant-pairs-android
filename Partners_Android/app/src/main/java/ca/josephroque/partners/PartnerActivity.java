@@ -260,6 +260,7 @@ public class PartnerActivity
         mUsername = preferences.getString(AccountUtil.USERNAME, null);
         mIsPairRegistered = true;
         mPagerAdapter.notifyDataSetChanged();
+        checkIfPartnerOnline();
         setOnlineStatus(true);
         updateFloatingActionButton();
     }

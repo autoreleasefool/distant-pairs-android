@@ -144,6 +144,7 @@ public class ThoughtAdapter
         {
             viewHolder.mTextViewThought.setText(R.string.text_partner_logged_in);
             viewHolder.mImageViewThought.setVisibility(View.GONE);
+            viewHolder.mImageViewThought.setOnClickListener(null);
         }
         else
         {
