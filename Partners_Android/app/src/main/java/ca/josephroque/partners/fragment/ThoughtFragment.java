@@ -131,6 +131,9 @@ public class ThoughtFragment
     public void onResume()
     {
         super.onResume();
+        if (getActivity() == null)
+            return;
+
         MessageUtils.setLocale(getResources().getConfiguration().locale);
         new PopulateMessagesTask().execute();
     }
@@ -241,7 +244,8 @@ public class ThoughtFragment
     {
 
         /**
-         * Indicates if a message with the content {@link ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} was found.
+         * Indicates if a message with the content {@link
+         * ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} was found.
          */
         private boolean mVisitedMessageFound = false;
 
@@ -456,7 +460,8 @@ public class ThoughtFragment
         void setMostRecentThought(String message, String timestamp);
 
         /**
-         * Invoked if a message with the content {@link ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} is found.
+         * Invoked if a message with the content {@link
+         * ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} is found.
          */
         void notifyOfLogins();
     }
