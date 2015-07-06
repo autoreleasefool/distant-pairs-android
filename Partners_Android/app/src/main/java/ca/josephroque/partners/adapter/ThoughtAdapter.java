@@ -1,10 +1,8 @@
 package ca.josephroque.partners.adapter;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.graphics.PorterDuff;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,7 +104,13 @@ public class ThoughtAdapter
         if (mListThoughtSeen.get(position))
         {
             mListThoughtSeen.set(position, true);
-            startNewThoughtAnimation(viewHolder.itemView);
+            ((CardView) (viewHolder.itemView.findViewById(R.id.cl_thought_content)))
+                    .setCardBackgroundColor(mCallback.getColor(R.color.thought_unread));
+        }
+        else
+        {
+            ((CardView) (viewHolder.itemView.findViewById(R.id.cl_thought_content)))
+                    .setCardBackgroundColor(mCallback.getColor(R.color.primary_color_light));
         }
 
         viewHolder.mTextViewThought.setText(mListThoughts.get(position));
@@ -150,35 +154,6 @@ public class ThoughtAdapter
     {
         super.onDetachedFromRecyclerView(recyclerView);
         mCallback = null;
-    }
-
-    /**
-     * Starts a short pulsing animation for new thoughts.
-     *
-     * @param rootView view to animate
-     */
-    private void startNewThoughtAnimation(final View rootView)
-    {
-        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-                mCallback.getColor(R.color.primary_color_light),
-                mCallback.getColor(R.color.thought_unread));
-        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-        {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation)
-            {
-                rootView.setBackgroundColor((Integer) animation.getAnimatedValue());
-            }
-        });
-        colorAnimation.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation)
-            {
-                mMapViewAnimation.remove(rootView);
-            }
-        });
-        mMapViewAnimation.put(rootView, colorAnimation);
-        colorAnimation.start();
     }
 
     /**

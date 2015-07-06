@@ -256,6 +256,11 @@ public class ThoughtFragment
             getDatabaseThoughts(thoughtMap, savedSeenMap);
             getParseThoughts(preferences, thoughtMap, savedSeenMap);
 
+            mListThoughts.clear();
+            mListThoughtIds.clear();
+            mListThoughts.clear();
+            mListThoughtSaved.clear();
+            mListThoughtSeen.clear();
             for (Map.Entry<String, Pair<String, String>> entry : thoughtMap.entrySet())
             {
                 mListDateAndTime.add(entry.getKey());

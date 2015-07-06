@@ -10,7 +10,7 @@
     <!-- ThoughtFragment colors -->
     <color name="thought_not_saved">#dddddd</color>
     <color name="thought_saved">#bb0000</color>
-    <color name="thought_unread">#797979</color>
+    <color name="thought_unread">#676767</color>
 
     <!-- Color filters -->
     <color name="pair_filter">#fdeb99</color>

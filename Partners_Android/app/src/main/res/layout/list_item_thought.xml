@@ -26,38 +26,37 @@
                 android:layout_gravity="left"
                 android:paddingBottom="@dimen/thought_vertical_padding"
                 android:paddingLeft="@dimen/thought_horizontal_padding"
+                android:paddingRight="@dimen/thought_horizontal_padding"
                 android:paddingTop="@dimen/thought_vertical_padding"
                 android:src="@drawable/ic_heart_med"
                 tools:ignore="ContentDescription" />
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/tv_thought_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:gravity="right"
-                    android:paddingRight="@dimen/thought_horizontal_padding"
-                    android:paddingTop="@dimen/thought_vertical_padding"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/iv_thought_heart"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/thought_vertical_padding"
+                android:paddingTop="@dimen/thought_vertical_padding">
 
                 <TextView
                     android:id="@+id/tv_thought_message"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_toLeftOf="@id/tv_thought_time"
+                    android:layout_weight="1"
                     android:gravity="left"
-                    android:paddingBottom="@dimen/thought_vertical_padding"
-                    android:paddingLeft="@dimen/list_left_padding"
                     android:paddingRight="@dimen/thought_time_padding" />
 
-            </RelativeLayout>
+                <TextView
+                    android:id="@+id/tv_thought_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:paddingRight="@dimen/thought_horizontal_padding"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 

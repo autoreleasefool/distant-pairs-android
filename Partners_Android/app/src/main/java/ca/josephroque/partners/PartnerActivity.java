@@ -874,6 +874,9 @@ public class PartnerActivity
      */
     private void displayThoughPrompt()
     {
+        if (MessageUtil.wasThoughtSent(this))
+            return;
+
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
             @Override
