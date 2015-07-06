@@ -13,28 +13,24 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.database.DBHelper;
 
 /**
- * Created by Joseph Roque on 2015-06-16.
- *
- * Classes and methods for creating and managing an account.
+ * Created by Joseph Roque on 2015-06-16. Classes and methods for creating and managing an account.
  */
 @SuppressWarnings({"Convert2Lambda", "Convert2streamapi"})
-public final class AccountUtil
+public final class AccountUtils
 {
 
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
-    private static final String TAG = "AccountUtil";
+    private static final String TAG = "AccountUtils";
 
     /** Represents successful account related operation. */
     public static final int SUCCESS = 0;
@@ -66,7 +62,7 @@ public final class AccountUtil
     /**
      * Default private constructor.
      */
-    private AccountUtil()
+    private AccountUtils()
     {
         // does nothing
     }
@@ -193,7 +189,7 @@ public final class AccountUtil
                         .remove(PASSWORD)
                         .remove(PAIR)
                         .remove(PARSE_USER_ID)
-                        .remove(MessageUtil.STATUS_OBJECT_ID)
+                        .remove(MessageUtils.STATUS_OBJECT_ID)
                         .apply();
 
                 deleteAccountObjects(username);
@@ -220,7 +216,7 @@ public final class AccountUtil
                 new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
 
         ParseQuery<ParseObject> statusQuery = ParseQuery.getQuery("Status")
-                .whereEqualTo(AccountUtil.USERNAME, username);
+                .whereEqualTo(AccountUtils.USERNAME, username);
 
         ParseQuery<ParseObject> thoughtQuery = ParseQuery.or(Arrays.asList(
                 new ParseQuery<>("Thought").whereEqualTo("recipientName", username),

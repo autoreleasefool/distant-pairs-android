@@ -12,13 +12,15 @@ import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.TutorialFragment;
 
 /**
- * Created by Joseph Roque on 2015-07-03.
- *
- * Manages fragments in a view pager.
+ * Created by Joseph Roque on 2015-07-03. Manages fragments in a view pager.
  */
 public class SplashPagerAdapter
         extends FragmentStatePagerAdapter
 {
+
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "SplashPagerAdapter";
 
     /** Keeps weak references to fragments in the view pager. */
     private SparseArray<WeakReference<Fragment>> mRegisteredFragments;

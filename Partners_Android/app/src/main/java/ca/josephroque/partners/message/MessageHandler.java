@@ -1,9 +1,7 @@
 package ca.josephroque.partners.message;
 
 /**
- * Created by Joseph Roque on 2015-06-21.
- *
- * Provides methods for fragments to handle new messages.
+ * Created by Joseph Roque on 2015-06-21. Provides methods for fragments to handle new messages.
  */
 public interface MessageHandler
 {

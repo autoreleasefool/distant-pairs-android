@@ -11,16 +11,14 @@ import java.util.Locale;
 import ca.josephroque.partners.R;
 
 /**
- * Created by Joseph Roque on 2015-06-18.
- *
- * Methods and constants related to identifying messages.
+ * Created by Joseph Roque on 2015-06-18. Methods and constants related to identifying messages.
  */
-public final class MessageUtil
+public final class MessageUtils
 {
 
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
-    private static final String TAG = "MessageUtil";
+    private static final String TAG = "MessageUtils";
 
     /** Parse object identifier for user's online status. */
     public static final String STATUS = "Status";
@@ -47,7 +45,8 @@ public final class MessageUtil
     /** Number of characters at the start of a message which indicate its type. */
     public static final int MESSAGE_TYPE_RESERVED_LENGTH = 4;
     /** Regular expression for a valid message. */
-    public static final String REGEX_VALID_MESSAGE = "^[A-Za-z0-9 \\r\\n@£$¥èéùìòÇØøÅå\u0394_\u03A6\u0393\u039B\u03A9\u03A0\u03A8\u03A3\u0398\u039EÆæßÉ!\"#$%&amp;'()*+,\\-./:;&lt;=&gt;?¡ÄÖÑÜ§¿äöñüà^{}\\\\\\[~\\]|\u20AC]*$";
+    public static final String REGEX_VALID_MESSAGE
+            = "^[A-Za-z0-9 \\r\\n@£$¥èéùìòÇØøÅå\u0394_\u03A6\u0393\u039B\u03A9\u03A0\u03A8\u03A3\u0398\u039EÆæßÉ!\"#$%&amp;'()*+,\\-./:;&lt;=&gt;?¡ÄÖÑÜ§¿äöñüà^{}\\\\\\[~\\]|\u20AC]*$";
 
 
     /** If found at the start of a message, indicates the message describes an error. */
@@ -65,7 +64,7 @@ public final class MessageUtil
     /**
      * Default private constructor.
      */
-    private MessageUtil()
+    private MessageUtils()
     {
         // does nothing
     }
@@ -134,12 +133,12 @@ public final class MessageUtil
 
         if (errorId == R.string.text_message_too_long)
         {
-            ErrorUtil.displayErrorSnackbar(rootView, "Message length over limit: "
-                    + message.length() + "/" + MessageUtil.MAX_MESSAGE_LENGTH);
+            ErrorUtils.displayErrorSnackbar(rootView, "Message length over limit: "
+                    + message.length() + "/" + MessageUtils.MAX_MESSAGE_LENGTH);
         }
         else
         {
-            ErrorUtil.displayErrorSnackbar(rootView,
+            ErrorUtils.displayErrorSnackbar(rootView,
                     rootView.getContext().getResources().getString(errorId));
         }
     }

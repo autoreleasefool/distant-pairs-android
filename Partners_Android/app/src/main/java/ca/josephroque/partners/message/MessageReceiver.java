@@ -8,12 +8,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ca.josephroque.partners.util.MessageUtil;
+import ca.josephroque.partners.util.MessageUtils;
 
 /**
- * Created by Joseph Roque on 2015-06-30.
- *
- * Handles push notifications from GCM.
+ * Created by Joseph Roque on 2015-06-30. Handles push notifications from GCM.
  */
 public class MessageReceiver
         extends BroadcastReceiver
@@ -29,13 +27,12 @@ public class MessageReceiver
         String jsonData = intent.getStringExtra("com.parse.Data");
         try
         {
-            // TODO: fixing date
             JSONObject data = new JSONObject(jsonData);
             String message = data.getString("message");
             String timestamp = data.getString("timestamp");
             String id = data.getString("id");
 
-            Intent messageIntent = new Intent(MessageUtil.ACTION_MESSAGE_RECEIVED);
+            Intent messageIntent = new Intent(MessageUtils.ACTION_MESSAGE_RECEIVED);
             messageIntent.putExtra("message", message);
             messageIntent.putExtra("timestamp", timestamp);
             messageIntent.putExtra("id", id);

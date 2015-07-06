@@ -7,9 +7,7 @@ import com.parse.Parse;
 import ca.josephroque.partners.database.DBHelper;
 
 /**
- * Created by Joseph Roque on 2015-06-18.
- *
- * To initialize libraries and objects before app begins.
+ * Created by Joseph Roque on 2015-06-18. To initialize libraries and objects before app begins.
  */
 public class PartnersApplication
         extends Application
@@ -17,7 +15,7 @@ public class PartnersApplication
 
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
-    private static final String TAG = "PartnerApp";
+    private static final String TAG = "PartnersApplication";
 
     /** Name of application package. */
     private static String sPackageName;

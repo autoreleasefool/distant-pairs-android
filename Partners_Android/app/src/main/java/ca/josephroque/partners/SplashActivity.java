@@ -19,9 +19,9 @@ import com.parse.ParseUser;
 import ca.josephroque.partners.adapter.SplashPagerAdapter;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.TutorialFragment;
-import ca.josephroque.partners.util.AccountUtil;
-import ca.josephroque.partners.util.ErrorUtil;
-import ca.josephroque.partners.util.MessageUtil;
+import ca.josephroque.partners.util.AccountUtils;
+import ca.josephroque.partners.util.ErrorUtils;
+import ca.josephroque.partners.util.MessageUtils;
 
 /**
  * Provides interface for user registration and login.
@@ -33,7 +33,7 @@ public class SplashActivity
 
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "SplashActivity";
 
     /** Alpha value for an active indicator dot. */
     private static final float INDICATOR_ACTIVE = 0.75f;
@@ -61,8 +61,8 @@ public class SplashActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        MessageUtil.setThoughtSent(this, false);
-        MessageUtil.setStatusSent(this, false);
+        MessageUtils.setThoughtSent(this, false);
+        MessageUtils.setStatusSent(this, false);
 
         mIntentPartnerActivity = new Intent(SplashActivity.this, PartnerActivity.class);
 
@@ -72,7 +72,7 @@ public class SplashActivity
             finish();
             return;
         }
-        else if (AccountUtil.doesAccountExist(this))
+        else if (AccountUtils.doesAccountExist(this))
         {
             login(null);
         }
@@ -188,8 +188,8 @@ public class SplashActivity
 
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(SplashActivity.this);
-            mUsername = preferences.getString(AccountUtil.USERNAME, null);
-            final String accountPass = preferences.getString(AccountUtil.PASSWORD, null);
+            mUsername = preferences.getString(AccountUtils.USERNAME, null);
+            final String accountPass = preferences.getString(AccountUtils.PASSWORD, null);
 
             if (mUsername == null || accountPass == null)
             {
@@ -205,7 +205,7 @@ public class SplashActivity
                 return ex.getCode();
             }
 
-            return AccountUtil.SUCCESS;
+            return AccountUtils.SUCCESS;
         }
 
         @Override
@@ -213,12 +213,12 @@ public class SplashActivity
         {
             hideProgressBar();
 
-            if (mCallback != null && result != AccountUtil.SUCCESS)
+            if (mCallback != null && result != AccountUtils.SUCCESS)
                 mCallback.onLoginFailed(result);
 
             switch (result)
             {
-                case AccountUtil.SUCCESS:
+                case AccountUtils.SUCCESS:
                     ParseInstallation installation = ParseInstallation.getCurrentInstallation();
                     installation.put("username", mUsername);
                     installation.saveInBackground();
@@ -226,20 +226,20 @@ public class SplashActivity
                     finish();
                     break;
                 case ParseException.CONNECTION_FAILED:
-                    ErrorUtil.displayErrorDialog(SplashActivity.this, "Connection failed",
+                    ErrorUtils.displayErrorDialog(SplashActivity.this, "Connection failed",
                             "Failed to connect to the server. Please, try again. If this error"
                                     + "persists, your connection may not be sufficient.");
                     break;
                 case ParseException.OBJECT_NOT_FOUND:
-                    ErrorUtil.displayErrorDialog(SplashActivity.this, "Incorrect credentials",
+                    ErrorUtils.displayErrorDialog(SplashActivity.this, "Incorrect credentials",
                             "Your account is no longer valid. Please, create another.");
-                    AccountUtil.deleteAccount(SplashActivity.this, null);
+                    AccountUtils.deleteAccount(SplashActivity.this, null);
                     break;
                 case ParseException.USERNAME_MISSING:
                     // does nothing
                     break;
                 default:
-                    ErrorUtil.displayErrorDialog(SplashActivity.this, "Error",
+                    ErrorUtils.displayErrorDialog(SplashActivity.this, "Error",
                             "An error has occurred. Please, try again.");
             }
         }

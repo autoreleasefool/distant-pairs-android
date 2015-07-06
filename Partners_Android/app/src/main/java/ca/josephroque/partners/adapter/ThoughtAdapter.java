@@ -16,12 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import ca.josephroque.partners.R;
-import ca.josephroque.partners.util.MessageUtil;
+import ca.josephroque.partners.util.MessageUtils;
 
 /**
- * Created by Joseph Roque on 2015-06-22.
- *
- * Manages thoughts (messages) which will be displayed in a RecyclerView.
+ * Created by Joseph Roque on 2015-06-22. Manages thoughts (messages) which will be displayed in a
+ * RecyclerView.
  */
 public class ThoughtAdapter
         extends RecyclerView.Adapter<ThoughtAdapter.ThoughtViewHolder>
@@ -82,7 +81,7 @@ public class ThoughtAdapter
         View itemView;
         if (viewType == VIEWTYPE_THOUGHT)
             itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_thought, parent, false);
+                    .inflate(R.layout.list_item_thought, parent, false);
         else if (viewType == VIEWTYPE_CONFIG)
             itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.list_item_config, parent, false);
@@ -94,7 +93,8 @@ public class ThoughtAdapter
     @Override
     public void onBindViewHolder(final ThoughtViewHolder viewHolder, int initialPosition)
     {
-        if (getItemViewType(initialPosition) == VIEWTYPE_CONFIG) {
+        if (getItemViewType(initialPosition) == VIEWTYPE_CONFIG)
+        {
             viewHolder.itemView.setOnClickListener(new View.OnClickListener()
             {
                 @Override
@@ -109,7 +109,7 @@ public class ThoughtAdapter
         // Offset to account for header
         final int position = initialPosition - 1;
 
-        Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());
+        Calendar calendar = Calendar.getInstance(MessageUtils.getCurrentLocale());
         calendar.set(Calendar.HOUR, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -119,9 +119,9 @@ public class ThoughtAdapter
         Date thoughtDate = new Date(dateAndTime);
 
         if (thoughtDate.before(today))
-            viewHolder.mTextViewTime.setText(MessageUtil.getDateFormat().format(thoughtDate));
+            viewHolder.mTextViewTime.setText(MessageUtils.getDateFormat().format(thoughtDate));
         else
-            viewHolder.mTextViewTime.setText(MessageUtil.getTimeFormat().format(thoughtDate));
+            viewHolder.mTextViewTime.setText(MessageUtils.getTimeFormat().format(thoughtDate));
 
         if (mMapViewAnimation.containsKey(viewHolder.itemView))
         {
@@ -140,7 +140,7 @@ public class ThoughtAdapter
                     .setCardBackgroundColor(mCallback.getColor(R.color.primary_color_light));
         }
 
-        if (MessageUtil.VISITED_MESSAGE.equals(mListThoughts.get(position)))
+        if (MessageUtils.VISITED_MESSAGE.equals(mListThoughts.get(position)))
         {
             viewHolder.mTextViewThought.setText(R.string.text_partner_logged_in);
             viewHolder.mImageViewThought.setVisibility(View.GONE);

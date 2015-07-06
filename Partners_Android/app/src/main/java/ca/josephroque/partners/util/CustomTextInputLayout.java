@@ -11,14 +11,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 /**
- * Fixes a bug where {@link TextInputLayout} does not display hint before {@link EditText}
- * is focused.
- *
- * Retrieved from https://gist.github.com/ljubisa987/e33cd5597da07172c55d
+ * Fixes a bug where {@link TextInputLayout} does not display hint before {@link EditText} is
+ * focused. Retrieved from https://gist.github.com/ljubisa987/e33cd5597da07172c55d
  */
 public class CustomTextInputLayout
         extends TextInputLayout
 {
+
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "TextInputLayout";
 
     /** If hint is set. */
     private boolean mIsHintSet;

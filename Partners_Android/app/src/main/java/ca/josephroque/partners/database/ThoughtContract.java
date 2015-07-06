@@ -4,7 +4,6 @@ import android.provider.BaseColumns;
 
 /**
  * Created by Joseph Roque on 2015-06-23.
- *
  * Constants to define tables in database.
  */
 public final class ThoughtContract

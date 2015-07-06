@@ -9,21 +9,19 @@ import android.view.View;
 import ca.josephroque.partners.R;
 
 /**
- * Created by Joseph Roque on 2015-06-13.
- *
- * Methods and constants for errors.
+ * Created by Joseph Roque on 2015-06-13. Methods and constants for errors.
  */
-public final class ErrorUtil
+public final class ErrorUtils
 {
 
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
-    private static final String TAG = "ErrorUtil";
+    private static final String TAG = "ErrorUtils";
 
     /**
      * Default private constructor.
      */
-    private ErrorUtil()
+    private ErrorUtils()
     {
         // does nothing
     }

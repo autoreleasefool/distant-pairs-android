@@ -15,11 +15,10 @@ import com.parse.ParseObject;
 import java.lang.ref.WeakReference;
 
 import ca.josephroque.partners.R;
-import ca.josephroque.partners.util.ErrorUtil;
+import ca.josephroque.partners.util.ErrorUtils;
 
 /**
  * Created by Joseph Roque on 2015-06-23.
- *
  * Database helper to access internal database.
  */
 public final class DBHelper
@@ -75,8 +74,9 @@ public final class DBHelper
     }
 
     /**
-     * Creates the thoughts table in the database. See
-     * {@link ca.josephroque.partners.database.ThoughtContract.ThoughtEntry} for table definition.
+     * Creates the thoughts table in the database. See {@link
+     * ca.josephroque.partners.database.ThoughtContract.ThoughtEntry}
+     * for table definition.
      *
      * @param db database
      */
@@ -123,7 +123,7 @@ public final class DBHelper
         catch (Exception ex)
         {
             if (mContext.get() != null)
-                ErrorUtil.displayErrorDialog(mContext.get(), "Database error",
+                ErrorUtils.displayErrorDialog(mContext.get(), "Database error",
                         "Unfortunately, your message could not be saved locally");
             return;
         }

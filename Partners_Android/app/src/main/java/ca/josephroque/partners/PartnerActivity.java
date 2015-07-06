@@ -4,11 +4,11 @@ import ca.josephroque.partners.fragment.HeartFragment;
 import ca.josephroque.partners.fragment.RegisterFragment;
 import ca.josephroque.partners.fragment.ThoughtFragment;
 import ca.josephroque.partners.message.MessageHandler;
-import ca.josephroque.partners.util.AccountUtil;
-import ca.josephroque.partners.util.AnimationUtil;
-import ca.josephroque.partners.util.DisplayUtil;
-import ca.josephroque.partners.util.ErrorUtil;
-import ca.josephroque.partners.util.MessageUtil;
+import ca.josephroque.partners.util.AccountUtils;
+import ca.josephroque.partners.util.AnimationUtils;
+import ca.josephroque.partners.util.DisplayUtils;
+import ca.josephroque.partners.util.ErrorUtils;
+import ca.josephroque.partners.util.MessageUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -150,7 +150,7 @@ public class PartnerActivity
         {
             ViewGroup.MarginLayoutParams p =
                     (ViewGroup.MarginLayoutParams) mFabPrimary.getLayoutParams();
-            p.setMargins(0, 0, DisplayUtil.convertDpToPx(this, underLollipopMargin), 0);
+            p.setMargins(0, 0, DisplayUtils.convertDpToPx(this, underLollipopMargin), 0);
             mFabPrimary.setLayoutParams(p);
         }
         mFabPrimary.setOnClickListener(this);
@@ -178,15 +178,15 @@ public class PartnerActivity
         }
         else
         {
-            mIsPairRegistered = AccountUtil.doesPartnerExist(this);
+            mIsPairRegistered = AccountUtils.doesPartnerExist(this);
         }
         mPagerAdapter.notifyDataSetChanged();
 
         if (mIsPairRegistered)
         {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            mPartnerName = preferences.getString(AccountUtil.PAIR, null);
-            mUsername = preferences.getString(AccountUtil.USERNAME, null);
+            mPartnerName = preferences.getString(AccountUtils.PAIR, null);
+            mUsername = preferences.getString(AccountUtils.USERNAME, null);
         }
 
         mImageViewLoginGlow = (ImageView) findViewById(R.id.iv_login_glow);
@@ -256,8 +256,8 @@ public class PartnerActivity
     public void pairRegistered()
     {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mPartnerName = preferences.getString(AccountUtil.PAIR, null);
-        mUsername = preferences.getString(AccountUtil.USERNAME, null);
+        mPartnerName = preferences.getString(AccountUtils.PAIR, null);
+        mUsername = preferences.getString(AccountUtils.USERNAME, null);
         mIsPairRegistered = true;
         mPagerAdapter.notifyDataSetChanged();
         checkIfPartnerOnline();
@@ -293,7 +293,7 @@ public class PartnerActivity
      */
     private void displayThoughtDialog()
     {
-        if (!mIsPartnerOnline && MessageUtil.wasThoughtSent(this))
+        if (!mIsPartnerOnline && MessageUtils.wasThoughtSent(this))
         {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.text_message_already_sent)
@@ -366,20 +366,20 @@ public class PartnerActivity
                     // does nothing
                 }
 
-                if (MessageUtil.LOGIN_MESSAGE.equals(message))
+                if (MessageUtils.LOGIN_MESSAGE.equals(message))
                 {
                     setPartnerOnline(true);
                     loginGlowAnimation();
                 }
-                else if (!MessageUtil.LOGOUT_MESSAGE.equals(message))
+                else if (!MessageUtils.LOGOUT_MESSAGE.equals(message))
                     superCuteHeartAnimation();
-                else if (!MessageUtil.VISITED_MESSAGE.equals(message))
+                else if (!MessageUtils.VISITED_MESSAGE.equals(message))
                     setPartnerOnline(false);
             }
         };
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageBroadcastReceiver,
-                new IntentFilter(MessageUtil.ACTION_MESSAGE_RECEIVED));
+                new IntentFilter(MessageUtils.ACTION_MESSAGE_RECEIVED));
     }
 
     /**
@@ -389,8 +389,8 @@ public class PartnerActivity
     private void populateHeartImageViews()
     {
         final int deviceWidth = getResources().getDisplayMetrics().widthPixels;
-        final int numberOfHearts = (int) (deviceWidth / AnimationUtil.HEART_RATIO * 10);
-        final int numberOfLargeHearts = numberOfHearts / AnimationUtil.HEART_SIZE_RATIO;
+        final int numberOfHearts = (int) (deviceWidth / AnimationUtils.HEART_RATIO * 10);
+        final int numberOfLargeHearts = numberOfHearts / AnimationUtils.HEART_SIZE_RATIO;
 
         RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.rl_partner);
         mImageViewHearts = new ImageView[numberOfHearts];
@@ -421,19 +421,23 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context,
-     * AccountUtil.DeleteAccountCallback)
+     * @see ca.josephroque.partners.util.AccountUtils#promptDeleteAccount(android.content.Context,
+     * ca.josephroque.partners.util.AccountUtils.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
-        AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback() {
+        AccountUtils.promptDeleteAccount(this,
+                new AccountUtils.DeleteAccountCallback()
+                {
                     @Override
-                    public void onDeleteAccountStarted() {
-                        sendMessage(MessageUtil.LOGOUT_MESSAGE);
-                        runOnUiThread(new Runnable() {
+                    public void onDeleteAccountStarted()
+                    {
+                        sendMessage(MessageUtils.LOGOUT_MESSAGE);
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -441,10 +445,13 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded() {
-                        runOnUiThread(new Runnable() {
+                    public void onDeleteAccountEnded()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, SplashActivity.class);
                                 startActivity(loginIntent);
@@ -455,12 +462,13 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message) {
+                    public void onDeleteAccountError(String message)
+                    {
                         if (message != null)
-                            ErrorUtil.displayErrorDialog(PartnerActivity.this,
+                            ErrorUtils.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
                         else
-                            ErrorUtil.displayErrorDialog(PartnerActivity.this,
+                            ErrorUtils.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", "An unknown error occurred and you"
                                             + " may not be able to use this username again.");
                         onDeleteAccountEnded();
@@ -562,17 +570,17 @@ public class PartnerActivity
     {
         if (mPartnerName == null)
         {
-            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_find_pair);
+            ErrorUtils.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_find_pair);
             return;
         }
 
-        message = MessageUtil.getValidMessage(message);
-        if (message.startsWith(MessageUtil.MESSAGE_TYPE_ERROR))
+        message = MessageUtils.getValidMessage(message);
+        if (message.startsWith(MessageUtils.MESSAGE_TYPE_ERROR))
         {
-            MessageUtil.handleError(mFabPrimary, message);
+            MessageUtils.handleError(mFabPrimary, message);
             return;
         }
-        final String messageText = message.substring(MessageUtil.MESSAGE_TYPE_RESERVED_LENGTH);
+        final String messageText = message.substring(MessageUtils.MESSAGE_TYPE_RESERVED_LENGTH);
 
         final ParseObject messageObject = new ParseObject("Thought");
         messageObject.put("recipientName", mPartnerName);
@@ -580,8 +588,8 @@ public class PartnerActivity
         messageObject.put("messageText", messageText);
         messageObject.put("timeRead", 0L);
 
-        if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
-                || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
+        if (MessageUtils.LOGIN_MESSAGE.equals(messageText)
+                || MessageUtils.LOGOUT_MESSAGE.equals(messageText))
         {
             sendMessage(messageObject, true);
         }
@@ -613,7 +621,7 @@ public class PartnerActivity
         try
         {
             data.put("message", messageObject.getString("messageText"));
-            data.put("timestamp", MessageUtil.getCurrentDateAndTime());
+            data.put("timestamp", MessageUtils.getCurrentDateAndTime());
             if (statusMessage)
                 data.put("id", "status");
             else
@@ -631,9 +639,11 @@ public class PartnerActivity
         ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
         parseQuery.whereEqualTo("username", mPartnerName);
         parsePush.setQuery(parseQuery);
-        parsePush.sendInBackground(new SendCallback() {
+        parsePush.sendInBackground(new SendCallback()
+        {
             @Override
-            public void done(ParseException e) {
+            public void done(ParseException e)
+            {
                 if (e != null)
                     messageFailedToSend(messageObject.getString("messageText"));
             }
@@ -647,9 +657,9 @@ public class PartnerActivity
      */
     private void messageFailedToSend(final String messageText)
     {
-        if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
-                || MessageUtil.LOGOUT_MESSAGE.equals(messageText)
-                || MessageUtil.VISITED_MESSAGE.equals(messageText))
+        if (MessageUtils.LOGIN_MESSAGE.equals(messageText)
+                || MessageUtils.LOGOUT_MESSAGE.equals(messageText)
+                || MessageUtils.VISITED_MESSAGE.equals(messageText))
             return;
 
         Integer failureCount = mFailedMessageCount.get(messageText);
@@ -659,17 +669,19 @@ public class PartnerActivity
 
         if (failureCount != null && failureCount > 2)
         {
-            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_message_failed,
-                    R.string.text_resend, new View.OnClickListener() {
+            ErrorUtils.displayErrorSnackbar(mCoordinatorLayout, R.string.text_message_failed,
+                    R.string.text_resend, new View.OnClickListener()
+                    {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(View v)
+                        {
                             sendMessage(messageText);
                         }
                     });
         }
         else
         {
-            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_too_many_attemps);
+            ErrorUtils.displayErrorSnackbar(mCoordinatorLayout, R.string.text_too_many_attemps);
         }
     }
 
@@ -680,21 +692,21 @@ public class PartnerActivity
      */
     private void setOnlineStatus(final boolean online)
     {
-        if (ParseUser.getCurrentUser() == null || !AccountUtil.doesAccountExist(this))
+        if (ParseUser.getCurrentUser() == null || !AccountUtils.doesAccountExist(this))
             return;
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        final String statusId = preferences.getString(MessageUtil.STATUS_OBJECT_ID, null);
-        final String accountName = preferences.getString(AccountUtil.USERNAME, null);
+        final String statusId = preferences.getString(MessageUtils.STATUS_OBJECT_ID, null);
+        final String accountName = preferences.getString(AccountUtils.USERNAME, null);
         final String message = (online)
-                ? MessageUtil.LOGIN_MESSAGE
-                : MessageUtil.LOGOUT_MESSAGE;
+                ? MessageUtils.LOGIN_MESSAGE
+                : MessageUtils.LOGOUT_MESSAGE;
 
         if (statusId == null)
         {
-            final ParseObject status = new ParseObject(MessageUtil.STATUS);
-            status.put(AccountUtil.USERNAME, accountName);
-            status.put(MessageUtil.ONLINE_STATUS, online);
+            final ParseObject status = new ParseObject(MessageUtils.STATUS);
+            status.put(AccountUtils.USERNAME, accountName);
+            status.put(MessageUtils.ONLINE_STATUS, online);
             status.saveInBackground(new SaveCallback()
             {
                 @Override
@@ -704,7 +716,7 @@ public class PartnerActivity
                     {
                         mStatusAttemptCount = 0;
                         preferences.edit()
-                                .putString(MessageUtil.STATUS_OBJECT_ID, status.getObjectId())
+                                .putString(MessageUtils.STATUS_OBJECT_ID, status.getObjectId())
                                 .apply();
                         sendMessage(message);
                     }
@@ -718,7 +730,7 @@ public class PartnerActivity
         }
         else
         {
-            final ParseObject status = ParseObject.createWithoutData(MessageUtil.STATUS, statusId);
+            final ParseObject status = ParseObject.createWithoutData(MessageUtils.STATUS, statusId);
             status.fetchInBackground(new GetCallback<ParseObject>()
             {
                 @Override
@@ -727,7 +739,7 @@ public class PartnerActivity
                     if (e == null)
                     {
                         mStatusAttemptCount = 0;
-                        parseObject.put(MessageUtil.ONLINE_STATUS, online);
+                        parseObject.put(MessageUtils.ONLINE_STATUS, online);
                         parseObject.saveInBackground();
                         sendMessage(message);
                     }
@@ -746,8 +758,8 @@ public class PartnerActivity
      */
     private void saveStatusMessage()
     {
-        MessageUtil.setStatusSent(PartnerActivity.this, true);
-        sendMessage(MessageUtil.VISITED_MESSAGE);
+        MessageUtils.setStatusSent(PartnerActivity.this, true);
+        sendMessage(MessageUtils.VISITED_MESSAGE);
     }
 
     /**
@@ -758,7 +770,7 @@ public class PartnerActivity
     {
         if (mStatusAttemptCount < 2)
         {
-            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_appear_online,
+            ErrorUtils.displayErrorSnackbar(mCoordinatorLayout, R.string.text_cannot_appear_online,
                     R.string.text_try_again, new View.OnClickListener()
                     {
                         @Override
@@ -771,7 +783,7 @@ public class PartnerActivity
         }
         else
         {
-            ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_too_many_attemps);
+            ErrorUtils.displayErrorSnackbar(mCoordinatorLayout, R.string.text_too_many_attemps);
         }
     }
 
@@ -781,12 +793,12 @@ public class PartnerActivity
     private void checkIfPartnerOnline()
     {
         String partnerName = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(AccountUtil.PAIR, null);
+                .getString(AccountUtils.PAIR, null);
         if (partnerName == null)
             return;
 
-        ParseQuery<ParseObject> pairStatus = new ParseQuery<>(MessageUtil.STATUS);
-        pairStatus.whereEqualTo(AccountUtil.USERNAME, partnerName);
+        ParseQuery<ParseObject> pairStatus = new ParseQuery<>(MessageUtils.STATUS);
+        pairStatus.whereEqualTo(AccountUtils.USERNAME, partnerName);
         pairStatus.findInBackground(new FindCallback<ParseObject>()
         {
             @Override
@@ -794,30 +806,31 @@ public class PartnerActivity
             {
                 if (e == null && list.size() >= 0)
                 {
-                    boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtil.ONLINE_STATUS);
+                    boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtils.ONLINE_STATUS);
                     if (partnerLoggedIn)
                     {
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
-                                    MessageUtil.getCurrentDateAndTime(), MessageUtil.LOGIN_MESSAGE);
+                                    MessageUtils.getCurrentDateAndTime(),
+                                    MessageUtils.LOGIN_MESSAGE);
                     }
                     else
                     {
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
-                                    MessageUtil.getCurrentDateAndTime(),
-                                    MessageUtil.LOGOUT_MESSAGE);
-                        if (!MessageUtil.wasStatusSent(PartnerActivity.this))
+                                    MessageUtils.getCurrentDateAndTime(),
+                                    MessageUtils.LOGOUT_MESSAGE);
+                        if (!MessageUtils.wasStatusSent(PartnerActivity.this))
                             saveStatusMessage();
-                        if (!MessageUtil.wasThoughtSent(PartnerActivity.this))
+                        if (!MessageUtils.wasThoughtSent(PartnerActivity.this))
                             displayThoughPrompt();
                     }
                 }
                 else
                 {
-                    ErrorUtil.displayErrorSnackbar(mCoordinatorLayout,
+                    ErrorUtils.displayErrorSnackbar(mCoordinatorLayout,
                             R.string.text_cannot_find_pair);
                 }
             }
@@ -829,7 +842,7 @@ public class PartnerActivity
      */
     private void displayThoughPrompt()
     {
-        if (MessageUtil.wasThoughtSent(this) || mThoughtPromptDisplayed)
+        if (MessageUtils.wasThoughtSent(this) || mThoughtPromptDisplayed)
             return;
 
         mThoughtPromptDisplayed = true;
@@ -864,10 +877,10 @@ public class PartnerActivity
 
         for (ImageView heart : mImageViewHearts)
         {
-            int red = (int) (Math.random() * AnimationUtil.HEART_MAX_RED_OFFSET)
-                    + AnimationUtil.HEART_DARKEST_RED;
+            int red = (int) (Math.random() * AnimationUtils.HEART_MAX_RED_OFFSET)
+                    + AnimationUtils.HEART_DARKEST_RED;
             heart.setColorFilter(Color.rgb(red, 0, 0), PorterDuff.Mode.MULTIPLY);
-            heart.startAnimation(AnimationUtil.getRandomHeartAnimation(heart,
+            heart.startAnimation(AnimationUtils.getRandomHeartAnimation(heart,
                     (int) (Math.random() * (deviceWidth - heart.getWidth())), deviceHeight));
         }
     }
@@ -973,26 +986,26 @@ public class PartnerActivity
         public void afterTextChanged(Editable s)
         {
             String input = s.toString();
-            if (!input.matches(MessageUtil.REGEX_VALID_MESSAGE) && mIsValidMessage)
+            if (!input.matches(MessageUtils.REGEX_VALID_MESSAGE) && mIsValidMessage)
             {
                 mTextViewLimit.setText(R.string.text_message_invalid_characters);
                 mTextViewLimit.setTextColor(getResources().getColor(R.color.error_color));
                 mIsValidMessage = false;
                 return;
             }
-            else if (input.length() > MessageUtil.MAX_MESSAGE_LENGTH && mIsValidMessage)
+            else if (input.length() > MessageUtils.MAX_MESSAGE_LENGTH && mIsValidMessage)
             {
                 mTextViewLimit.setTextColor(getResources().getColor(R.color.error_color));
                 mIsValidMessage = false;
             }
-            else if (input.length() <= MessageUtil.MAX_MESSAGE_LENGTH && !mIsValidMessage)
+            else if (input.length() <= MessageUtils.MAX_MESSAGE_LENGTH && !mIsValidMessage)
             {
                 mTextViewLimit.setTextColor(
                         getResources().getColor(android.R.color.primary_text_dark));
                 mIsValidMessage = true;
             }
 
-            mTextViewLimit.setText(input.length() + "/" + MessageUtil.MAX_MESSAGE_LENGTH);
+            mTextViewLimit.setText(input.length() + "/" + MessageUtils.MAX_MESSAGE_LENGTH);
         }
     }
 

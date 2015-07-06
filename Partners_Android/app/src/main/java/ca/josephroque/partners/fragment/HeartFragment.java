@@ -26,7 +26,7 @@ import android.widget.TextView;
 import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.message.MessageHandler;
-import ca.josephroque.partners.util.MessageUtil;
+import ca.josephroque.partners.util.MessageUtils;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -128,7 +128,7 @@ public class HeartFragment
     @Override
     public void onNewMessage(final String messageId, final String dateAndTime, final String message)
     {
-        if (MessageUtil.LOGIN_MESSAGE.equals(message))
+        if (MessageUtils.LOGIN_MESSAGE.equals(message))
         {
             if (!mPartnerOnline)
             {
@@ -139,7 +139,7 @@ public class HeartFragment
                     heartFadeRevealAnimation();
             }
         }
-        else if (MessageUtil.LOGOUT_MESSAGE.equals(message))
+        else if (MessageUtils.LOGOUT_MESSAGE.equals(message))
         {
             if (mPartnerOnline)
             {

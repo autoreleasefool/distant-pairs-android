@@ -7,16 +7,14 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 
 /**
- * Created by Joseph Roque on 2015-06-16.
- *
- * Classes and methods for creating animations.
+ * Created by Joseph Roque on 2015-06-16. Classes and methods for creating animations.
  */
-public final class AnimationUtil
+public final class AnimationUtils
 {
 
     /** To identify output from this class in the Logcat. */
     @SuppressWarnings("unused")
-    private static final String TAG = "AnimationUtil";
+    private static final String TAG = "AnimationUtils";
 
     /**
      * For every X pixels, 10 hearts are added to the super cute heart animation.
@@ -50,7 +48,7 @@ public final class AnimationUtil
     /**
      * Default private constructor.
      */
-    private AnimationUtil()
+    private AnimationUtils()
     {
         // does nothing
     }

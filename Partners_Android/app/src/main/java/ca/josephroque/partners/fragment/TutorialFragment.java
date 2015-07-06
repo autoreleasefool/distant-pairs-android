@@ -13,7 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import ca.josephroque.partners.R;
-import ca.josephroque.partners.util.DisplayUtil;
+import ca.josephroque.partners.util.DisplayUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,6 +21,10 @@ import ca.josephroque.partners.util.DisplayUtil;
 public class TutorialFragment
         extends Fragment
 {
+
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "TutorialFragment";
 
     /** Number of pages in the tutorial. */
     public static final int TUTORIAL_PAGES = 4;
@@ -110,7 +114,7 @@ public class TutorialFragment
      */
     private void setupTutorialPageAndText(RelativeLayout rootView)
     {
-        final int dp16 = DisplayUtil.convertDpToPx(getActivity(), 16);
+        final int dp16 = DisplayUtils.convertDpToPx(getActivity(), 16);
 
         mTextViewTutorial = new TextView(getActivity().getApplicationContext());
         mTextViewTutorial.setId(R.id.tv_tutorial);
@@ -156,7 +160,7 @@ public class TutorialFragment
         RelativeLayout.LayoutParams layoutParams;
         rootView.removeAllViews();
 
-        final int dp16 = DisplayUtil.convertDpToPx(getActivity(), 16);
+        final int dp16 = DisplayUtils.convertDpToPx(getActivity(), 16);
 
         mTextViewTutorial.setVisibility(View.INVISIBLE);
         if (mViewTutorial != null)

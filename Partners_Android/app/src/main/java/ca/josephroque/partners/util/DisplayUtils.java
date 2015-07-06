@@ -6,17 +6,19 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 /**
- * Created by Joseph Roque on 2015-06-24.
- *
- * Constants and methods for changes made to the UI.
+ * Created by Joseph Roque on 2015-06-24. Constants and methods for changes made to the UI.
  */
-public final class DisplayUtil
+public final class DisplayUtils
 {
+
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "DisplayUtils";
 
     /**
      * Default private constructor.
      */
-    private DisplayUtil()
+    private DisplayUtils()
     {
         // does nothing
     }

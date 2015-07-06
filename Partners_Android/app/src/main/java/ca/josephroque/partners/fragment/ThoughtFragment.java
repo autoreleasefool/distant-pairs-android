@@ -37,9 +37,9 @@ import ca.josephroque.partners.adapter.ThoughtAdapter;
 import ca.josephroque.partners.database.DBHelper;
 import ca.josephroque.partners.database.ThoughtContract;
 import ca.josephroque.partners.message.MessageHandler;
-import ca.josephroque.partners.util.AccountUtil;
-import ca.josephroque.partners.util.ErrorUtil;
-import ca.josephroque.partners.util.MessageUtil;
+import ca.josephroque.partners.util.AccountUtils;
+import ca.josephroque.partners.util.ErrorUtils;
+import ca.josephroque.partners.util.MessageUtils;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -115,7 +115,7 @@ public class ThoughtFragment
         mListThoughtSaved = new ArrayList<>();
         mListThoughtSeen = new ArrayList<>();
 
-        MessageUtil.setLocale(getResources().getConfiguration().locale);
+        MessageUtils.setLocale(getResources().getConfiguration().locale);
         mRecyclerViewThoughtsAdapter = new ThoughtAdapter(this, mListThoughtIds, mListThoughts,
                 mListDateAndTime, mListThoughtSaved, mListThoughtSeen);
 
@@ -131,7 +131,7 @@ public class ThoughtFragment
     public void onResume()
     {
         super.onResume();
-        MessageUtil.setLocale(getResources().getConfiguration().locale);
+        MessageUtils.setLocale(getResources().getConfiguration().locale);
         new PopulateMessagesTask().execute();
     }
 
@@ -146,9 +146,9 @@ public class ThoughtFragment
     public void onNewMessage(final String messageId, final String dateAndTime, final String message)
     {
         // Does not need to bother with login/out messages
-        if (MessageUtil.LOGIN_MESSAGE.equals(message)
-                || MessageUtil.LOGOUT_MESSAGE.equals(message)
-                || MessageUtil.VISITED_MESSAGE.equals(message))
+        if (MessageUtils.LOGIN_MESSAGE.equals(message)
+                || MessageUtils.LOGOUT_MESSAGE.equals(message)
+                || MessageUtils.VISITED_MESSAGE.equals(message))
             return;
 
         mListThoughtIds.add(0, messageId);
@@ -158,7 +158,7 @@ public class ThoughtFragment
         mListThoughtSeen.add(0, false);
         mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
 
-        Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());
+        Calendar calendar = Calendar.getInstance(MessageUtils.getCurrentLocale());
         calendar.set(Calendar.HOUR, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -171,10 +171,10 @@ public class ThoughtFragment
         {
             if (thoughtDate.before(today))
                 mCallback.setMostRecentThought(message,
-                        MessageUtil.getDateFormat().format(thoughtDate));
+                        MessageUtils.getDateFormat().format(thoughtDate));
             else
                 mCallback.setMostRecentThought(message,
-                        MessageUtil.getTimeFormat().format(thoughtDate));
+                        MessageUtils.getTimeFormat().format(thoughtDate));
         }
     }
 
@@ -241,8 +241,7 @@ public class ThoughtFragment
     {
 
         /**
-         * Indicates if a message with the content {@link MessageUtil#VISITED_MESSAGE}
-         * was found.
+         * Indicates if a message with the content {@link ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} was found.
          */
         private boolean mVisitedMessageFound = false;
 
@@ -254,8 +253,8 @@ public class ThoughtFragment
 
             final SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
-            final String username = preferences.getString(AccountUtil.USERNAME, null);
-            final String partnerName = preferences.getString(AccountUtil.PAIR, null);
+            final String username = preferences.getString(AccountUtils.USERNAME, null);
+            final String partnerName = preferences.getString(AccountUtils.PAIR, null);
 
             if (username == null || partnerName == null)
                 throw new IllegalStateException("name or partner cannot be null");
@@ -346,8 +345,8 @@ public class ThoughtFragment
                                       TreeMap<String, Pair<String, String>> thoughtMap,
                                       HashMap<String, Pair<Boolean, Boolean>> savedSeenMap)
         {
-            final String username = preferences.getString(AccountUtil.USERNAME, null);
-            final String partnerName = preferences.getString(AccountUtil.PAIR, null);
+            final String username = preferences.getString(AccountUtils.USERNAME, null);
+            final String partnerName = preferences.getString(AccountUtils.PAIR, null);
             if (username != null && partnerName != null)
             {
                 ParseQuery<ParseObject> thoughtQuery = new ParseQuery<>("Thought")
@@ -378,7 +377,7 @@ public class ThoughtFragment
 
                     thoughtMap.put(date, Pair.create(id, message));
 
-                    if (MessageUtil.VISITED_MESSAGE.equals(message))
+                    if (MessageUtils.VISITED_MESSAGE.equals(message))
                     {
                         Log.i(TAG, "Message should be deleted: " + message + " Id: "
                                 + thought.getObjectId());
@@ -408,7 +407,7 @@ public class ThoughtFragment
         {
             if (mListThoughtIds.size() == 0)
             {
-                ErrorUtil.displayErrorSnackbar(
+                ErrorUtils.displayErrorSnackbar(
                         ((PartnerActivity) getActivity()).getCoordinatorLayout(),
                         R.string.text_no_thoughts);
                 if (mCallback != null)
@@ -418,7 +417,7 @@ public class ThoughtFragment
             else
             {
                 mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
-                Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());
+                Calendar calendar = Calendar.getInstance(MessageUtils.getCurrentLocale());
                 calendar.set(Calendar.HOUR, 0);
                 calendar.set(Calendar.MINUTE, 0);
                 calendar.set(Calendar.SECOND, 0);
@@ -431,10 +430,10 @@ public class ThoughtFragment
                 {
                     if (thoughtDate.before(today))
                         mCallback.setMostRecentThought(mListThoughts.get(0),
-                                MessageUtil.getDateFormat().format(thoughtDate));
+                                MessageUtils.getDateFormat().format(thoughtDate));
                     else
                         mCallback.setMostRecentThought(mListThoughts.get(0),
-                                MessageUtil.getTimeFormat().format(thoughtDate));
+                                MessageUtils.getTimeFormat().format(thoughtDate));
                     if (mVisitedMessageFound)
                         mCallback.notifyOfLogins();
                 }
@@ -457,7 +456,7 @@ public class ThoughtFragment
         void setMostRecentThought(String message, String timestamp);
 
         /**
-         * Invoked if a message with the content {@link MessageUtil#VISITED_MESSAGE} is found.
+         * Invoked if a message with the content {@link ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} is found.
          */
         void notifyOfLogins();
     }
