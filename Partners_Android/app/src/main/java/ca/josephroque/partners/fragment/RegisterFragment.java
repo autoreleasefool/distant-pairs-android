@@ -339,6 +339,8 @@ public class RegisterFragment
         {
             DisplayUtil.hideKeyboard(getActivity());
             mRelativeLayoutRegister.setVisibility(View.GONE);
+            if (getView() != null)
+                getView().findViewById(R.id.tv_login_prompt).setVisibility(View.GONE);
             ((ProgressActivity) getActivity()).showProgressBar(R.string.text_registering);
         }
 

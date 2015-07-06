@@ -32,6 +32,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -294,7 +295,7 @@ public class PartnerActivity
             return;
         }
 
-        View view = View.inflate(this, R.layout.dialog_delete_thought, null);
+        View view = View.inflate(this, R.layout.dialog_thought, null);
         final TextView textViewLimit = (TextView) view.findViewById(R.id.tv_message_limit);
         final EditText editTextMessage = (EditText) view.findViewById(R.id.et_thought);
         editTextMessage.addTextChangedListener(new ThoughtWatcher(textViewLimit));
@@ -403,7 +404,8 @@ public class PartnerActivity
     /**
      * Prompts user to delete their account.
      *
-     * @see AccountUtil#promptDeleteAccount(android.content.Context, AccountUtil.DeleteAccountCallback)
+     * @see AccountUtil#promptDeleteAccount(android.content.Context,
+     * AccountUtil.DeleteAccountCallback)
      */
     public void deleteAccount()
     {
@@ -672,8 +674,7 @@ public class PartnerActivity
      */
     private void setOnlineStatus(final boolean online)
     {
-        if (ParseUser.getCurrentUser() == null || !AccountUtil.doesAccountExist(this)
-                || !AccountUtil.doesPartnerExist(this))
+        if (ParseUser.getCurrentUser() == null || !AccountUtil.doesAccountExist(this))
             return;
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -787,7 +788,7 @@ public class PartnerActivity
             @Override
             public void done(List<ParseObject> list, ParseException e)
             {
-                if (e == null)
+                if (e == null && list.size() >= 0)
                 {
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtil.ONLINE_STATUS);
                     if (partnerLoggedIn)
@@ -973,16 +974,6 @@ public class PartnerActivity
     public CoordinatorLayout getCoordinatorLayout()
     {
         return mCoordinatorLayout;
-    }
-
-    /**
-     * Gets the primary floating action button.
-     *
-     * @return mFabPrimary
-     */
-    public FloatingActionButton getFloatingActionButton()
-    {
-        return mFabPrimary;
     }
 
     /**

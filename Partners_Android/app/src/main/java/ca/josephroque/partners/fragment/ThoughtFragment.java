@@ -376,17 +376,35 @@ public class ThoughtFragment
         protected void onPostExecute(Void result)
         {
             if (mListThoughtIds.size() == 0)
+            {
                 ErrorUtil.displayErrorSnackbar(
                         ((PartnerActivity) getActivity()).getCoordinatorLayout(),
                         R.string.text_no_thoughts);
                 if (mCallback != null)
                     mCallback.setMostRecentThought(
                             getResources().getString(R.string.text_no_thoughts), null);
+            }
             else
             {
                 mRecyclerViewThoughtsAdapter.notifyDataSetChanged();
+                Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());
+                calendar.set(Calendar.HOUR, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                Date today = calendar.getTime();
+
+                long thoughtTime = Long.parseLong(mListDateAndTime.get(0));
+                Date thoughtDate = new Date(thoughtTime);
+
                 if (mCallback != null)
-                    mCallback.setMostRecentThought(mListThoughts.get(0), mListDateAndTime.get(0));
+                {
+                    if (thoughtDate.before(today))
+                        mCallback.setMostRecentThought(mListThoughts.get(0),
+                                MessageUtil.getDateFormat().format(thoughtDate));
+                    else
+                        mCallback.setMostRecentThought(mListThoughts.get(0),
+                                MessageUtil.getTimeFormat().format(thoughtDate));
+                }
             }
         }
     }

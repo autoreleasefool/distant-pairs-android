@@ -284,15 +284,17 @@ public class HeartFragment
      */
     private void startPulseAnimation()
     {
-        final float sizeToPulse = 1.1f;
+        final float sizeToPulse = 1.04f;
         final float centerPivot = 0.5f;
         final int pulseOffset = 1000;
-        final int pulseDuration = 200;
+        final int growDuration = 80;
+        final int shrinkDuration = 60;
+        final int secondPulseOffset = 80;
 
         mHeartPulseGrowAnimation = new ScaleAnimation(1f, sizeToPulse, 1f, sizeToPulse,
                 Animation.RELATIVE_TO_SELF, centerPivot, Animation.RELATIVE_TO_SELF, centerPivot);
         mHeartPulseGrowAnimation.setInterpolator(new OvershootInterpolator());
-        mHeartPulseGrowAnimation.setDuration(pulseDuration);
+        mHeartPulseGrowAnimation.setDuration(growDuration);
         mHeartPulseGrowAnimation.setAnimationListener(new Animation.AnimationListener()
         {
             @Override
@@ -317,7 +319,7 @@ public class HeartFragment
         mHeartPulseShrinkAnimation = new ScaleAnimation(sizeToPulse, 1f, sizeToPulse, 1f,
                 Animation.RELATIVE_TO_SELF, centerPivot, Animation.RELATIVE_TO_SELF, centerPivot);
         mHeartPulseShrinkAnimation.setInterpolator(new LinearInterpolator());
-        mHeartPulseShrinkAnimation.setDuration(pulseDuration);
+        mHeartPulseShrinkAnimation.setDuration(shrinkDuration);
         mHeartPulseShrinkAnimation.setAnimationListener(new Animation.AnimationListener()
         {
             @Override
@@ -330,7 +332,7 @@ public class HeartFragment
             public void onAnimationEnd(Animation animation)
             {
                 if (mAnimationCount % 2 == 0)
-                    mHandlerPulse.postDelayed(mPulseAnimation, pulseDuration);
+                    mHandlerPulse.postDelayed(mPulseAnimation, secondPulseOffset);
                 else
                     mHandlerPulse.postDelayed(mPulseAnimation, pulseOffset);
                 mAnimationCount++;

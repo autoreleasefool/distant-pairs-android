@@ -72,9 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_thought_most_recent"
                 android:gravity="start"
-                android:paddingLeft="@dimen/most_recent_thought_padding"
-                android:paddingRight="@dimen/most_recent_thought_padding"
-                android:paddingTop="@dimen/most_recent_thought_padding" />
+                android:padding="@dimen/most_recent_thought_padding" />
 
         </RelativeLayout>
 

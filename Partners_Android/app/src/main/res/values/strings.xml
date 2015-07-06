@@ -41,7 +41,7 @@
     <string name="text_deleting_account">Deleting account</string>
 
     <!-- Text -->
-    <string name="text_most_recent">Most recent thought</string>
+    <string name="text_most_recent">Most recent thought:</string>
     <string name="text_send_message">Send your thoughts</string>
     <string name="text_delete_thought">If you delete the following thought, it cannot be recovered. Are you sure?</string>
     <string name="text_offline">Pair offline</string>
