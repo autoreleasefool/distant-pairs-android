@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -353,8 +354,6 @@ public class ThoughtFragment
                         .whereEqualTo("recipientName", username)
                         .whereEqualTo("senderName", partnerName);
                 List<ParseObject> thoughtResults = Collections.emptyList();
-                List<ParseObject> thoughtsToSave = new ArrayList<>();
-                List<ParseObject> thoughtsToDelete = new ArrayList<>();
 
                 try
                 {
@@ -368,6 +367,9 @@ public class ThoughtFragment
                 if (thoughtResults == null)
                     thoughtResults = Collections.emptyList();
 
+                List<ParseObject> thoughtsToSave = new ArrayList<>(thoughtResults.size());
+                List<ParseObject> thoughtsToDelete = new ArrayList<>(thoughtResults.size());
+
                 for (ParseObject thought : thoughtResults)
                 {
                     String date = Long.toString(thought.getCreatedAt().getTime());
@@ -378,6 +380,8 @@ public class ThoughtFragment
 
                     if (MessageUtil.VISITED_MESSAGE.equals(message))
                     {
+                        Log.i(TAG, "Message should be deleted: " + message + " Id: "
+                                + thought.getObjectId());
                         thoughtsToDelete.add(thought);
                         mVisitedMessageFound = true;
                         savedSeenMap.put(date, Pair.create(false, false));
