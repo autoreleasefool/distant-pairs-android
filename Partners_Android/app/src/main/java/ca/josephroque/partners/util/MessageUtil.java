@@ -37,6 +37,8 @@ public final class MessageUtil
     public static final String LOGIN_MESSAGE = "~LOGIN";
     /** A logout message. */
     public static final String LOGOUT_MESSAGE = "~LOGOUT";
+    /** A visited message. */
+    public static final String VISITED_MESSAGE = "~VISITED";
     /** An intent action for when a message is received. */
     public static final String ACTION_MESSAGE_RECEIVED = "action_message_received";
 
@@ -88,7 +90,8 @@ public final class MessageUtil
      */
     public static String getValidMessage(String message)
     {
-        if (LOGIN_MESSAGE.equals(message) || LOGOUT_MESSAGE.equals(message))
+        if (LOGIN_MESSAGE.equals(message) || LOGOUT_MESSAGE.equals(message)
+                || VISITED_MESSAGE.equals(message))
             return MESSAGE_TYPE_VALID + ":" + message;
 
         if (message == null || message.length() == 0)

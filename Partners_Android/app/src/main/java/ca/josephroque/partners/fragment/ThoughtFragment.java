@@ -146,7 +146,8 @@ public class ThoughtFragment
     {
         // Does not need to bother with login/out messages
         if (MessageUtil.LOGIN_MESSAGE.equals(message)
-                || MessageUtil.LOGOUT_MESSAGE.equals(message))
+                || MessageUtil.LOGOUT_MESSAGE.equals(message)
+                || MessageUtil.VISITED_MESSAGE.equals(message))
             return;
 
         mListThoughtIds.add(0, messageId);
@@ -237,6 +238,12 @@ public class ThoughtFragment
     private final class PopulateMessagesTask
             extends AsyncTask<Void, Void, Void>
     {
+
+        /**
+         * Indicates if a message with the content {@link MessageUtil#VISITED_MESSAGE}
+         * was found.
+         */
+        private boolean mVisitedMessageFound = false;
 
         @Override
         protected Void doInBackground(Void... params)
@@ -347,6 +354,7 @@ public class ThoughtFragment
                         .whereEqualTo("senderName", partnerName);
                 List<ParseObject> thoughtResults = Collections.emptyList();
                 List<ParseObject> thoughtsToSave = new ArrayList<>();
+                List<ParseObject> thoughtsToDelete = new ArrayList<>();
 
                 try
                 {
@@ -368,7 +376,13 @@ public class ThoughtFragment
 
                     thoughtMap.put(date, Pair.create(id, message));
 
-                    if (thought.getLong("timeRead") == 0)
+                    if (MessageUtil.VISITED_MESSAGE.equals(message))
+                    {
+                        thoughtsToDelete.add(thought);
+                        mVisitedMessageFound = true;
+                        savedSeenMap.put(date, Pair.create(false, false));
+                    }
+                    else if (thought.getLong("timeRead") == 0)
                     {
                         thought.put("timeRead", new Date().getTime());
                         thoughtsToSave.add(thought);
@@ -381,6 +395,7 @@ public class ThoughtFragment
                 }
 
                 ParseObject.saveAllInBackground(thoughtsToSave);
+                ParseObject.deleteAllInBackground(thoughtsToDelete);
             }
         }
 
@@ -416,6 +431,8 @@ public class ThoughtFragment
                     else
                         mCallback.setMostRecentThought(mListThoughts.get(0),
                                 MessageUtil.getTimeFormat().format(thoughtDate));
+                    if (mVisitedMessageFound)
+                        mCallback.notifyOfLogins();
                 }
             }
         }
@@ -434,5 +451,10 @@ public class ThoughtFragment
          * @param timestamp time thought was sent
          */
         void setMostRecentThought(String message, String timestamp);
+
+        /**
+         * Invoked if a message with the content {@link MessageUtil#VISITED_MESSAGE} is found.
+         */
+        void notifyOfLogins();
     }
 }

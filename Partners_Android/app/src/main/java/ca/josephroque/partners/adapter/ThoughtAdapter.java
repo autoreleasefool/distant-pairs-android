@@ -140,12 +140,21 @@ public class ThoughtAdapter
                     .setCardBackgroundColor(mCallback.getColor(R.color.primary_color_light));
         }
 
-        viewHolder.mTextViewThought.setText(mListThoughts.get(position));
-        viewHolder.mImageViewThought.setColorFilter((mListThoughtSaved.get(position))
-                ? mCallback.getColor(R.color.thought_saved)
-                : mCallback.getColor(R.color.thought_not_saved), PorterDuff.Mode.MULTIPLY);
-        viewHolder.mImageViewThought.setTag(position);
-        viewHolder.mImageViewThought.setOnClickListener(this);
+        if (MessageUtil.VISITED_MESSAGE.equals(mListThoughts.get(position)))
+        {
+            viewHolder.mTextViewThought.setText(R.string.text_partner_logged_in);
+            viewHolder.mImageViewThought.setVisibility(View.GONE);
+        }
+        else
+        {
+            viewHolder.mTextViewThought.setText(mListThoughts.get(position));
+            viewHolder.mImageViewThought.setVisibility(View.VISIBLE);
+            viewHolder.mImageViewThought.setColorFilter((mListThoughtSaved.get(position))
+                    ? mCallback.getColor(R.color.thought_saved)
+                    : mCallback.getColor(R.color.thought_not_saved), PorterDuff.Mode.MULTIPLY);
+            viewHolder.mImageViewThought.setTag(position);
+            viewHolder.mImageViewThought.setOnClickListener(this);
+        }
     }
 
     @Override

@@ -22,7 +22,6 @@
             android:layout_gravity="left"
             android:paddingBottom="@dimen/thought_vertical_padding"
             android:paddingLeft="@dimen/thought_horizontal_padding"
-            android:paddingRight="@dimen/thought_horizontal_padding"
             android:paddingTop="@dimen/thought_vertical_padding"
             android:src="@drawable/ic_heart_med"
             tools:ignore="ContentDescription" />
@@ -33,6 +32,7 @@
             android:layout_toRightOf="@id/iv_thought_heart"
             android:orientation="horizontal"
             android:paddingBottom="@dimen/thought_vertical_padding"
+            android:paddingLeft="@dimen/thought_horizontal_padding"
             android:paddingTop="@dimen/thought_vertical_padding">
 
             <TextView

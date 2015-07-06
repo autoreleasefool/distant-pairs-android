@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -131,8 +132,6 @@ public class PartnerActivity
     private int mStatusAttemptCount;
     /** Indicates if the user's partner is online. */
     private boolean mIsPartnerOnline;
-    /** Indicates if the application has checked if the user's partner logged in. */
-    private boolean mCheckedForLogins;
     /** Indicates if the user has been prompted to send a thought already. */
     private boolean mThoughtPromptDisplayed;
 
@@ -175,7 +174,7 @@ public class PartnerActivity
             mIsPartnerOnline = savedInstanceState.getBoolean(ARG_PARTNER_ONLINE, false);
             mIsPairRegistered = savedInstanceState.getBoolean(ARG_PAIR_REGISTERED, false);
             mCurrentViewPagerPosition = savedInstanceState.getInt(ARG_CURRENT_FRAGMENT);
-            mViewPager.setCurrentItem(mCurrentViewPagerPosition);
+            showFragment(mCurrentViewPagerPosition);
         }
         else
         {
@@ -206,7 +205,6 @@ public class PartnerActivity
         super.onResume();
         setOnlineStatus(true);
         checkIfPartnerOnline();
-        checkForPartnerLogins();
     }
 
     @Override
@@ -272,6 +270,21 @@ public class PartnerActivity
         Fragment fragment = mPagerAdapter.getFragment(0);
         if (fragment instanceof HeartFragment)
             ((HeartFragment) fragment).setMostRecentThought(message, timestamp);
+    }
+
+    @Override
+    public void notifyOfLogins()
+    {
+        Snackbar.make(getCoordinatorLayout(), R.string.text_partner_logged_in, Snackbar.LENGTH_LONG)
+                .setAction(R.string.text_dialog_thoughts, new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        showFragment(THOUGHT_FRAGMENT);
+                    }
+                })
+                .show();
     }
 
     /**
@@ -359,7 +372,7 @@ public class PartnerActivity
                 }
                 else if (!MessageUtil.LOGOUT_MESSAGE.equals(message))
                     superCuteHeartAnimation();
-                else
+                else if (!MessageUtil.VISITED_MESSAGE.equals(message))
                     setPartnerOnline(false);
             }
         };
@@ -413,17 +426,13 @@ public class PartnerActivity
     public void deleteAccount()
     {
         AccountUtil.promptDeleteAccount(this,
-                new AccountUtil.DeleteAccountCallback()
-                {
+                new AccountUtil.DeleteAccountCallback() {
                     @Override
-                    public void onDeleteAccountStarted()
-                    {
+                    public void onDeleteAccountStarted() {
                         sendMessage(MessageUtil.LOGOUT_MESSAGE);
-                        runOnUiThread(new Runnable()
-                        {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -431,13 +440,10 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded()
-                    {
-                        runOnUiThread(new Runnable()
-                        {
+                    public void onDeleteAccountEnded() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, SplashActivity.class);
                                 startActivity(loginIntent);
@@ -448,8 +454,7 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message)
-                    {
+                    public void onDeleteAccountError(String message) {
                         if (message != null)
                             ErrorUtil.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
@@ -542,7 +547,7 @@ public class PartnerActivity
      *
      * @param fragment position to switch to
      */
-    public void showFragment(byte fragment)
+    public void showFragment(int fragment)
     {
         mViewPager.setCurrentItem(fragment);
     }
@@ -625,11 +630,9 @@ public class PartnerActivity
         ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
         parseQuery.whereEqualTo("username", mPartnerName);
         parsePush.setQuery(parseQuery);
-        parsePush.sendInBackground(new SendCallback()
-        {
+        parsePush.sendInBackground(new SendCallback() {
             @Override
-            public void done(ParseException e)
-            {
+            public void done(ParseException e) {
                 if (e != null)
                     messageFailedToSend(messageObject.getString("messageText"));
             }
@@ -644,7 +647,8 @@ public class PartnerActivity
     private void messageFailedToSend(final String messageText)
     {
         if (MessageUtil.LOGIN_MESSAGE.equals(messageText)
-                || MessageUtil.LOGOUT_MESSAGE.equals(messageText))
+                || MessageUtil.LOGOUT_MESSAGE.equals(messageText)
+                || MessageUtil.VISITED_MESSAGE.equals(messageText))
             return;
 
         Integer failureCount = mFailedMessageCount.get(messageText);
@@ -655,11 +659,9 @@ public class PartnerActivity
         if (failureCount != null && failureCount > 2)
         {
             ErrorUtil.displayErrorSnackbar(mCoordinatorLayout, R.string.text_message_failed,
-                    R.string.text_resend, new View.OnClickListener()
-                    {
+                    R.string.text_resend, new View.OnClickListener() {
                         @Override
-                        public void onClick(View v)
-                        {
+                        public void onClick(View v) {
                             sendMessage(messageText);
                         }
                     });
@@ -744,9 +746,7 @@ public class PartnerActivity
     private void saveStatusMessage()
     {
         MessageUtil.setStatusSent(PartnerActivity.this, true);
-        ParseObject status = new ParseObject("Login");
-        status.put(AccountUtil.USERNAME, mUsername);
-        status.saveInBackground();
+        sendMessage(MessageUtil.VISITED_MESSAGE);
     }
 
     /**
@@ -800,8 +800,6 @@ public class PartnerActivity
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtil.getCurrentDateAndTime(), MessageUtil.LOGIN_MESSAGE);
-                        if (!MessageUtil.wasStatusSent(PartnerActivity.this))
-                            saveStatusMessage();
                     }
                     else
                     {
@@ -810,6 +808,8 @@ public class PartnerActivity
                             ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtil.getCurrentDateAndTime(),
                                     MessageUtil.LOGOUT_MESSAGE);
+                        if (!MessageUtil.wasStatusSent(PartnerActivity.this))
+                            saveStatusMessage();
                         if (!MessageUtil.wasThoughtSent(PartnerActivity.this))
                             displayThoughPrompt();
                     }
@@ -818,57 +818,6 @@ public class PartnerActivity
                 {
                     ErrorUtil.displayErrorSnackbar(mCoordinatorLayout,
                             R.string.text_cannot_find_pair);
-                }
-            }
-        });
-    }
-
-    /**
-     * Checks for status objects posted by the partner.
-     */
-    private void checkForPartnerLogins()
-    {
-        final String partnerName = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(AccountUtil.PAIR, null);
-        if (partnerName == null || mCheckedForLogins)
-            return;
-
-        mCheckedForLogins = true;
-        ParseQuery<ParseObject> query = new ParseQuery<>("Login");
-        query.whereEqualTo(AccountUtil.USERNAME, partnerName);
-        query.findInBackground(new FindCallback<ParseObject>()
-        {
-            @Override
-            public void done(List<ParseObject> list, ParseException e)
-            {
-                if (e == null && list != null && list.size() > 0)
-                {
-                    ParseObject.deleteAllInBackground(list);
-                    DialogInterface.OnClickListener listener =
-                            new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    if (which == DialogInterface.BUTTON_POSITIVE)
-                                        showFragment(THOUGHT_FRAGMENT);
-                                    dialog.dismiss();
-                                }
-                            };
-
-                    String times = (list.size() > 1)
-                            ? list.size() + " times"
-                            : "once";
-
-                    new AlertDialog.Builder(PartnerActivity.this)
-                            .setTitle(R.string.text_partner_logged_in)
-                            .setMessage(partnerName + " has visited " + times
-                                    + " since your last visit! Click below to see if they've "
-                                    + "left you any messages.")
-                            .setPositiveButton(R.string.text_dialog_thoughts, listener)
-                            .setNegativeButton(R.string.text_dialog_later, listener)
-                            .create()
-                            .show();
                 }
             }
         });
