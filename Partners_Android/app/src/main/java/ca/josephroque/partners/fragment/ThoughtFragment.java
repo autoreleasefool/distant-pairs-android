@@ -223,6 +223,12 @@ public class ThoughtFragment
         });
     }
 
+    @Override
+    public void openSettings()
+    {
+        // TODO: open settings
+    }
+
     /**
      * Loads messages from the internal database and Parse database and adds them to the recycler
      * view.

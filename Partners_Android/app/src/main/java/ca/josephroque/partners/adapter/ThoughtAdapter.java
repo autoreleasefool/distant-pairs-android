@@ -32,6 +32,11 @@ public class ThoughtAdapter
     @SuppressWarnings("unused")
     private static final String TAG = "ThoughtAdapter";
 
+    /** Represents an item in the list which offers configuration settings to the user. */
+    private static final int VIEWTYPE_CONFIG = 0;
+    /** Represents an item in the list which displays a thought to the user. */
+    private static final int VIEWTYPE_THOUGHT = 1;
+
     /** Instance of callback interface. */
     private ThoughtAdapterCallback mCallback;
 
@@ -74,14 +79,36 @@ public class ThoughtAdapter
     @Override
     public ThoughtViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        View itemView = LayoutInflater.from(parent.getContext())
+        View itemView;
+        if (viewType == VIEWTYPE_THOUGHT)
+            itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_thought, parent, false);
-        return new ThoughtViewHolder(itemView);
+        else if (viewType == VIEWTYPE_CONFIG)
+            itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_config, parent, false);
+        else
+            throw new IllegalStateException("invalid view type: " + viewType);
+        return new ThoughtViewHolder(itemView, viewType);
     }
 
     @Override
-    public void onBindViewHolder(final ThoughtViewHolder viewHolder, final int position)
+    public void onBindViewHolder(final ThoughtViewHolder viewHolder, int initialPosition)
     {
+        if (getItemViewType(initialPosition) == VIEWTYPE_CONFIG) {
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    mCallback.openSettings();
+                }
+            });
+            return;
+        }
+
+        // Offset to account for header
+        final int position = initialPosition - 1;
+
         Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());
         calendar.set(Calendar.HOUR, 0);
         calendar.set(Calendar.MINUTE, 0);
@@ -124,7 +151,7 @@ public class ThoughtAdapter
     @Override
     public int getItemCount()
     {
-        return mListThoughtIds.size();
+        return mListThoughtIds.size() + 1;
     }
 
     @Override
@@ -146,7 +173,9 @@ public class ThoughtAdapter
         mCallback.setThoughtSavedToDatabase(mListThoughtIds.get(position),
                 mListThoughts.get(position), mListDateAndTime.get(position),
                 mListThoughtSaved.get(position));
-        notifyItemChanged(position);
+
+        // Offset to account for header
+        notifyItemChanged(position + 1);
     }
 
     @Override
@@ -154,6 +183,15 @@ public class ThoughtAdapter
     {
         super.onDetachedFromRecyclerView(recyclerView);
         mCallback = null;
+    }
+
+    @Override
+    public int getItemViewType(int position)
+    {
+        if (position == 0)
+            return VIEWTYPE_CONFIG;
+        else
+            return VIEWTYPE_THOUGHT;
     }
 
     /**
@@ -174,10 +212,15 @@ public class ThoughtAdapter
          * Gets references for member variables and sends {@code itemView} to super constructor.
          *
          * @param itemView root view
+         * @param viewType type
          */
-        public ThoughtViewHolder(View itemView)
+        public ThoughtViewHolder(View itemView, int viewType)
         {
             super(itemView);
+
+            if (viewType == VIEWTYPE_CONFIG)
+                return;
+
             mImageViewThought = (ImageView) itemView.findViewById(R.id.iv_thought_heart);
             mTextViewTime = (TextView) itemView.findViewById(R.id.tv_thought_time);
             mTextViewThought = (TextView) itemView.findViewById(R.id.tv_thought_message);
@@ -207,5 +250,10 @@ public class ThoughtAdapter
          * @return integer value of color
          */
         int getColor(int id);
+
+        /**
+         * Invoked when the list header item is clicked.
+         */
+        void openSettings();
     }
 }
