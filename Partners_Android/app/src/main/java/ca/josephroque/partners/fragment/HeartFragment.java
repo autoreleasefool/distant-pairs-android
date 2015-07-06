@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -113,6 +114,7 @@ public class HeartFragment
             }
         });
 
+        Log.i(TAG, "HeartFragment created");
         return rootView;
     }
 

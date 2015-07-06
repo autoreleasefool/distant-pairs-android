@@ -1049,6 +1049,8 @@ public class PartnerActivity
 
         /** Fragments in the view pager. */
         private SparseArray<WeakReference<Fragment>> mRegisteredFragments = new SparseArray<>();
+        /** Indicates if a pair is registered. */
+        private boolean mIsPairRegistered;
 
         /**
          * Default constructor.
@@ -1066,7 +1068,7 @@ public class PartnerActivity
             switch (position)
             {
                 case HEART_FRAGMENT:
-                    if (mIsPairRegistered)
+                    if (PartnerActivity.this.mIsPairRegistered)
                         return HeartFragment.newInstance();
                     else
                         return RegisterFragment.newInstance(false);
@@ -1100,10 +1102,22 @@ public class PartnerActivity
         @Override
         public int getCount()
         {
-            if (mIsPairRegistered)
+            if (PartnerActivity.this.mIsPairRegistered)
                 return 2;
             else
                 return 1;
+        }
+
+        @Override
+        public int getItemPosition(Object object)
+        {
+            if (mIsPairRegistered != PartnerActivity.this.mIsPairRegistered)
+            {
+                mIsPairRegistered = PartnerActivity.this.mIsPairRegistered;
+                return POSITION_NONE;
+            }
+            else
+                return POSITION_UNCHANGED;
         }
 
         /**
