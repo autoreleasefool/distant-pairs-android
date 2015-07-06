@@ -153,6 +153,7 @@ public class ThoughtFragment
         mListDateAndTime.add(0, dateAndTime);
         mListThoughts.add(0, message);
         mListThoughtSaved.add(0, false);
+        mListThoughtSeen.add(0, false);
         mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
 
         Calendar calendar = Calendar.getInstance(MessageUtil.getCurrentLocale());

@@ -131,6 +131,10 @@ public class PartnerActivity
     private int mStatusAttemptCount;
     /** Indicates if the user's partner is online. */
     private boolean mIsPartnerOnline;
+    /** Indicates if the application has checked if the user's partner logged in. */
+    private boolean mCheckedForLogins;
+    /** Indicates if the user has been prompted to send a thought already. */
+    private boolean mThoughtPromptDisplayed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -826,9 +830,10 @@ public class PartnerActivity
     {
         final String partnerName = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(AccountUtil.PAIR, null);
-        if (partnerName == null)
+        if (partnerName == null || mCheckedForLogins)
             return;
 
+        mCheckedForLogins = true;
         ParseQuery<ParseObject> query = new ParseQuery<>("Login");
         query.whereEqualTo(AccountUtil.USERNAME, partnerName);
         query.findInBackground(new FindCallback<ParseObject>()
@@ -838,6 +843,7 @@ public class PartnerActivity
             {
                 if (e == null && list != null && list.size() > 0)
                 {
+                    ParseObject.deleteAllInBackground(list);
                     DialogInterface.OnClickListener listener =
                             new DialogInterface.OnClickListener()
                             {
@@ -850,14 +856,14 @@ public class PartnerActivity
                                 }
                             };
 
-                    String s = (list.size() > 1)
-                            ? "s"
-                            : "";
+                    String times = (list.size() > 1)
+                            ? list.size() + " times"
+                            : "once";
 
                     new AlertDialog.Builder(PartnerActivity.this)
                             .setTitle(R.string.text_partner_logged_in)
-                            .setMessage(partnerName + " has visited " + list.size() + " time"
-                                    + s + " since your last visit. Click below to see if they've "
+                            .setMessage(partnerName + " has visited " + times
+                                    + " since your last visit! Click below to see if they've "
                                     + "left you any messages.")
                             .setPositiveButton(R.string.text_dialog_thoughts, listener)
                             .setNegativeButton(R.string.text_dialog_later, listener)
@@ -873,9 +879,10 @@ public class PartnerActivity
      */
     private void displayThoughPrompt()
     {
-        if (MessageUtil.wasThoughtSent(this))
+        if (MessageUtil.wasThoughtSent(this) || mThoughtPromptDisplayed)
             return;
 
+        mThoughtPromptDisplayed = true;
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
         {
             @Override
