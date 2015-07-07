@@ -27,7 +27,7 @@ public class TutorialFragment
     private static final String TAG = "TutorialFragment";
 
     /** Number of pages in the tutorial. */
-    public static final int TUTORIAL_PAGES = 4;
+    public static final int TUTORIAL_PAGES = 5;
 
     /** Tutorial page for registering. */
     private static final int TUTORIAL_REGISTER = 0;
@@ -37,6 +37,8 @@ public class TutorialFragment
     private static final int TUTORIAL_LOG_IN = 2;
     /** Tutorial page for leaving a thought. */
     private static final int TUTORIAL_THOUGHT = 3;
+    /** Tutorial page for saving a thought. */
+    private static final int TUTORIAL_THOUGHT_SAVED = 4;
 
     /** Distance to animate position offset of views. */
     private static final int ANIMATION_POSITION_OFFSET = 50;
@@ -143,6 +145,12 @@ public class TutorialFragment
                 mTextViewTutorial.setText(R.string.text_tutorial_thought);
                 mViewTutorial = View.inflate(getActivity().getApplicationContext(),
                         R.layout.tutorial_thought, null);
+                setTutorialLayout(rootView);
+                break;
+            case TUTORIAL_THOUGHT_SAVED:
+                mTextViewTutorial.setText(R.string.text_tutorial_thought_saved);
+                mViewTutorial = View.inflate(getActivity().getApplicationContext(),
+                        R.layout.tutorial_save, null);
                 setTutorialLayout(rootView);
                 break;
             default:

@@ -11,8 +11,11 @@
     <string name="text_tutorial_register_pair">Next, you\'ll register your partner\'s name as your pair. You can only have one!</string>
     <string name="text_tutorial_login">When you open the app, you\'ll be able to see if your pair is online and they\'ll see you.</string>
     <string name="text_tutorial_thought">If they aren\'t, you can leave them a message and let them know what made you think of them.</string>
+    <string name="text_tutorial_thought_saved">Be aware, 24 hours after a message is received, it will be deleted. Fortunately, you can save all your favourites to your phone by tapping the heart.</string>
     <string name="text_default_thought">I found something I think you\'ll like while I was shopping today! :)</string>
+    <string name="text_default_thought_saved">You\'re beautiful, I love you</string>
     <string name="text_default_thought_time">7:08 pm</string>
+    <string name="text_default_thought_time_saved">10:49 pm</string>
     <string name="text_choose_username">Now, choose a username below.</string>
 
     <!-- Errors -->

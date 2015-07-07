@@ -1,0 +1,61 @@
+<android.support.v7.widget.CardView
+    android:id="@+id/tutorial_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardBackgroundColor="@color/primary_color_light"
+    card_view:cardCornerRadius="4dp"
+    card_view:cardElevation="4dp"
+    card_view:cardUseCompatPadding="true"
+    tools:ignore="RtlSymmetry,RtlHardCoded">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_thought_heart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:paddingBottom="@dimen/thought_vertical_padding"
+            android:paddingLeft="@dimen/thought_horizontal_padding"
+            android:paddingTop="@dimen/thought_vertical_padding"
+            android:src="@drawable/ic_heart_med"
+            tools:ignore="ContentDescription" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/iv_thought_heart"
+            android:orientation="horizontal"
+            android:paddingBottom="@dimen/thought_vertical_padding"
+            android:paddingLeft="@dimen/thought_horizontal_padding"
+            android:paddingTop="@dimen/thought_vertical_padding">
+
+            <TextView
+                android:id="@+id/tv_thought_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:paddingRight="@dimen/thought_time_padding"
+                android:text="@string/text_default_thought_saved" />
+
+            <TextView
+                android:id="@+id/tv_thought_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:paddingRight="@dimen/thought_horizontal_padding"
+                android:text="@string/text_default_thought_time_saved"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

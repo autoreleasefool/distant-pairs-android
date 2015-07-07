@@ -57,6 +57,13 @@
             android:layout_margin="@dimen/indicator_width"
             android:background="@drawable/position_indicator" />
 
+        <View
+            android:id="@+id/view_indicator_5"
+            android:layout_width="@dimen/indicator_width"
+            android:layout_height="@dimen/indicator_height"
+            android:layout_margin="@dimen/indicator_width"
+            android:background="@drawable/position_indicator" />
+
     </LinearLayout>
 
     <LinearLayout
