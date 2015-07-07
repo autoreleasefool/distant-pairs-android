@@ -81,6 +81,15 @@ public class RegisterFragment
         return fragment;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+
+        if (getActivity() != null)
+            AccountUtils.setTutorialWatched(getActivity(), true);
+    }
+
     @SuppressWarnings("deprecation")    // Uses updated methods in APIs where available
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

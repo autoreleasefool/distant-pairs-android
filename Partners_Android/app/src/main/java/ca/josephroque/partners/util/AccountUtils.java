@@ -32,6 +32,12 @@ public final class AccountUtils
     @SuppressWarnings("unused")
     private static final String TAG = "AccountUtils";
 
+    /**
+     * Represents a boolean in the shared preferences which indicates if the tutorial has been
+     * completed.
+     */
+    private static final String TUTORIAL_WATCHED = "tutorial_watched";
+
     /** Represents successful account related operation. */
     public static final int SUCCESS = 0;
 
@@ -380,6 +386,32 @@ public final class AccountUtils
                 .getString(PASSWORD, null);
         return username != null && password != null
                 && username.length() > 0 && password.length() > 0;
+    }
+
+    /**
+     * Sets whether the tutorial has been seen by the user or not.
+     *
+     * @param context to get shared preferences
+     * @param watched true if the tutorial has been seen, false otherwise
+     */
+    public static void setTutorialWatched(Context context, boolean watched)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(TUTORIAL_WATCHED, watched)
+                .apply();
+    }
+
+    /**
+     * Checks if the tutorial has been watched.
+     *
+     * @param context to get shared preferences
+     * @return true if the tutorial has been seen, false otherwise
+     */
+    public static boolean wasTutorialWatched(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(TUTORIAL_WATCHED, false);
     }
 
     /**
