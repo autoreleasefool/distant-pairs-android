@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -381,8 +380,6 @@ public class ThoughtFragment
 
                     if (MessageUtils.VISITED_MESSAGE.equals(message))
                     {
-                        Log.i(TAG, "Message should be deleted: " + message + " Id: "
-                                + thought.getObjectId());
                         thoughtsToDelete.add(thought);
                         mVisitedMessageFound = true;
                         savedSeenMap.put(date, Pair.create(false, false));
