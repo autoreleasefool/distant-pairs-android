@@ -86,6 +86,8 @@ public class SplashActivity
     @Override
     public void onResume()
     {
+        super.onResume();
+
         // Skips to registration screen if tutorial has been seen before.
         if (AccountUtils.wasTutorialWatched(this))
             mViewPagerContent.setCurrentItem(TutorialFragment.TUTORIAL_PAGES);
