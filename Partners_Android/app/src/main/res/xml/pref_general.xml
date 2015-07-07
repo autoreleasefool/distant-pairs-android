@@ -1,0 +1,27 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="pref_enable_pulse"
+        android:defaultValue="true"
+        android:summaryOff="@string/pref_pulse_summaryOff"
+        android:summaryOn="@string/pref_pulse_summaryOn"
+        android:title="@string/pref_pulse_title" />
+
+    <SwitchPreference
+        android:key="pref_enable_thought_prompt"
+        android:defaultValue="true"
+        android:summaryOff="@string/pref_thought_summaryOff"
+        android:summaryOn="@string/pref_thought_summaryOn"
+        android:title="@string/pref_thought_prompt_title" />
+
+    <Preference
+        android:key="pref_delete_account"
+        android:summary="@string/pref_delete_pair_summary"
+        android:title="@string/pref_delete_pair_title" />
+
+    <Preference
+        android:key="pref_delete_pair"
+        android:summary="@string/pref_delete_account_summary"
+        android:title="@string/pref_delete_account_title" />
+
+</PreferenceScreen>

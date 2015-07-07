@@ -1,0 +1,31 @@
+<resources>
+
+    <!-- Title -->
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Other settings -->
+    <string name="pref_header_other">Other</string>
+    <string name="pref_developer_website_title">Visit developer website</string>
+    <string name="pref_developer_website_summary">Learn more about the developer</string>
+    <string name="pref_view_source_title">View source on GitHub</string>
+    <string name="pref_view_source_summary">Check out the open source repository</string>
+    <string name="pref_rate_title">Rate app</string>
+    <string name="pref_rate_summary">Your feedback is always appreciated</string>
+    <string name="pref_report_bug_title">Report a bug</string>
+    <string name="pref_report_bug_summary">Help make the app work better for you</string>
+    <string name="pref_comment_suggestion_title">Submit a comment/suggestion</string>
+    <string name="pref_comment_suggestion_summary">Have a request or an idea for a feature?</string>
+
+    <!-- General settings -->
+    <string name="pref_pulse_title">Enable heart beat animations</string>
+    <string name="pref_pulse_summaryOff">Animations disabled</string>
+    <string name="pref_pulse_summaryOn">Animations enabled</string>
+    <string name="pref_thought_prompt_title">Reminder to send thought if pair is offline</string>
+    <string name="pref_thought_summaryOff">No prompting</string>
+    <string name="pref_thought_summaryOn">Prompt if pair is offline</string>
+    <string name="pref_delete_account_title">Delete account</string>
+    <string name="pref_delete_account_summary">Permanently delete your account</string>
+    <string name="pref_delete_pair_title">Delete pair</string>
+    <string name="pref_delete_pair_summary">Permanently delete your pair</string>
+
+</resources>

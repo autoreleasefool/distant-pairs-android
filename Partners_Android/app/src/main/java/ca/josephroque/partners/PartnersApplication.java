@@ -1,6 +1,7 @@
 package ca.josephroque.partners;
 
 import android.app.Application;
+import android.preference.PreferenceManager;
 
 import com.parse.Parse;
 
@@ -28,6 +29,9 @@ public class PartnersApplication
 
         // Creates database if it doesn't exist
         DBHelper.getInstance(this);
+
+        // Sets default preference values
+        PreferenceManager.setDefaultValues(this, R.xml.pref_other, false);
 
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, "jWG1xELtom5AqG1jrv7swNBg3wgWlLLAAhfzhfM7",

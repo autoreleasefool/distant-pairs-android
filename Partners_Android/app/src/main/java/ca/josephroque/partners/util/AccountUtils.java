@@ -41,8 +41,6 @@ public final class AccountUtils
     public static final String USERNAME = "account_username";
     /** Represents pair's name in preferences. */
     public static final String PAIR = "account_pair";
-    /** Represents parse object container the user's account. */
-    public static final String PARSE_USER_ID = "account_user_objid";
 
     /** Represents the minimum length of a valid account deletion key. */
     private static final int ACCOUNT_DELETION_KEY_LENGTH = 35;
@@ -129,8 +127,8 @@ public final class AccountUtils
         };
 
         new AlertDialog.Builder(context)
-                .setTitle("Delete account?")
-                .setMessage("Are you sure you want to delete your account? This cannot be undone.")
+                .setTitle(R.string.text_delete_account_title)
+                .setMessage(R.string.text_delete_account_message)
                 .setNegativeButton(R.string.text_dialog_cancel, listener)
                 .setPositiveButton(R.string.text_dialog_okay, listener)
                 .create()
@@ -188,7 +186,6 @@ public final class AccountUtils
                         .remove(USERNAME)
                         .remove(PASSWORD)
                         .remove(PAIR)
-                        .remove(PARSE_USER_ID)
                         .remove(MessageUtils.STATUS_OBJECT_ID)
                         .apply();
 
@@ -267,6 +264,93 @@ public final class AccountUtils
         {
             // does nothing - user can assume these objects were deleted
         }
+    }
+
+    /**
+     * Prompt user to delete their pair.
+     *
+     * @param context to create dialog
+     * @param callback to inform calling method if pair is deleted
+     */
+    public static void promptDeletePair(final Context context,
+                                        final DeleteAccountCallback callback)
+    {
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+                if (which == DialogInterface.BUTTON_POSITIVE)
+                {
+                    callback.onDeleteAccountStarted();
+                    deletePair(context, callback);
+
+                }
+            }
+        };
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.text_delete_pair_title)
+                .setMessage(R.string.text_delete_pair_message)
+                .setNegativeButton(R.string.text_dialog_cancel, listener)
+                .setPositiveButton(R.string.text_dialog_okay, listener)
+                .create()
+                .show();
+    }
+
+    /**
+     * Deletes the current user account.
+     *
+     * @param context to get shared preferences
+     * @param callback to inform calling method if account is deleted
+     */
+    public static void deletePair(final Context context, final DeleteAccountCallback callback)
+    {
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                DBHelper helper = DBHelper.getInstance(context);
+                helper.clearAllThoughts();
+
+                ParseUser.logOut();
+
+                SharedPreferences preferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+
+                String username = preferences.getString(USERNAME, null);
+                if (username == null)
+                    return;
+
+                preferences.edit()
+                        .remove(PAIR)
+                        .apply();
+
+                deletePairObjects(username);
+                callback.onDeleteAccountEnded();
+            }
+        }).start();
+    }
+
+    /**
+     * Deletes all Parse Pair objects associated with the username.
+     *
+     * @param username user to delete objects for
+     */
+    private static void deletePairObjects(String username)
+    {
+        ParseQuery<ParseObject> pairQuery = ParseQuery.or(Arrays.asList(
+                new ParseQuery<>("Pair").whereEqualTo(USERNAME, username),
+                new ParseQuery<>("Pair").whereEqualTo(PAIR, username)));
+
+        ParseQuery<ParseObject> thoughtQuery = ParseQuery.or(Arrays.asList(
+                new ParseQuery<>("Thought").whereEqualTo("recipientName", username),
+                new ParseQuery<>("Thought").whereEqualTo("senderName", username)));
+
+        deleteObjectsFromQuery(pairQuery);
+        deleteObjectsFromQuery(thoughtQuery);
     }
 
     /**

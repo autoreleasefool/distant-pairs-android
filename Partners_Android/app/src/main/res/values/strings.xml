@@ -15,7 +15,6 @@
     <string name="text_default_thought_time">7:08 pm</string>
     <string name="text_choose_username">Now, choose a username below.</string>
 
-
     <!-- Errors -->
     <string name="text_cannot_find_pair">Unable to find your pair.</string>
     <string name="text_no_message">No message was provided.</string>
@@ -39,6 +38,10 @@
     <string name="text_check_pairs">Check for Pair Requests</string>
     <string name="text_checking">Checking</string>
     <string name="text_deleting_account">Deleting account</string>
+    <string name="text_delete_account_title">Delete account?</string>
+    <string name="text_delete_account_message">Are you sure you want to delete your account? This cannot be undone.</string>
+    <string name="text_delete_pair_title">Delete pair?</string>
+    <string name="text_delete_pair_message">Are you sure you want to delete your pair? This cannot be undone.</string>
 
     <!-- Text -->
     <string name="text_most_recent">Most recent thought:</string>

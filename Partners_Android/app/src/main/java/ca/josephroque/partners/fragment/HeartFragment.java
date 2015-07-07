@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
 import ca.josephroque.partners.message.MessageHandler;
 import ca.josephroque.partners.util.MessageUtils;
+import ca.josephroque.partners.util.PreferenceUtils;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link HeartFragment#newInstance} factory method to
@@ -286,6 +288,10 @@ public class HeartFragment
      */
     private void startPulseAnimation()
     {
+        if (!PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getBoolean(PreferenceUtils.PREF_ENABLE_PULSE, true))
+            return;
+
         final float sizeToPulse = 1.04f;
         final float centerPivot = 0.5f;
         final int pulseOffset = 1000;
@@ -356,9 +362,12 @@ public class HeartFragment
      */
     private void stopPulseAnimation()
     {
-        mHandlerPulse.removeCallbacks(mPulseAnimation);
-        mHeartPulseGrowAnimation.cancel();
-        mHeartPulseShrinkAnimation.cancel();
+        if (mHandlerPulse != null)
+            mHandlerPulse.removeCallbacks(mPulseAnimation);
+        if (mHeartPulseGrowAnimation != null)
+            mHeartPulseGrowAnimation.cancel();
+        if (mHeartPulseGrowAnimation != null)
+            mHeartPulseShrinkAnimation.cancel();
     }
 
     /**

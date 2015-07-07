@@ -364,7 +364,6 @@ public class RegisterFragment
                     .edit()
                     .putString(AccountUtils.USERNAME, credentials[0])
                     .putString(AccountUtils.PASSWORD, credentials[1])
-                    .putString(AccountUtils.PARSE_USER_ID, parseUser.getObjectId())
                     .commit();
 
             return AccountUtils.SUCCESS;

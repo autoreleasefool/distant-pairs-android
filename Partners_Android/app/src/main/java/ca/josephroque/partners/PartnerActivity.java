@@ -9,6 +9,7 @@ import ca.josephroque.partners.util.AnimationUtils;
 import ca.josephroque.partners.util.DisplayUtils;
 import ca.josephroque.partners.util.ErrorUtils;
 import ca.josephroque.partners.util.MessageUtils;
+import ca.josephroque.partners.util.PreferenceUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -83,18 +84,22 @@ public class PartnerActivity
     private static final String ARG_CURRENT_FRAGMENT = "arg_cur_frag";
     /** Represents boolean indicating if the user has a pair registered. */
     private static final String ARG_PAIR_REGISTERED = "arg_pair_reg";
+    /** Represents boolean indicating the partner's online status. */
+    private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
     /** Position of HeartFragment instance in ViewPager. */
     public static final byte HEART_FRAGMENT = 0;
     /** Position of ThoughtFragment instance in ViewPager. */
     public static final byte THOUGHT_FRAGMENT = 1;
-    /** Represents boolean indicating the partner's online status. */
-    private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
+    /** Action intent to indicate the activity should finish. */
+    public static final String ACTION_FINISH = "ca.josephroque.partners.PartnerActivity.finish";
 
     /** Center pivot for scale animation. */
     private static final float CENTER_PIVOT = 0.5f;
 
     /** Broadcast receiver for messages from partner. */
     private BroadcastReceiver mMessageBroadcastReceiver;
+    /** Broadcast receiver for messages to finish the activity. */
+    private BroadcastReceiver mFinishedBroadcastReceiver;
 
     /** Primary coordinator layout. */
     private CoordinatorLayout mCoordinatorLayout;
@@ -194,6 +199,7 @@ public class PartnerActivity
         updateFloatingActionButton();
         populateHeartImageViews();
         registerMessageReceiver();
+        registerFinishReceiver();
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -227,7 +233,9 @@ public class PartnerActivity
     protected void onDestroy()
     {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageBroadcastReceiver);
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.unregisterReceiver(mMessageBroadcastReceiver);
+        manager.unregisterReceiver(mFinishedBroadcastReceiver);
     }
 
     @Override
@@ -383,6 +391,25 @@ public class PartnerActivity
     }
 
     /**
+     * Registers a custom {@link android.content.BroadcastReceiver} in the {@link
+     * android.support.v4.content.LocalBroadcastManager}.
+     */
+    private void registerFinishReceiver()
+    {
+        mFinishedBroadcastReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                finish();
+            }
+        };
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mFinishedBroadcastReceiver,
+                new IntentFilter(PartnerActivity.ACTION_FINISH));
+    }
+
+    /**
      * Creates an array of ImageView objects for {@code mImageViewHearts}.
      */
     @SuppressWarnings("deprecation")        // Newer methods used on newer api, deprecated on old
@@ -458,7 +485,6 @@ public class PartnerActivity
                                 finish();
                             }
                         });
-
                     }
 
                     @Override
@@ -842,7 +868,9 @@ public class PartnerActivity
      */
     private void displayThoughPrompt()
     {
-        if (MessageUtils.wasThoughtSent(this) || mThoughtPromptDisplayed)
+        if (MessageUtils.wasThoughtSent(this) || mThoughtPromptDisplayed
+                || !PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(PreferenceUtils.PREF_ENABLE_THOUGHT_PROMPT, true))
             return;
 
         mThoughtPromptDisplayed = true;
