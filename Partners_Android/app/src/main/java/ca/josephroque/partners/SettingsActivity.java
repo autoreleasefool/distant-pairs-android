@@ -216,6 +216,7 @@ public class SettingsActivity
         findPreference(PreferenceUtils.PREF_REPORT_BUG).setEnabled(enabled);
         findPreference(PreferenceUtils.PREF_COMMENT_SUGGESTION).setEnabled(enabled);
         findPreference(PreferenceUtils.PREF_ENABLE_PULSE).setEnabled(enabled);
+        findPreference(PreferenceUtils.PREF_ENABLE_SUPER_CUTE_HEART).setEnabled(enabled);
         findPreference(PreferenceUtils.PREF_ENABLE_THOUGHT_PROMPT).setEnabled(enabled);
         findPreference(PreferenceUtils.PREF_DELETE_ACCOUNT).setEnabled(enabled);
         findPreference(PreferenceUtils.PREF_DELETE_PAIR).setEnabled(enabled);

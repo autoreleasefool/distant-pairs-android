@@ -22,6 +22,8 @@ public final class PreferenceUtils
 
     /** Preference for enabling or disabling the pulsing heart animation. */
     public static final String PREF_ENABLE_PULSE = "pref_enable_pulse";
+    /** Preference for enabling or disabling the super cute heart animation. */
+    public static final String PREF_ENABLE_SUPER_CUTE_HEART = "pref_enable_super_cute_hearts";
     /** Preference for enabling or disabling the prompt to send thought when partner is offline. */
     public static final String PREF_ENABLE_THOUGHT_PROMPT = "pref_enable_thought_prompt";
     /** Preference to delete the user account. */

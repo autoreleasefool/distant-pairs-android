@@ -899,6 +899,10 @@ public class PartnerActivity
      */
     private void superCuteHeartAnimation()
     {
+        if (!PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(PreferenceUtils.PREF_ENABLE_SUPER_CUTE_HEART, true))
+            return;
+
         DisplayMetrics display = getResources().getDisplayMetrics();
         int deviceWidth = display.widthPixels;
         int deviceHeight = display.heightPixels;

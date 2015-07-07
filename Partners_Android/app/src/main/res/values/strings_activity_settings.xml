@@ -18,8 +18,9 @@
 
     <!-- General settings -->
     <string name="pref_pulse_title">Enable heart beat animations</string>
-    <string name="pref_pulse_summaryOff">Animations disabled</string>
-    <string name="pref_pulse_summaryOn">Animations enabled</string>
+    <string name="pref_animation_summaryOff">Animations disabled</string>
+    <string name="pref_animation_summaryOn">Animations enabled</string>
+    <string name="pref_super_cute_hearts_title">Enable new message animation</string>
     <string name="pref_thought_prompt_title">Reminder to send thought if pair is offline</string>
     <string name="pref_thought_summaryOff">No prompting</string>
     <string name="pref_thought_summaryOn">Prompt if pair is offline</string>
