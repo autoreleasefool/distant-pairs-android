@@ -1,12 +1,14 @@
 //
 //  ModelController.swift
-//  Partners
+//  Partners_iOS
 //
-//  Created by Joseph Roque on 2015-07-01.
+//  Created by Joseph Roque on 15-07-08.
 //  Copyright (c) 2015 Joseph Roque. All rights reserved.
 //
 
+
 import UIKit
+
 
 /*
  A controller object that manages a simple model -- a collection of month names.
@@ -20,37 +22,47 @@ import UIKit
 
 class ModelController: NSObject, UIPageViewControllerDataSource {
 
+
     var pageData = NSArray()
+
+
 
 
     override init() {
         super.init()
-        // Create the data model.
-        let dateFormatter = NSDateFormatter()
-        pageData = dateFormatter.monthSymbols
+
+    // Create the data model.
+    let dateFormatter = NSDateFormatter()
+    pageData = dateFormatter.monthSymbols
     }
+
 
     func viewControllerAtIndex(index: Int, storyboard: UIStoryboard) -> DataViewController? {
-        // Return the data view controller for the given index.
-        if (self.pageData.count == 0) || (index >= self.pageData.count) {
-            return nil
-        }
-
-        // Create a new view controller and pass suitable data.
-        let dataViewController = storyboard.instantiateViewControllerWithIdentifier("DataViewController") as! DataViewController
-        dataViewController.dataObject = self.pageData[index]
-        return dataViewController
+    // Return the data view controller for the given index.
+    if (self.pageData.count == 0) || (index >= self.pageData.count) {
+        return nil
     }
+
+    // Create a new view controller and pass suitable data.
+    let dataViewController = storyboard.instantiateViewControllerWithIdentifier("DataViewController") as! DataViewController
+    dataViewController.dataObject = self.pageData[index]
+    return dataViewController
+
+    }
+
 
     func indexOfViewController(viewController: DataViewController) -> Int {
-        // Return the index of the given data view controller.
-        // For simplicity, this implementation uses a static array of model objects and the view controller stores the model object; you can therefore use the model object to identify the index.
-        if let dataObject: AnyObject = viewController.dataObject {
-            return self.pageData.indexOfObject(dataObject)
-        } else {
-            return NSNotFound
-        }
+    // Return the index of the given data view controller.
+    // For simplicity, this implementation uses a static array of model objects and the view controller stores the model object; you can therefore use the model object to identify the index.
+    if let dataObject: AnyObject = viewController.dataObject {
+        return self.pageData.indexOfObject(dataObject)
+    } else {
+        return NSNotFound
     }
+
+    }
+
+
 
     // MARK: - Page View Controller Data Source
 
@@ -77,5 +89,5 @@ class ModelController: NSObject, UIPageViewControllerDataSource {
         return self.viewControllerAtIndex(index, storyboard: viewController.storyboard!)
     }
 
-}
 
+}

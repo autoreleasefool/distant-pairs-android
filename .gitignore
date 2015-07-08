@@ -27,6 +27,9 @@ proguard/
 Partners_Android/.idea/
 *.iml
 
+#AppCode files
+Partners_iOS/.idea/
+
 # Log Files
 *.log
 

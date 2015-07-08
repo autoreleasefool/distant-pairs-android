@@ -1,15 +1,15 @@
 //
-//  PartnersTests.swift
-//  PartnersTests
+//  Partners_iOSTests.swift
+//  Partners_iOSTests
 //
-//  Created by Joseph Roque on 2015-07-01.
+//  Created by Joseph Roque on 15-07-08.
 //  Copyright (c) 2015 Joseph Roque. All rights reserved.
 //
 
 import UIKit
 import XCTest
 
-class PartnersTests: XCTestCase {
+class Partners_iOSTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
