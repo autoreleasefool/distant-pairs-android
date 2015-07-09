@@ -1,8 +1,5 @@
 package ca.josephroque.partners.util;
 
-import android.content.Context;
-import android.preference.PreferenceManager;
-
 /**
  * Created by Joseph Roque on 2015-07-06. Offers methods and constants to access preferences.
  */
@@ -19,6 +16,11 @@ public final class PreferenceUtils
     public static final String PREF_REPORT_BUG = "pref_report_bug";
     /** Preference for sending a comment or suggestion. */
     public static final String PREF_COMMENT_SUGGESTION = "pref_comment_suggestion";
+
+    /** Preference for adding a watch to the user's account. */
+    public static final String PREF_ADD_WATCH = "pref_add_watch";
+    /** Preference for removing a watch from the user's account. */
+    public static final String PREF_DELETE_WATCH = "pref_delete_watch";
 
     /** Preference for enabling or disabling the pulsing heart animation. */
     public static final String PREF_ENABLE_PULSE = "pref_enable_pulse";

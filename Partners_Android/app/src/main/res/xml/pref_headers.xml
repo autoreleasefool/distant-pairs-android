@@ -1,0 +1,17 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- These settings headers are only used on tablets. -->
+
+    <header
+        android:fragment="ca.josephroque.partners.SettingsActivity$GeneralPreferenceFragment"
+        android:title="@string/pref_header_general" />
+
+    <header
+        android:fragment="ca.josephroque.partners.SettingsActivity$WatchPreferenceFragment"
+        android:title="@string/pref_header_watch" />
+
+    <header
+        android:fragment="ca.josephroque.partners.SettingsActivity$OtherPreferenceFragment"
+        android:title="@string/pref_header_other" />
+
+</preference-headers>

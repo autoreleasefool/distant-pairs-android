@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="pref_add_watch"
+        android:summary="@string/pref_add_watch_summary"
+        android:title="@string/pref_add_watch_title" />
+
+    <Preference
+        android:key="pref_delete_watch"
+        android:summary="@string/pref_delete_watch_summary"
+        android:title="@string/pref_delete_watch_title" />
+
+</PreferenceScreen>

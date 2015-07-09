@@ -1,22 +1,22 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
-        android:key="pref_enable_pulse"
         android:defaultValue="true"
+        android:key="pref_enable_pulse"
         android:summaryOff="@string/pref_animation_summaryOff"
         android:summaryOn="@string/pref_animation_summaryOn"
         android:title="@string/pref_pulse_title" />
 
     <SwitchPreference
-        android:key="pref_enable_super_cute_hearts"
         android:defaultValue="true"
+        android:key="pref_enable_super_cute_hearts"
         android:summaryOff="@string/pref_animation_summaryOff"
         android:summaryOn="@string/pref_animation_summaryOn"
         android:title="@string/pref_super_cute_hearts_title" />
 
     <SwitchPreference
-        android:key="pref_enable_thought_prompt"
         android:defaultValue="true"
+        android:key="pref_enable_thought_prompt"
         android:summaryOff="@string/pref_thought_summaryOff"
         android:summaryOn="@string/pref_thought_summaryOn"
         android:title="@string/pref_thought_prompt_title" />

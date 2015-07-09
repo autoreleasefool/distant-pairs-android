@@ -3,6 +3,13 @@
     <!-- Title -->
     <string name="title_activity_settings">Settings</string>
 
+    <!-- Watch settings -->
+    <string name="pref_header_watch">Watch</string>
+    <string name="pref_add_watch_title">Add watch</string>
+    <string name="pref_add_watch_summary">See your pair on your watch</string>
+    <string name="pref_delete_watch_title">Remove watch</string>
+    <string name="pref_delete_watch_summary">Delete a watch connection</string>
+
     <!-- Other settings -->
     <string name="pref_header_other">Other</string>
     <string name="pref_developer_website_title">Visit developer website</string>
@@ -17,6 +24,7 @@
     <string name="pref_comment_suggestion_summary">Have a request or an idea for a feature?</string>
 
     <!-- General settings -->
+    <string name="pref_header_general">General</string>
     <string name="pref_pulse_title">Enable heart beat animations</string>
     <string name="pref_animation_summaryOff">Animations disabled</string>
     <string name="pref_animation_summaryOn">Animations enabled</string>
