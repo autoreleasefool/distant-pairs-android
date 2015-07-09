@@ -1,6 +1,7 @@
 package ca.josephroque.partners.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,6 +33,7 @@ import java.util.concurrent.Executors;
 
 import ca.josephroque.partners.PartnerActivity;
 import ca.josephroque.partners.R;
+import ca.josephroque.partners.SettingsActivity;
 import ca.josephroque.partners.adapter.ThoughtAdapter;
 import ca.josephroque.partners.database.DBHelper;
 import ca.josephroque.partners.database.ThoughtContract;
@@ -229,7 +231,8 @@ public class ThoughtFragment
     @Override
     public void openSettings()
     {
-        // TODO: open settings
+        Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+        getActivity().startActivity(settingsIntent);
     }
 
     /**
