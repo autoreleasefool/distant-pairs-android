@@ -425,14 +425,21 @@ public class ThoughtFragment
                 long thoughtTime = Long.parseLong(mListDateAndTime.get(0));
                 Date thoughtDate = new Date(thoughtTime);
 
+                int firstMessage = 0;
+                while (firstMessage < mListThoughts.size() &&
+                        MessageUtils.VISITED_MESSAGE.equals(mListThoughts.get(firstMessage)))
+                    firstMessage++;
+
                 if (mCallback != null)
                 {
-                    if (thoughtDate.before(today))
-                        mCallback.setMostRecentThought(mListThoughts.get(0),
-                                MessageUtils.getDateFormat().format(thoughtDate));
-                    else
-                        mCallback.setMostRecentThought(mListThoughts.get(0),
-                                MessageUtils.getTimeFormat().format(thoughtDate));
+                    if (firstMessage < mListThoughts.size()) {
+                        if (thoughtDate.before(today))
+                            mCallback.setMostRecentThought(mListThoughts.get(firstMessage),
+                                    MessageUtils.getDateFormat().format(thoughtDate));
+                        else
+                            mCallback.setMostRecentThought(mListThoughts.get(firstMessage),
+                                    MessageUtils.getTimeFormat().format(thoughtDate));
+                    }
                     if (mVisitedMessageFound)
                         mCallback.notifyOfLogins();
                 }

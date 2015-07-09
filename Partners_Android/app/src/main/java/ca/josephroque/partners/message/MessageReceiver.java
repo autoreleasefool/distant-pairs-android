@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,8 @@ public class MessageReceiver
             String message = data.getString("message");
             String timestamp = data.getString("timestamp");
             String id = data.getString("id");
+
+            Log.i(TAG, "Message received: " + message);
 
             Intent messageIntent = new Intent(MessageUtils.ACTION_MESSAGE_RECEIVED);
             messageIntent.putExtra("message", message);

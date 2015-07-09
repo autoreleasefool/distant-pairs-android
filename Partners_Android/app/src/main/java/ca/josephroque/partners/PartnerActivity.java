@@ -379,10 +379,10 @@ public class PartnerActivity
                     setPartnerOnline(true);
                     loginGlowAnimation();
                 }
-                else if (!MessageUtils.LOGOUT_MESSAGE.equals(message))
-                    superCuteHeartAnimation();
-                else if (!MessageUtils.VISITED_MESSAGE.equals(message))
+                else if (MessageUtils.LOGOUT_MESSAGE.equals(message))
                     setPartnerOnline(false);
+                else if (!MessageUtils.VISITED_MESSAGE.equals(message))
+                    superCuteHeartAnimation();
             }
         };
 
@@ -930,6 +930,7 @@ public class PartnerActivity
             @Override
             public void onAnimationStart(Animation animation)
             {
+                mImageViewLoginGlow.setAlpha(0f);
                 mImageViewLoginGlow.setVisibility(View.VISIBLE);
             }
 

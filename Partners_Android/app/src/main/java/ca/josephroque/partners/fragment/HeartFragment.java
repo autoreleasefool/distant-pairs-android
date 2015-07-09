@@ -118,6 +118,13 @@ public class HeartFragment
     }
 
     @Override
+    public void onStop()
+    {
+        super.onStop();
+        stopPulseAnimation();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
