@@ -29,6 +29,8 @@
     <string name="text_message_already_sent">Unable to send thought</string>
     <string name="text_message_already_sent_content">You should only send a single thought each time you open the app.</string>
     <string name="text_no_thoughts">No thoughts received.</string>
+    <string name="text_error_adding_watch">Error adding watch</string>
+    <string name="text_invalid_watch">The watch could not be added. Please make sure you entered the code correctly.</string>
 
     <!-- Events -->
     <string name="text_hint_username">Username</string>
@@ -55,6 +57,10 @@
     <string name="text_partner_logged_in">Someone was thinking of you!</string>
     <string name="text_partner_not_online">Your pair is not online</string>
     <string name="text_send_thought">Would you like to send a thought for your partner to see when they next open the app?</string>
+    <string name="text_add_watch_title">Add a watch</string>
+    <string name="text_add_watch_message">Input the exact code you see on your watch</string>
+    <string name="text_delete_watch_title">Delete your watch</string>
+    <string name="text_delete_watch_message">Are you sure you want to delete your watch? You can always add it again.</string>
 
     <!-- Dialog text -->
     <string name="text_dialog_okay">Okay</string>
@@ -66,6 +72,8 @@
     <string name="text_resend">Resend</string>
     <string name="text_dialog_thoughts">Thoughts</string>
     <string name="text_dialog_later">Later</string>
+    <string name="text_dialog_add">Add</string>
+    <string name="text_dialog_delete">Delete</string>
 
     <!-- Content descriptions -->
     <string name="text_content_description_heart_active">Your pair is online</string>

@@ -32,6 +32,10 @@ public class SettingsActivity
         implements Preference.OnPreferenceClickListener
 {
 
+    /** To identify output from this class in the Logcat. */
+    @SuppressWarnings("unused")
+    private static final String TAG = "SettingsActivity";
+
     /** Indicates if the preferences should provide on click interactions. */
     private static boolean sPreferencesEnabled = true;
 
@@ -169,6 +173,11 @@ public class SettingsActivity
         }
     }
 
+    /**
+     * Prompts user to delete their account.
+     *
+     * @param activity to get shared preferences, return to login screen when done
+     */
     private static void deleteAccount(final Activity activity)
     {
         AccountUtils.promptDeleteAccount(activity, new AccountUtils.DeleteAccountCallback()
@@ -212,6 +221,11 @@ public class SettingsActivity
         });
     }
 
+    /**
+     * Prompts user to delete their pair.
+     *
+     * @param activity to get shared preferences, return to login screen when done
+     */
     private static void deletePair(final Activity activity)
     {
         AccountUtils.promptDeletePair(activity, new AccountUtils.DeleteAccountCallback()
@@ -253,6 +267,11 @@ public class SettingsActivity
         });
     }
 
+    /**
+     * Opens the app store page in the play store or browser.
+     *
+     * @param activity to start play store app or browser
+     */
     private static void openPlayStore(Activity activity)
     {
         //Opens Google Play or chrome to display app
@@ -270,6 +289,11 @@ public class SettingsActivity
         }
     }
 
+    /**
+     * Constructs an intent to send an email for bugs the user has experienced.
+     *
+     * @param activity to show chooser dialog
+     */
     private static void emailBug(Activity activity)
     {
         String emailBody =
@@ -286,6 +310,11 @@ public class SettingsActivity
         activity.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
     }
 
+    /**
+     * Constructs an intent to send an email for user comments or suggestions for the app.
+     *
+     * @param activity to show chooser dialog
+     */
     private static void emailCommentOrSuggestion(Activity activity)
     {
         Intent emailIntent = EmailUtils.getEmailIntent(
