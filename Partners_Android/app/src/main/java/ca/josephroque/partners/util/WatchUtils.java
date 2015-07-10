@@ -89,6 +89,8 @@ public final class WatchUtils
                 {
                     parseObject.put(AccountUtils.USERNAME,
                             preferences.getString(AccountUtils.USERNAME, null));
+                    parseObject.put(AccountUtils.PAIR,
+                            preferences.getString(AccountUtils.PAIR, null));
                     parseObject.saveInBackground(new SaveCallback()
                     {
                         @Override
