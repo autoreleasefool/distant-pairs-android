@@ -3,6 +3,7 @@ package ca.josephroque.partners.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,10 +11,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -44,7 +48,7 @@ public class HeartFragment
     /** Represents boolean indicating the partner's online status. */
     private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
 
-    /** View which display the most recent thought. */
+    /** Views which display the most recent thought. */
     private View mViewMostRecentThought;
     /** Displays most recent thought received. */
     private TextView mTextViewRecentThought;
@@ -64,6 +68,9 @@ public class HeartFragment
     private Animation mHeartPulseGrowAnimation;
     /** Animation which causes the heart image to shrink to its original size. */
     private Animation mHeartPulseShrinkAnimation;
+
+    /** Indicates if the device is currently in landscape mode. */
+    private boolean mIsLandscape = false;
 
     /** Starts the pulse animation. */
     private Runnable mPulseAnimation = new Runnable()
@@ -87,32 +94,53 @@ public class HeartFragment
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getActivity() != null) {
+            Display display
+                    = ((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay();
+            mIsLandscape = (display.getRotation() != Surface.ROTATION_0);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_heart, container, false);
 
-        mTextViewRecentThought = (TextView) rootView.findViewById(R.id.tv_thought_message);
-        mTextViewRecentThoughTime = (TextView) rootView.findViewById(R.id.tv_thought_message_time);
-        mImageViewActiveHeart = (ImageView) rootView.findViewById(R.id.iv_heart_active);
-
-        if (savedInstanceState != null)
+        if (savedInstanceState != null) {
             mPartnerOnline = savedInstanceState.getBoolean(ARG_PARTNER_ONLINE);
+        }
 
+        if (mIsLandscape && getChildFragmentManager().findFragmentByTag("Thought") == null)
+        {
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.thought_container, ThoughtFragment.newInstance(), "Thought")
+                    .commit();
+        }
+
+        mImageViewActiveHeart = (ImageView) rootView.findViewById(R.id.iv_heart_active);
         mImageViewActiveHeart.setVisibility((mPartnerOnline)
                 ? View.VISIBLE
                 : View.INVISIBLE);
 
-        mViewMostRecentThought = rootView.findViewById(R.id.cv_thought);
-        mViewMostRecentThought.setOnClickListener(new View.OnClickListener()
+        if (!mIsLandscape)
         {
-            @Override
-            public void onClick(View v)
+            mTextViewRecentThought = (TextView) rootView.findViewById(R.id.tv_thought_message);
+            mTextViewRecentThoughTime = (TextView) rootView.findViewById(R.id.tv_thought_message_time);
+            mViewMostRecentThought = rootView.findViewById(R.id.cv_thought);
+            mViewMostRecentThought.setOnClickListener(new View.OnClickListener()
             {
-                ((PartnerActivity) getActivity()).showFragment(PartnerActivity.THOUGHT_FRAGMENT);
-            }
-        });
+                @Override
+                public void onClick(View v)
+                {
+                    ((PartnerActivity) getActivity()).showFragment(PartnerActivity.THOUGHT_FRAGMENT);
+                }
+            });
+        }
 
         return rootView;
     }
@@ -134,6 +162,10 @@ public class HeartFragment
     @Override
     public void onNewMessage(final String messageId, final String dateAndTime, final String message)
     {
+        if (mIsLandscape)
+            ((MessageHandler) getChildFragmentManager().findFragmentByTag("Thought"))
+                    .onNewMessage(messageId, dateAndTime, message);
+
         if (MessageUtils.LOGIN_MESSAGE.equals(message))
         {
             if (!mPartnerOnline)
@@ -166,6 +198,9 @@ public class HeartFragment
      */
     public void setMostRecentThought(String message, String timestamp)
     {
+        if (mIsLandscape)
+            return;
+
         mViewMostRecentThought.setVisibility(View.VISIBLE);
         mTextViewRecentThought.setText(message);
         mTextViewRecentThoughTime.setText(timestamp);

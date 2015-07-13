@@ -79,4 +79,7 @@
     <string name="text_content_description_heart_active">Your pair is online</string>
     <string name="text_content_description_heart_inactive">Your pair is offline</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

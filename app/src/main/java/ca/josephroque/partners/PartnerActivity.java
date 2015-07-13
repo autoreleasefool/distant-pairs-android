@@ -36,6 +36,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
+import android.view.Display;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -143,11 +145,17 @@ public class PartnerActivity
 
     /** Indicates if the current device is a tablet. */
     private boolean mIsTablet = false;
+    /** Indicates if the current device is in landscape mode. */
+    private boolean mIsLandscape = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
+        mIsLandscape = display.getRotation() != Surface.ROTATION_0;
 
         // Phones can access portrait only
         if (getResources().getBoolean(R.bool.portrait_only)) {
@@ -191,7 +199,8 @@ public class PartnerActivity
             mIsPartnerOnline = savedInstanceState.getBoolean(ARG_PARTNER_ONLINE, false);
             mIsPairRegistered = savedInstanceState.getBoolean(ARG_PAIR_REGISTERED, false);
             mCurrentViewPagerPosition = savedInstanceState.getInt(ARG_CURRENT_FRAGMENT);
-            showFragment(mCurrentViewPagerPosition);
+            if (!(mIsLandscape && mIsTablet))
+                showFragment(mCurrentViewPagerPosition);
         }
         else
         {
@@ -297,11 +306,9 @@ public class PartnerActivity
     public void notifyOfLogins()
     {
         Snackbar.make(getCoordinatorLayout(), R.string.text_partner_logged_in, Snackbar.LENGTH_LONG)
-                .setAction(R.string.text_dialog_thoughts, new View.OnClickListener()
-                {
+                .setAction(R.string.text_dialog_thoughts, new View.OnClickListener() {
                     @Override
-                    public void onClick(View v)
-                    {
+                    public void onClick(View v) {
                         showFragment(THOUGHT_FRAGMENT);
                     }
                 })
@@ -466,17 +473,13 @@ public class PartnerActivity
     public void deleteAccount()
     {
         AccountUtils.promptDeleteAccount(this,
-                new AccountUtils.DeleteAccountCallback()
-                {
+                new AccountUtils.DeleteAccountCallback() {
                     @Override
-                    public void onDeleteAccountStarted()
-                    {
+                    public void onDeleteAccountStarted() {
                         sendMessage(MessageUtils.LOGOUT_MESSAGE);
-                        runOnUiThread(new Runnable()
-                        {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -484,13 +487,10 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded()
-                    {
-                        runOnUiThread(new Runnable()
-                        {
+                    public void onDeleteAccountEnded() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void run()
-                            {
+                            public void run() {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, SplashActivity.class);
                                 startActivity(loginIntent);
@@ -500,8 +500,7 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message)
-                    {
+                    public void onDeleteAccountError(String message) {
                         if (message != null)
                             ErrorUtils.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
@@ -677,11 +676,9 @@ public class PartnerActivity
         ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
         parseQuery.whereEqualTo("username", mPartnerName);
         parsePush.setQuery(parseQuery);
-        parsePush.sendInBackground(new SendCallback()
-        {
+        parsePush.sendInBackground(new SendCallback() {
             @Override
-            public void done(ParseException e)
-            {
+            public void done(ParseException e) {
                 if (e != null)
                     messageFailedToSend(messageObject.getString("messageText"));
             }
@@ -708,11 +705,9 @@ public class PartnerActivity
         if (failureCount != null && failureCount > 2)
         {
             ErrorUtils.displayErrorSnackbar(mCoordinatorLayout, R.string.text_message_failed,
-                    R.string.text_resend, new View.OnClickListener()
-                    {
+                    R.string.text_resend, new View.OnClickListener() {
                         @Override
-                        public void onClick(View v)
-                        {
+                        public void onClick(View v) {
                             sendMessage(messageText);
                         }
                     });
@@ -837,24 +832,18 @@ public class PartnerActivity
 
         ParseQuery<ParseObject> pairStatus = new ParseQuery<>(MessageUtils.STATUS);
         pairStatus.whereEqualTo(AccountUtils.USERNAME, partnerName);
-        pairStatus.findInBackground(new FindCallback<ParseObject>()
-        {
+        pairStatus.findInBackground(new FindCallback<ParseObject>() {
             @Override
-            public void done(List<ParseObject> list, ParseException e)
-            {
-                if (e == null && list.size() >= 0)
-                {
+            public void done(List<ParseObject> list, ParseException e) {
+                if (e == null && list.size() >= 0) {
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtils.ONLINE_STATUS);
-                    if (partnerLoggedIn)
-                    {
+                    if (partnerLoggedIn) {
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
                                     MessageUtils.getCurrentDateAndTime(),
                                     MessageUtils.LOGIN_MESSAGE);
-                    }
-                    else
-                    {
+                    } else {
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
@@ -865,9 +854,7 @@ public class PartnerActivity
                         if (!MessageUtils.wasThoughtSent(PartnerActivity.this))
                             displayThoughPrompt();
                     }
-                }
-                else
-                {
+                } else {
                     ErrorUtils.displayErrorSnackbar(mCoordinatorLayout,
                             R.string.text_cannot_find_pair);
                 }
@@ -909,6 +896,7 @@ public class PartnerActivity
     /**
      * Plays a super cute heart animation for the user.
      */
+    @SuppressWarnings("SuspiciousNameCombination")      // Landscape mode switches width/height
     private void superCuteHeartAnimation()
     {
         if (!PreferenceManager.getDefaultSharedPreferences(this)
@@ -916,8 +904,17 @@ public class PartnerActivity
             return;
 
         DisplayMetrics display = getResources().getDisplayMetrics();
-        int deviceWidth = display.widthPixels;
-        int deviceHeight = display.heightPixels;
+        int deviceWidth, deviceHeight;
+        if (mIsTablet && mIsLandscape)
+        {
+            deviceWidth = display.heightPixels;
+            deviceHeight = display.widthPixels;
+        }
+        else
+        {
+            deviceWidth = display.widthPixels;
+            deviceHeight = display.heightPixels;
+        }
 
         for (ImageView heart : mImageViewHearts)
         {
@@ -1117,8 +1114,12 @@ public class PartnerActivity
         public int getCount()
         {
             if (PartnerActivity.this.mIsPairRegistered)
-                return 2;
-            else
+            {
+                if (mIsTablet && mIsLandscape)
+                    return 1;
+                else
+                    return 2;
+            } else
                 return 1;
         }
 
