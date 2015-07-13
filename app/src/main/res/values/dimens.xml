@@ -16,8 +16,10 @@
     <dimen name="list_left_padding">72dp</dimen>
     <dimen name="list_config_height">48dp</dimen>
 
+    <!-- SplashActivity -->
+    <dimen name="max_tutorial_width">480dp</dimen>
     <dimen name="login_width">280dp</dimen>
-    <dimen name="register_icon_padding">8dp</dimen>
+    <dimen name="register_ion_padding">8dp</dimen>
 
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="rv_fab_clearance">88dp</dimen>

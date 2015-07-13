@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
@@ -140,10 +141,21 @@ public class PartnerActivity
     /** Indicates if the user has been prompted to send a thought already. */
     private boolean mThoughtPromptDisplayed;
 
+    /** Indicates if the current device is a tablet. */
+    private boolean mIsTablet = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        // Phones can access portrait only
+        if (getResources().getBoolean(R.bool.portrait_only)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            mIsTablet = true;
+        }
+
         setContentView(R.layout.activity_partner);
 
         mFailedMessageCount = new HashMap<>();

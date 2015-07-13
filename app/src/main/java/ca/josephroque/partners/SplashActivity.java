@@ -2,6 +2,7 @@ package ca.josephroque.partners;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -39,6 +40,8 @@ public class SplashActivity
     private static final float INDICATOR_ACTIVE = 0.75f;
     /** Alpha value for an inactive indicator dot. */
     private static final float INDICATOR_INACTIVE = 0.25f;
+    /** Represents the user's current page in the view pager. */
+    private static final String ARG_CURRENT_PAGE = "arg_current_page";
 
     /** Displays progress when connecting to server. */
     private LinearLayout mLinearLayoutProgress;
@@ -54,11 +57,23 @@ public class SplashActivity
 
     /** Current page of view pager. */
     private int mCurrentTutorialPage = 0;
+    /** Indicates if the activity was restored from a saved instance state. */
+    private boolean mFromSavedInstanceState = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mCurrentTutorialPage = savedInstanceState.getInt(ARG_CURRENT_PAGE, 0);
+            mFromSavedInstanceState = true;
+        }
+
+        // Phones can access portrait only
+        if (getResources().getBoolean(R.bool.portrait_only)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         setContentView(R.layout.activity_splash);
 
         MessageUtils.setThoughtSent(this, false);
@@ -88,9 +103,17 @@ public class SplashActivity
     {
         super.onResume();
 
-        // Skips to registration screen if tutorial has been seen before.
-        if (AccountUtils.wasTutorialWatched(this))
+        if (mFromSavedInstanceState)
+            mViewPagerContent.setCurrentItem(mCurrentTutorialPage);
+        else if (AccountUtils.wasTutorialWatched(this))
+            // Skips to registration screen if tutorial has been seen before.
             mViewPagerContent.setCurrentItem(TutorialFragment.TUTORIAL_PAGES);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ARG_CURRENT_PAGE, mCurrentTutorialPage);
     }
 
     @Override
@@ -146,7 +169,7 @@ public class SplashActivity
             positionIndicator[i] = mLinearLayoutToolbar.findViewById(viewId);
             positionIndicator[i].setAlpha(INDICATOR_INACTIVE);
         }
-        positionIndicator[0].setAlpha(INDICATOR_ACTIVE);
+        positionIndicator[mCurrentTutorialPage].setAlpha(INDICATOR_ACTIVE);
 
         mViewPagerContent.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
         {

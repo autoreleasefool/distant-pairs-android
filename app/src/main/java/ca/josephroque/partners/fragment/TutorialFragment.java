@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +56,10 @@ public class TutorialFragment
     private int mTutorialPage;
     /** Indicates if the animation has been run. */
     private boolean mAnimationCompleted;
+    /** Indicates if the current device is a tablet. */
+    private boolean mIsTablet = false;
+    /** Indicates if the fragment was restored from a previous instance. */
+    private boolean mFromSavedInstanceState = false;
 
     /**
      * Creates a new instance of TutorialFragment.
@@ -75,6 +80,20 @@ public class TutorialFragment
         return instance;
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mFromSavedInstanceState = true;
+            Log.i(TAG, "From instance state");
+        } else {
+            Log.i(TAG, "Not from instance state");
+        }
+        if (!getResources().getBoolean(R.bool.portrait_only)) {
+            mIsTablet = true;
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -118,12 +137,11 @@ public class TutorialFragment
     {
         final int dp16 = DisplayUtils.convertDpToPx(getActivity(), 16);
 
-        mTextViewTutorial = new TextView(getActivity().getApplicationContext());
+        mTextViewTutorial = new TextView(getActivity());
         mTextViewTutorial.setId(R.id.tv_tutorial);
         mTextViewTutorial.setPadding(dp16, dp16, dp16, dp16);
         mTextViewTutorial.setGravity(Gravity.CENTER_HORIZONTAL);
-        mTextViewTutorial.setTextAppearance(getActivity().getApplicationContext(),
-                android.R.style.TextAppearance_Large);
+        mTextViewTutorial.setTextAppearance(getActivity(), android.R.style.TextAppearance_Large);
 
         switch (mTutorialPage)
         {
@@ -137,20 +155,17 @@ public class TutorialFragment
                 break;
             case TUTORIAL_LOG_IN:
                 mTextViewTutorial.setText(R.string.text_tutorial_login);
-                mViewTutorial = View.inflate(getActivity().getApplicationContext(),
-                        R.layout.tutorial_login, null);
+                mViewTutorial = View.inflate(getActivity(), R.layout.tutorial_login, null);
                 setTutorialLayout(rootView);
                 break;
             case TUTORIAL_THOUGHT:
                 mTextViewTutorial.setText(R.string.text_tutorial_thought);
-                mViewTutorial = View.inflate(getActivity().getApplicationContext(),
-                        R.layout.tutorial_thought, null);
+                mViewTutorial = View.inflate(getActivity(), R.layout.tutorial_thought, null);
                 setTutorialLayout(rootView);
                 break;
             case TUTORIAL_THOUGHT_SAVED:
                 mTextViewTutorial.setText(R.string.text_tutorial_thought_saved);
-                mViewTutorial = View.inflate(getActivity().getApplicationContext(),
-                        R.layout.tutorial_save, null);
+                mViewTutorial = View.inflate(getActivity(), R.layout.tutorial_save, null);
                 setTutorialLayout(rootView);
                 break;
             default:
@@ -165,31 +180,53 @@ public class TutorialFragment
      */
     private void setTutorialLayout(RelativeLayout rootView)
     {
+        final float maxTutorialWidth = getResources().getDimension(R.dimen.max_tutorial_width);
         RelativeLayout.LayoutParams layoutParams;
         rootView.removeAllViews();
 
         final int dp16 = DisplayUtils.convertDpToPx(getActivity(), 16);
 
-        mTextViewTutorial.setVisibility(View.INVISIBLE);
         if (mViewTutorial != null)
         {
-            mViewTutorial.setVisibility(View.INVISIBLE);
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (!mFromSavedInstanceState) {
+                mViewTutorial.setVisibility(View.INVISIBLE);
+                mTextViewTutorial.setVisibility(View.INVISIBLE);
+            }
+
+            if (mIsTablet)
+                layoutParams = new RelativeLayout.LayoutParams((int) maxTutorialWidth,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+            else
+                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
             layoutParams.setMargins(dp16, dp16, dp16, dp16);
             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+            layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
             rootView.addView(mViewTutorial, layoutParams);
 
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (mIsTablet)
+                layoutParams = new RelativeLayout.LayoutParams((int) maxTutorialWidth,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+            else
+                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
             layoutParams.addRule(RelativeLayout.ABOVE, R.id.tutorial_content);
+            layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
             rootView.addView(mTextViewTutorial, layoutParams);
         }
         else
         {
-            layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (!mFromSavedInstanceState)
+                mTextViewTutorial.setVisibility(View.INVISIBLE);
+
+            if (mIsTablet)
+                layoutParams = new RelativeLayout.LayoutParams((int) maxTutorialWidth,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+            else
+                layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+            layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
             rootView.addView(mTextViewTutorial, layoutParams);
         }
     }
@@ -199,7 +236,7 @@ public class TutorialFragment
      */
     public void startAnimation()
     {
-        if (mAnimationCompleted)
+        if (mAnimationCompleted || mFromSavedInstanceState)
             return;
 
         mAnimationCompleted = true;
