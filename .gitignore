@@ -17,7 +17,6 @@ gen/
 # Gradle files
 .gradle/
 build/
-/*/build/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -26,37 +25,8 @@ local.properties
 proguard/
 
 # Android Studio files
-Partners_Android/.idea/
+.idea/
 *.iml
 
 # Log Files
 *.log
-
-# Secret files
-Partners_Cloud/config/global.json
-
-######## XCode/Swift ########
-
-Partners_iOS/build/
-Partners_iOS/DerivedData
-
-## Various settings
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-xcuserdata
-
-## Other
-*.xccheckout
-*.moved-aside
-*.xcuserstate
-*.xcscmblueprint
-
-## Obj-C/Swift specific
-*.hmap
-*.ipa
