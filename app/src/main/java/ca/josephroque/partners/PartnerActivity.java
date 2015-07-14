@@ -309,14 +309,20 @@ public class PartnerActivity
     @Override
     public void notifyOfLogins()
     {
-        Snackbar.make(getCoordinatorLayout(), R.string.text_partner_logged_in, Snackbar.LENGTH_LONG)
-                .setAction(R.string.text_dialog_thoughts, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showFragment(THOUGHT_FRAGMENT);
-                    }
-                })
-                .show();
+        if (!mIsPartnerOnline) {
+            Snackbar.make(getCoordinatorLayout(),
+                    R.string.text_partner_logged_in,
+                    Snackbar.LENGTH_LONG)
+                    .setAction(R.string.text_dialog_thoughts, new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v)
+                        {
+                            showFragment(THOUGHT_FRAGMENT);
+                        }
+                    })
+                    .show();
+        }
     }
 
     /**
@@ -842,8 +848,7 @@ public class PartnerActivity
                 if (e == null && list.size() >= 0) {
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtils.ONLINE_STATUS);
                     String statusMessage = MessageUtils.LOGIN_MESSAGE;
-                    if (!partnerLoggedIn)
-                    {
+                    if (!partnerLoggedIn) {
                         statusMessage = MessageUtils.LOGOUT_MESSAGE;
                         if (!MessageUtils.wasStatusSent(PartnerActivity.this))
                             saveStatusMessage();
@@ -856,21 +861,16 @@ public class PartnerActivity
                         ((MessageHandler) fragment).onNewMessage(null,
                                 Long.toString(new Date().getTime()),
                                 statusMessage);
-                    try
-                    {
+                    try {
                         fragment = mPagerAdapter.getFragment(1);
                         if (fragment instanceof MessageHandler)
                             ((MessageHandler) fragment).onNewMessage(null,
                                     Long.toString(new Date().getTime()),
                                     statusMessage);
-                    }
-                    catch (NullPointerException ex)
-                    {
+                    } catch (NullPointerException ex) {
                         // does nothing
                     }
-                }
-                else
-                {
+                } else {
                     ErrorUtils.displayErrorSnackbar(mCoordinatorLayout,
                             R.string.text_cannot_find_pair);
                 }
