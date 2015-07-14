@@ -68,6 +68,8 @@ public class HeartFragment
     private Animation mHeartPulseGrowAnimation;
     /** Animation which causes the heart image to shrink to its original size. */
     private Animation mHeartPulseShrinkAnimation;
+    /** Indicates if the pulsing animation has been stopped. */
+    private boolean mAnimationStopped = false;
 
     /** Indicates if the device is currently in landscape mode. */
     private boolean mIsLandscape = false;
@@ -330,6 +332,7 @@ public class HeartFragment
         if (!PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getBoolean(PreferenceUtils.PREF_ENABLE_PULSE, true))
             return;
+        mAnimationStopped = false;
 
         final float sizeToPulse = 1.04f;
         final float centerPivot = 0.5f;
@@ -347,12 +350,14 @@ public class HeartFragment
             @Override
             public void onAnimationStart(Animation animation)
             {
-                // does nothing
+                mImageViewActiveHeart.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation)
             {
+                if (mAnimationStopped)
+                    return;
                 mImageViewActiveHeart.startAnimation(mHeartPulseShrinkAnimation);
             }
 
@@ -372,13 +377,15 @@ public class HeartFragment
             @Override
             public void onAnimationStart(Animation animation)
             {
-                // does nothing
+                mImageViewActiveHeart.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation)
             {
-                if (mAnimationCount % 2 == 0)
+                if (mAnimationStopped)
+                    return;
+                else if (mAnimationCount % 2 == 0)
                     mHandlerPulse.postDelayed(mPulseAnimation, secondPulseOffset);
                 else
                     mHandlerPulse.postDelayed(mPulseAnimation, pulseOffset);
@@ -401,6 +408,7 @@ public class HeartFragment
      */
     private void stopPulseAnimation()
     {
+        mAnimationStopped = true;
         if (mHandlerPulse != null)
             mHandlerPulse.removeCallbacks(mPulseAnimation);
         if (mHeartPulseGrowAnimation != null)
