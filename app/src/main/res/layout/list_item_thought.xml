@@ -41,7 +41,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="left"
-                android:paddingRight="@dimen/thought_time_padding" />
+                android:paddingRight="@dimen/thought_time_padding"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/tv_thought_time"

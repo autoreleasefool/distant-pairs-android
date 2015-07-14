@@ -160,7 +160,9 @@ public class ThoughtFragment
         mListThoughts.add(0, message);
         mListThoughtSaved.add(0, false);
         mListThoughtSeen.add(0, false);
-        mRecyclerViewThoughtsAdapter.notifyItemInserted(0);
+
+        // Offset by +1 to account for header in adapter
+        mRecyclerViewThoughtsAdapter.notifyItemInserted(1);
 
         Calendar calendar = Calendar.getInstance(MessageUtils.getCurrentLocale());
         calendar.set(Calendar.HOUR, 0);
@@ -265,7 +267,8 @@ public class ThoughtFragment
 
             // To order thoughts by time.
             // Key is date/time, value is pair containing id and message
-            TreeMap<String, Pair<String, String>> thoughtMap = new TreeMap<>();
+            TreeMap<String, Pair<String, String>> thoughtMap
+                    = new TreeMap<>(Collections.reverseOrder());
 
             // To indicate if a thought was retrieved from the database or not, and if it has
             // been seen before

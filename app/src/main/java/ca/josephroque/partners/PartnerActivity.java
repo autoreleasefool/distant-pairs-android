@@ -66,6 +66,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -206,6 +207,8 @@ public class PartnerActivity
         {
             mIsPairRegistered = AccountUtils.doesPartnerExist(this);
         }
+        if (mIsLandscape)
+            mCurrentViewPagerPosition = 0;
         mPagerAdapter.notifyDataSetChanged();
 
         if (mIsPairRegistered)
@@ -658,7 +661,7 @@ public class PartnerActivity
         try
         {
             data.put("message", messageObject.getString("messageText"));
-            data.put("timestamp", MessageUtils.getCurrentDateAndTime());
+            data.put("timestamp", Long.toString(new Date().getTime()));
             if (statusMessage)
                 data.put("id", "status");
             else
@@ -841,13 +844,13 @@ public class PartnerActivity
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
-                                    MessageUtils.getCurrentDateAndTime(),
+                                    Long.toString(new Date().getTime()),
                                     MessageUtils.LOGIN_MESSAGE);
                     } else {
                         Fragment currentFragment = mPagerAdapter.getCurrentFragment();
                         if (currentFragment instanceof MessageHandler)
                             ((MessageHandler) currentFragment).onNewMessage(null,
-                                    MessageUtils.getCurrentDateAndTime(),
+                                    Long.toString(new Date().getTime()),
                                     MessageUtils.LOGOUT_MESSAGE);
                         if (!MessageUtils.wasStatusSent(PartnerActivity.this))
                             saveStatusMessage();
@@ -1143,7 +1146,10 @@ public class PartnerActivity
          */
         private Fragment getFragment(int position)
         {
-            return mRegisteredFragments.get(position).get();
+            if (position < getCount())
+                return mRegisteredFragments.get(position).get();
+            else
+                return null;
         }
 
         /**
