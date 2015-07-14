@@ -840,24 +840,36 @@ public class PartnerActivity
             public void done(List<ParseObject> list, ParseException e) {
                 if (e == null && list.size() >= 0) {
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtils.ONLINE_STATUS);
-                    if (partnerLoggedIn) {
-                        Fragment currentFragment = mPagerAdapter.getCurrentFragment();
-                        if (currentFragment instanceof MessageHandler)
-                            ((MessageHandler) currentFragment).onNewMessage(null,
-                                    Long.toString(new Date().getTime()),
-                                    MessageUtils.LOGIN_MESSAGE);
-                    } else {
-                        Fragment currentFragment = mPagerAdapter.getCurrentFragment();
-                        if (currentFragment instanceof MessageHandler)
-                            ((MessageHandler) currentFragment).onNewMessage(null,
-                                    Long.toString(new Date().getTime()),
-                                    MessageUtils.LOGOUT_MESSAGE);
+                    String statusMessage = MessageUtils.LOGIN_MESSAGE;
+                    if (!partnerLoggedIn)
+                    {
+                        statusMessage = MessageUtils.LOGOUT_MESSAGE;
                         if (!MessageUtils.wasStatusSent(PartnerActivity.this))
                             saveStatusMessage();
                         if (!MessageUtils.wasThoughtSent(PartnerActivity.this))
                             displayThoughPrompt();
                     }
-                } else {
+
+                    Fragment fragment = mPagerAdapter.getFragment(0);
+                    if (fragment instanceof MessageHandler)
+                        ((MessageHandler) fragment).onNewMessage(null,
+                                Long.toString(new Date().getTime()),
+                                statusMessage);
+                    try
+                    {
+                        fragment = mPagerAdapter.getFragment(1);
+                        if (fragment instanceof MessageHandler)
+                            ((MessageHandler) fragment).onNewMessage(null,
+                                    Long.toString(new Date().getTime()),
+                                    statusMessage);
+                    }
+                    catch (NullPointerException ex)
+                    {
+                        // does nothing
+                    }
+                }
+                else
+                {
                     ErrorUtils.displayErrorSnackbar(mCoordinatorLayout,
                             R.string.text_cannot_find_pair);
                 }
@@ -1150,16 +1162,6 @@ public class PartnerActivity
                 return mRegisteredFragments.get(position).get();
             else
                 return null;
-        }
-
-        /**
-         * Gets the currently visible fragment in the view pager.
-         *
-         * @return fragment at position {@code mCurrentViewPagerPosition}
-         */
-        private Fragment getCurrentFragment()
-        {
-            return getFragment(mCurrentViewPagerPosition);
         }
     }
 }

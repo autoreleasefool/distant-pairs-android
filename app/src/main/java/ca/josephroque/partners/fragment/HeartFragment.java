@@ -45,9 +45,6 @@ public class HeartFragment
     @SuppressWarnings("unused")
     private static final String TAG = "HeartFragment";
 
-    /** Represents boolean indicating the partner's online status. */
-    private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
-
     /** Views which display the most recent thought. */
     private View mViewMostRecentThought;
     /** Displays most recent thought received. */
@@ -113,10 +110,6 @@ public class HeartFragment
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_heart, container, false);
 
-        if (savedInstanceState != null) {
-            mPartnerOnline = savedInstanceState.getBoolean(ARG_PARTNER_ONLINE);
-        }
-
         if (mIsLandscape && getChildFragmentManager().findFragmentByTag("Thought") == null)
         {
             getChildFragmentManager().beginTransaction()
@@ -125,9 +118,7 @@ public class HeartFragment
         }
 
         mImageViewActiveHeart = (ImageView) rootView.findViewById(R.id.iv_heart_active);
-        mImageViewActiveHeart.setVisibility((mPartnerOnline)
-                ? View.VISIBLE
-                : View.INVISIBLE);
+        mImageViewActiveHeart.setVisibility(View.INVISIBLE);
 
         if (!mIsLandscape)
         {
@@ -152,13 +143,6 @@ public class HeartFragment
     {
         super.onStop();
         stopPulseAnimation();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(ARG_PARTNER_ONLINE, mPartnerOnline);
     }
 
     @Override
