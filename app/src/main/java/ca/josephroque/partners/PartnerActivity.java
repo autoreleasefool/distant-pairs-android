@@ -11,6 +11,8 @@ import ca.josephroque.partners.util.ErrorUtils;
 import ca.josephroque.partners.util.MessageUtils;
 import ca.josephroque.partners.util.PreferenceUtils;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,7 +43,6 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
@@ -919,17 +920,8 @@ public class PartnerActivity
             return;
 
         DisplayMetrics display = getResources().getDisplayMetrics();
-        int deviceWidth, deviceHeight;
-        if (mIsTablet && mIsLandscape)
-        {
-            deviceWidth = display.heightPixels;
-            deviceHeight = display.widthPixels;
-        }
-        else
-        {
-            deviceWidth = display.widthPixels;
-            deviceHeight = display.heightPixels;
-        }
+        int deviceWidth = display.widthPixels;
+        int deviceHeight = display.heightPixels;
 
         for (ImageView heart : mImageViewHearts)
         {
@@ -947,52 +939,27 @@ public class PartnerActivity
     private void loginGlowAnimation()
     {
         final int duration = getResources().getInteger(android.R.integer.config_longAnimTime);
-        final AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
-        fadeIn.setDuration(duration);
-        fadeIn.setAnimationListener(new Animation.AnimationListener()
-        {
-            @Override
-            public void onAnimationStart(Animation animation)
-            {
-                mImageViewLoginGlow.setAlpha(0f);
-                mImageViewLoginGlow.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation)
-            {
-                AlphaAnimation fadeOut = new AlphaAnimation(1f, 0f);
-                fadeOut.setDuration(duration);
-                fadeOut.setAnimationListener(new Animation.AnimationListener()
-                {
+        mImageViewLoginGlow.setAlpha(0f);
+        mImageViewLoginGlow.setVisibility(View.VISIBLE);
+        mImageViewLoginGlow.animate()
+                .alpha(1f)
+                .setDuration(duration)
+                .setListener(new AnimatorListenerAdapter() {
                     @Override
-                    public void onAnimationStart(Animation animation)
-                    {
-                        // does nothing
+                    public void onAnimationEnd(Animator animation) {
+                        mImageViewLoginGlow.animate()
+                                .alpha(0f)
+                                .setDuration(duration)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        mImageViewLoginGlow.setVisibility(View.GONE);
+                                    }
+                                })
+                                .start();
                     }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation)
-                    {
-                        mImageViewLoginGlow.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation)
-                    {
-                        // does nothing
-                    }
-                });
-                mImageViewLoginGlow.startAnimation(fadeOut);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation)
-            {
-                // does nothing
-            }
-        });
-        mImageViewLoginGlow.startAnimation(fadeIn);
+                })
+                .start();
     }
 
     /**
