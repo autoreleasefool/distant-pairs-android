@@ -17,6 +17,5 @@ Tablet Screenshots from Version 1.0
 -----------------------------------
 
 <img src="/../screenshots/v1.0_2015-07-15/screen_tablet_heart.png?raw=true" width="320">
-<img src="/../screenshots/v1.0_2015-07-15/screen_tablet_thought_list.png?raw=true" width="320">
 <img src="/../screenshots/v1.0_2015-07-15/screen_tablet_online.png?raw=true" width="320">
 <img src="/../screenshots/v1.0_2015-07-15/screen_tablet_thought.png?raw=true" width="320">
