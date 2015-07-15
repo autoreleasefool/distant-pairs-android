@@ -45,9 +45,6 @@ public class HeartFragment
     @SuppressWarnings("unused")
     private static final String TAG = "HeartFragment";
 
-    /** Represents boolean indicating the partner's online status. */
-    private static final String ARG_PARTNER_ONLINE = "arg_partner_online";
-
     /** Views which display the most recent thought. */
     private View mViewMostRecentThought;
     /** Displays most recent thought received. */
@@ -68,6 +65,8 @@ public class HeartFragment
     private Animation mHeartPulseGrowAnimation;
     /** Animation which causes the heart image to shrink to its original size. */
     private Animation mHeartPulseShrinkAnimation;
+    /** Indicates if the pulsing animation has been stopped. */
+    private boolean mAnimationStopped = false;
 
     /** Indicates if the device is currently in landscape mode. */
     private boolean mIsLandscape = false;
@@ -111,10 +110,6 @@ public class HeartFragment
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_heart, container, false);
 
-        if (savedInstanceState != null) {
-            mPartnerOnline = savedInstanceState.getBoolean(ARG_PARTNER_ONLINE);
-        }
-
         if (mIsLandscape && getChildFragmentManager().findFragmentByTag("Thought") == null)
         {
             getChildFragmentManager().beginTransaction()
@@ -123,9 +118,7 @@ public class HeartFragment
         }
 
         mImageViewActiveHeart = (ImageView) rootView.findViewById(R.id.iv_heart_active);
-        mImageViewActiveHeart.setVisibility((mPartnerOnline)
-                ? View.VISIBLE
-                : View.INVISIBLE);
+        mImageViewActiveHeart.setVisibility(View.INVISIBLE);
 
         if (!mIsLandscape)
         {
@@ -150,13 +143,6 @@ public class HeartFragment
     {
         super.onStop();
         stopPulseAnimation();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(ARG_PARTNER_ONLINE, mPartnerOnline);
     }
 
     @Override
@@ -330,6 +316,7 @@ public class HeartFragment
         if (!PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getBoolean(PreferenceUtils.PREF_ENABLE_PULSE, true))
             return;
+        mAnimationStopped = false;
 
         final float sizeToPulse = 1.04f;
         final float centerPivot = 0.5f;
@@ -347,12 +334,14 @@ public class HeartFragment
             @Override
             public void onAnimationStart(Animation animation)
             {
-                // does nothing
+                mImageViewActiveHeart.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation)
             {
+                if (mAnimationStopped)
+                    return;
                 mImageViewActiveHeart.startAnimation(mHeartPulseShrinkAnimation);
             }
 
@@ -372,13 +361,15 @@ public class HeartFragment
             @Override
             public void onAnimationStart(Animation animation)
             {
-                // does nothing
+                mImageViewActiveHeart.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation)
             {
-                if (mAnimationCount % 2 == 0)
+                if (mAnimationStopped)
+                    return;
+                else if (mAnimationCount % 2 == 0)
                     mHandlerPulse.postDelayed(mPulseAnimation, secondPulseOffset);
                 else
                     mHandlerPulse.postDelayed(mPulseAnimation, pulseOffset);
@@ -401,6 +392,7 @@ public class HeartFragment
      */
     private void stopPulseAnimation()
     {
+        mAnimationStopped = true;
         if (mHandlerPulse != null)
             mHandlerPulse.removeCallbacks(mPulseAnimation);
         if (mHeartPulseGrowAnimation != null)

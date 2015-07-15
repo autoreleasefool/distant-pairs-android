@@ -70,16 +70,6 @@ public final class MessageUtils
     }
 
     /**
-     * Gets the current date and time, formatted 'yyyy-MM-dd HH:mm:ss'.
-     *
-     * @return current date and time
-     */
-    public static String getCurrentDateAndTime()
-    {
-        return Long.toString(new Date().getTime());
-    }
-
-    /**
      * Checks to see if the string is a valid message to send as a thought, and if not a string of
      * the format 'ERR:X' is returned, where X is the id of a string.
      *

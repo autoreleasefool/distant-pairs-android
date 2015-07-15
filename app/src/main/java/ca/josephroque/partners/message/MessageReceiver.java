@@ -1,5 +1,9 @@
 package ca.josephroque.partners.message;
 
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +11,8 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Date;
 
 import ca.josephroque.partners.util.MessageUtils;
 
@@ -37,6 +43,25 @@ public class MessageReceiver
             messageIntent.putExtra("timestamp", timestamp);
             messageIntent.putExtra("id", id);
             LocalBroadcastManager.getInstance(context).sendBroadcast(messageIntent);
+
+            if (!(MessageUtils.LOGIN_MESSAGE.equals(message)
+                    || MessageUtils.LOGOUT_MESSAGE.equals(message)
+                    || MessageUtils.VISITED_MESSAGE.equals(message)))
+            {
+                ParseObject thought = ParseObject.createWithoutData("Thought", id);
+                thought.fetchInBackground(new GetCallback<ParseObject>()
+                {
+                    @Override
+                    public void done(ParseObject parseObject, ParseException e)
+                    {
+                        if (e == null && parseObject != null)
+                        {
+                            parseObject.put("timeRead", new Date().getTime());
+                            parseObject.saveInBackground();
+                        }
+                    }
+                });
+            }
         }
         catch (JSONException ex)
         {

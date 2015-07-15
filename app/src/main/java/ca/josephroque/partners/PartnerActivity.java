@@ -11,6 +11,8 @@ import ca.josephroque.partners.util.ErrorUtils;
 import ca.josephroque.partners.util.MessageUtils;
 import ca.josephroque.partners.util.PreferenceUtils;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,7 +43,6 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
@@ -66,6 +67,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -206,6 +208,8 @@ public class PartnerActivity
         {
             mIsPairRegistered = AccountUtils.doesPartnerExist(this);
         }
+        if (mIsLandscape)
+            mCurrentViewPagerPosition = 0;
         mPagerAdapter.notifyDataSetChanged();
 
         if (mIsPairRegistered)
@@ -305,14 +309,20 @@ public class PartnerActivity
     @Override
     public void notifyOfLogins()
     {
-        Snackbar.make(getCoordinatorLayout(), R.string.text_partner_logged_in, Snackbar.LENGTH_LONG)
-                .setAction(R.string.text_dialog_thoughts, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showFragment(THOUGHT_FRAGMENT);
-                    }
-                })
-                .show();
+        if (!mIsPartnerOnline) {
+            Snackbar.make(getCoordinatorLayout(),
+                    R.string.text_partner_logged_in,
+                    Snackbar.LENGTH_LONG)
+                    .setAction(R.string.text_dialog_thoughts, new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v)
+                        {
+                            showFragment(THOUGHT_FRAGMENT);
+                        }
+                    })
+                    .show();
+        }
     }
 
     /**
@@ -658,7 +668,7 @@ public class PartnerActivity
         try
         {
             data.put("message", messageObject.getString("messageText"));
-            data.put("timestamp", MessageUtils.getCurrentDateAndTime());
+            data.put("timestamp", Long.toString(new Date().getTime()));
             if (statusMessage)
                 data.put("id", "status");
             else
@@ -837,22 +847,28 @@ public class PartnerActivity
             public void done(List<ParseObject> list, ParseException e) {
                 if (e == null && list.size() >= 0) {
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtils.ONLINE_STATUS);
-                    if (partnerLoggedIn) {
-                        Fragment currentFragment = mPagerAdapter.getCurrentFragment();
-                        if (currentFragment instanceof MessageHandler)
-                            ((MessageHandler) currentFragment).onNewMessage(null,
-                                    MessageUtils.getCurrentDateAndTime(),
-                                    MessageUtils.LOGIN_MESSAGE);
-                    } else {
-                        Fragment currentFragment = mPagerAdapter.getCurrentFragment();
-                        if (currentFragment instanceof MessageHandler)
-                            ((MessageHandler) currentFragment).onNewMessage(null,
-                                    MessageUtils.getCurrentDateAndTime(),
-                                    MessageUtils.LOGOUT_MESSAGE);
+                    String statusMessage = MessageUtils.LOGIN_MESSAGE;
+                    if (!partnerLoggedIn) {
+                        statusMessage = MessageUtils.LOGOUT_MESSAGE;
                         if (!MessageUtils.wasStatusSent(PartnerActivity.this))
                             saveStatusMessage();
                         if (!MessageUtils.wasThoughtSent(PartnerActivity.this))
                             displayThoughPrompt();
+                    }
+
+                    Fragment fragment = mPagerAdapter.getFragment(0);
+                    if (fragment instanceof MessageHandler)
+                        ((MessageHandler) fragment).onNewMessage(null,
+                                Long.toString(new Date().getTime()),
+                                statusMessage);
+                    try {
+                        fragment = mPagerAdapter.getFragment(1);
+                        if (fragment instanceof MessageHandler)
+                            ((MessageHandler) fragment).onNewMessage(null,
+                                    Long.toString(new Date().getTime()),
+                                    statusMessage);
+                    } catch (NullPointerException ex) {
+                        // does nothing
                     }
                 } else {
                     ErrorUtils.displayErrorSnackbar(mCoordinatorLayout,
@@ -904,17 +920,8 @@ public class PartnerActivity
             return;
 
         DisplayMetrics display = getResources().getDisplayMetrics();
-        int deviceWidth, deviceHeight;
-        if (mIsTablet && mIsLandscape)
-        {
-            deviceWidth = display.heightPixels;
-            deviceHeight = display.widthPixels;
-        }
-        else
-        {
-            deviceWidth = display.widthPixels;
-            deviceHeight = display.heightPixels;
-        }
+        int deviceWidth = display.widthPixels;
+        int deviceHeight = display.heightPixels;
 
         for (ImageView heart : mImageViewHearts)
         {
@@ -932,52 +939,27 @@ public class PartnerActivity
     private void loginGlowAnimation()
     {
         final int duration = getResources().getInteger(android.R.integer.config_longAnimTime);
-        final AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
-        fadeIn.setDuration(duration);
-        fadeIn.setAnimationListener(new Animation.AnimationListener()
-        {
-            @Override
-            public void onAnimationStart(Animation animation)
-            {
-                mImageViewLoginGlow.setAlpha(0f);
-                mImageViewLoginGlow.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation)
-            {
-                AlphaAnimation fadeOut = new AlphaAnimation(1f, 0f);
-                fadeOut.setDuration(duration);
-                fadeOut.setAnimationListener(new Animation.AnimationListener()
-                {
+        mImageViewLoginGlow.setAlpha(0f);
+        mImageViewLoginGlow.setVisibility(View.VISIBLE);
+        mImageViewLoginGlow.animate()
+                .alpha(1f)
+                .setDuration(duration)
+                .setListener(new AnimatorListenerAdapter() {
                     @Override
-                    public void onAnimationStart(Animation animation)
-                    {
-                        // does nothing
+                    public void onAnimationEnd(Animator animation) {
+                        mImageViewLoginGlow.animate()
+                                .alpha(0f)
+                                .setDuration(duration)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        mImageViewLoginGlow.setVisibility(View.GONE);
+                                    }
+                                })
+                                .start();
                     }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation)
-                    {
-                        mImageViewLoginGlow.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation)
-                    {
-                        // does nothing
-                    }
-                });
-                mImageViewLoginGlow.startAnimation(fadeOut);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation)
-            {
-                // does nothing
-            }
-        });
-        mImageViewLoginGlow.startAnimation(fadeIn);
+                })
+                .start();
     }
 
     /**
@@ -1143,17 +1125,10 @@ public class PartnerActivity
          */
         private Fragment getFragment(int position)
         {
-            return mRegisteredFragments.get(position).get();
-        }
-
-        /**
-         * Gets the currently visible fragment in the view pager.
-         *
-         * @return fragment at position {@code mCurrentViewPagerPosition}
-         */
-        private Fragment getCurrentFragment()
-        {
-            return getFragment(mCurrentViewPagerPosition);
+            if (position < getCount())
+                return mRegisteredFragments.get(position).get();
+            else
+                return null;
         }
     }
 }
