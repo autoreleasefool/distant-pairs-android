@@ -160,9 +160,12 @@ public class PartnerActivity
         mIsLandscape = display.getRotation() != Surface.ROTATION_0;
 
         // Phones can access portrait only
-        if (getResources().getBoolean(R.bool.portrait_only)) {
+        if (getResources().getBoolean(R.bool.portrait_only))
+        {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
+        }
+        else
+        {
             mIsTablet = true;
         }
 
@@ -309,7 +312,8 @@ public class PartnerActivity
     @Override
     public void notifyOfLogins()
     {
-        if (!mIsPartnerOnline) {
+        if (!mIsPartnerOnline)
+        {
             Snackbar.make(getCoordinatorLayout(),
                     R.string.text_partner_logged_in,
                     Snackbar.LENGTH_LONG)
@@ -483,13 +487,17 @@ public class PartnerActivity
     public void deleteAccount()
     {
         AccountUtils.promptDeleteAccount(this,
-                new AccountUtils.DeleteAccountCallback() {
+                new AccountUtils.DeleteAccountCallback()
+                {
                     @Override
-                    public void onDeleteAccountStarted() {
+                    public void onDeleteAccountStarted()
+                    {
                         sendMessage(MessageUtils.LOGOUT_MESSAGE);
-                        runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 showProgressBar(R.string.text_deleting_account);
                             }
                         });
@@ -497,10 +505,13 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountEnded() {
-                        runOnUiThread(new Runnable() {
+                    public void onDeleteAccountEnded()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 Intent loginIntent =
                                         new Intent(PartnerActivity.this, SplashActivity.class);
                                 startActivity(loginIntent);
@@ -510,7 +521,8 @@ public class PartnerActivity
                     }
 
                     @Override
-                    public void onDeleteAccountError(String message) {
+                    public void onDeleteAccountError(String message)
+                    {
                         if (message != null)
                             ErrorUtils.displayErrorDialog(PartnerActivity.this,
                                     "Error deleting account", message);
@@ -686,9 +698,11 @@ public class PartnerActivity
         ParseQuery<ParseInstallation> parseQuery = ParseInstallation.getQuery();
         parseQuery.whereEqualTo("username", mPartnerName);
         parsePush.setQuery(parseQuery);
-        parsePush.sendInBackground(new SendCallback() {
+        parsePush.sendInBackground(new SendCallback()
+        {
             @Override
-            public void done(ParseException e) {
+            public void done(ParseException e)
+            {
                 if (e != null)
                     messageFailedToSend(messageObject.getString("messageText"));
             }
@@ -715,9 +729,11 @@ public class PartnerActivity
         if (failureCount != null && failureCount > 2)
         {
             ErrorUtils.displayErrorSnackbar(mCoordinatorLayout, R.string.text_message_failed,
-                    R.string.text_resend, new View.OnClickListener() {
+                    R.string.text_resend, new View.OnClickListener()
+                    {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(View v)
+                        {
                             sendMessage(messageText);
                         }
                     });
@@ -842,13 +858,17 @@ public class PartnerActivity
 
         ParseQuery<ParseObject> pairStatus = new ParseQuery<>(MessageUtils.STATUS);
         pairStatus.whereEqualTo(AccountUtils.USERNAME, partnerName);
-        pairStatus.findInBackground(new FindCallback<ParseObject>() {
+        pairStatus.findInBackground(new FindCallback<ParseObject>()
+        {
             @Override
-            public void done(List<ParseObject> list, ParseException e) {
-                if (e == null && list.size() >= 0) {
+            public void done(List<ParseObject> list, ParseException e)
+            {
+                if (e == null && list.size() >= 0)
+                {
                     boolean partnerLoggedIn = list.get(0).getBoolean(MessageUtils.ONLINE_STATUS);
                     String statusMessage = MessageUtils.LOGIN_MESSAGE;
-                    if (!partnerLoggedIn) {
+                    if (!partnerLoggedIn)
+                    {
                         statusMessage = MessageUtils.LOGOUT_MESSAGE;
                         if (!MessageUtils.wasStatusSent(PartnerActivity.this))
                             saveStatusMessage();
@@ -861,16 +881,21 @@ public class PartnerActivity
                         ((MessageHandler) fragment).onNewMessage(null,
                                 Long.toString(new Date().getTime()),
                                 statusMessage);
-                    try {
+                    try
+                    {
                         fragment = mPagerAdapter.getFragment(1);
                         if (fragment instanceof MessageHandler)
                             ((MessageHandler) fragment).onNewMessage(null,
                                     Long.toString(new Date().getTime()),
                                     statusMessage);
-                    } catch (NullPointerException ex) {
+                    }
+                    catch (NullPointerException ex)
+                    {
                         // does nothing
                     }
-                } else {
+                }
+                else
+                {
                     ErrorUtils.displayErrorSnackbar(mCoordinatorLayout,
                             R.string.text_cannot_find_pair);
                 }
@@ -944,15 +969,19 @@ public class PartnerActivity
         mImageViewLoginGlow.animate()
                 .alpha(1f)
                 .setDuration(duration)
-                .setListener(new AnimatorListenerAdapter() {
+                .setListener(new AnimatorListenerAdapter()
+                {
                     @Override
-                    public void onAnimationEnd(Animator animation) {
+                    public void onAnimationEnd(Animator animation)
+                    {
                         mImageViewLoginGlow.animate()
                                 .alpha(0f)
                                 .setDuration(duration)
-                                .setListener(new AnimatorListenerAdapter() {
+                                .setListener(new AnimatorListenerAdapter()
+                                {
                                     @Override
-                                    public void onAnimationEnd(Animator animation) {
+                                    public void onAnimationEnd(Animator animation)
+                                    {
                                         mImageViewLoginGlow.setVisibility(View.GONE);
                                     }
                                 })
@@ -1101,7 +1130,8 @@ public class PartnerActivity
                     return 1;
                 else
                     return 2;
-            } else
+            }
+            else
                 return 1;
         }
 

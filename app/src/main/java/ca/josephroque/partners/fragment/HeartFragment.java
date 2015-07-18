@@ -93,10 +93,12 @@ public class HeartFragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
-        if (getActivity() != null) {
+        if (getActivity() != null)
+        {
             Display display
                     = ((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay();
@@ -106,7 +108,8 @@ public class HeartFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_heart, container, false);
 
@@ -123,7 +126,8 @@ public class HeartFragment
         if (!mIsLandscape)
         {
             mTextViewRecentThought = (TextView) rootView.findViewById(R.id.tv_thought_message);
-            mTextViewRecentThoughTime = (TextView) rootView.findViewById(R.id.tv_thought_message_time);
+            mTextViewRecentThoughTime
+                    = (TextView) rootView.findViewById(R.id.tv_thought_message_time);
             mViewMostRecentThought = rootView.findViewById(R.id.cv_thought);
             mViewMostRecentThought.setOnClickListener(new View.OnClickListener()
             {

@@ -246,8 +246,8 @@ public class ThoughtFragment
     {
 
         /**
-         * Indicates if a message with the content {@link
-         * ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} was found.
+         * Indicates if a message with the content {@link ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE}
+         * was found.
          */
         private boolean mVisitedMessageFound = false;
 
@@ -438,7 +438,8 @@ public class ThoughtFragment
 
                 if (mCallback != null)
                 {
-                    if (firstMessage < mListThoughts.size()) {
+                    if (firstMessage < mListThoughts.size())
+                    {
                         if (thoughtDate.before(today))
                             mCallback.setMostRecentThought(mListThoughts.get(firstMessage),
                                     MessageUtils.getDateFormat().format(thoughtDate));
@@ -468,8 +469,8 @@ public class ThoughtFragment
         void setMostRecentThought(String message, String timestamp);
 
         /**
-         * Invoked if a message with the content {@link
-         * ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE} is found.
+         * Invoked if a message with the content {@link ca.josephroque.partners.util.MessageUtils#VISITED_MESSAGE}
+         * is found.
          */
         void notifyOfLogins();
     }

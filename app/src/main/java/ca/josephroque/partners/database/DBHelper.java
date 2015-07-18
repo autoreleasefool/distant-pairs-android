@@ -18,8 +18,7 @@ import ca.josephroque.partners.R;
 import ca.josephroque.partners.util.ErrorUtils;
 
 /**
- * Created by Joseph Roque on 2015-06-23.
- * Database helper to access internal database.
+ * Created by Joseph Roque on 2015-06-23. Database helper to access internal database.
  */
 public final class DBHelper
         extends SQLiteOpenHelper
@@ -74,8 +73,7 @@ public final class DBHelper
     }
 
     /**
-     * Creates the thoughts table in the database. See {@link
-     * ca.josephroque.partners.database.ThoughtContract.ThoughtEntry}
+     * Creates the thoughts table in the database. See {@link ca.josephroque.partners.database.ThoughtContract.ThoughtEntry}
      * for table definition.
      *
      * @param db database

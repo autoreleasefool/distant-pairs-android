@@ -64,13 +64,15 @@ public class SplashActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null)
+        {
             mCurrentTutorialPage = savedInstanceState.getInt(ARG_CURRENT_PAGE, 0);
             mFromSavedInstanceState = true;
         }
 
         // Phones can access portrait only
-        if (getResources().getBoolean(R.bool.portrait_only)) {
+        if (getResources().getBoolean(R.bool.portrait_only))
+        {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
@@ -111,7 +113,8 @@ public class SplashActivity
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState)
+    {
         super.onSaveInstanceState(outState);
         outState.putInt(ARG_CURRENT_PAGE, mCurrentTutorialPage);
     }

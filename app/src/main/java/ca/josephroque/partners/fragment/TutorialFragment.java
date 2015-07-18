@@ -81,16 +81,21 @@ public class TutorialFragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null)
+        {
             mFromSavedInstanceState = true;
             Log.i(TAG, "From instance state");
-        } else {
+        }
+        else
+        {
             Log.i(TAG, "Not from instance state");
         }
-        if (!getResources().getBoolean(R.bool.portrait_only)) {
+        if (!getResources().getBoolean(R.bool.portrait_only))
+        {
             mIsTablet = true;
         }
     }
@@ -188,7 +193,8 @@ public class TutorialFragment
 
         if (mViewTutorial != null)
         {
-            if (!mFromSavedInstanceState) {
+            if (!mFromSavedInstanceState)
+            {
                 mViewTutorial.setVisibility(View.INVISIBLE);
                 mTextViewTutorial.setVisibility(View.INVISIBLE);
             }
