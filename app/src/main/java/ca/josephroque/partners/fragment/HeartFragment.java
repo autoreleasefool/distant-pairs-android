@@ -143,6 +143,15 @@ public class HeartFragment
     }
 
     @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        stopPulseAnimation();
+        mImageViewActiveHeart.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
     public void onStop()
     {
         super.onStop();
@@ -397,12 +406,12 @@ public class HeartFragment
     private void stopPulseAnimation()
     {
         mAnimationStopped = true;
-        if (mHandlerPulse != null)
-            mHandlerPulse.removeCallbacks(mPulseAnimation);
         if (mHeartPulseGrowAnimation != null)
             mHeartPulseGrowAnimation.cancel();
         if (mHeartPulseGrowAnimation != null)
             mHeartPulseShrinkAnimation.cancel();
+        if (mHandlerPulse != null)
+            mHandlerPulse.removeCallbacks(mPulseAnimation);
     }
 
     /**
