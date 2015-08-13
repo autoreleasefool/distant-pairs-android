@@ -1,10 +1,10 @@
-# Partners
+# Distant Pairs
 An Android app to help partners keep connected.
 
 Description
 -----------
 
-Thinking of someone special? Open the Partners app and let them know. Designed to help you share your thoughts with your significant other, Partners lets you leave each other messages throughout the day that are automatically deleted after 24 hours. Let your significant other know what made you think of them that day each time you open the app, and see how often they're thinking of you.
+Thinking of someone special? Open the Distant Pairs app and let them know. Designed to help you share your thoughts with a significant other, Distant Pairs lets you leave each other messages throughout the day that are automatically deleted after 24 hours. Let your significant other know what made you think of them that day each time you open the app, and see how often they're thinking of you.
 
 Phone Screenshots from Version 1.0
 ----------------------------------
